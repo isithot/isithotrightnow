@@ -11,9 +11,13 @@ setwd("~/ownCloud/IsItHotRightNow/isithotrightnow/")
 
 # Get Data
 # Get Climatology data
-# Pre-made BOM statistics available in data/ 
-BOMstats.raw <- read.csv("data/IDCJCM0037_066062.csv", skip = 10, header = T,
+# Use Mat's pre-calculated Tmax 90th pc data
+SydObs.tmax90p.clim.raw <- read.csv("data/tmax90p_066062.csv", header = F,
                          stringsAsFactors = F)
+names(SydObs.tmax90p.clim.raw) <- c("Month", "Day", "Tmax90p")
+SydObs.tmin90p.clim.raw <- read.csv("data/tmin90p_066062.csv", header = F,
+                                    stringsAsFactors = F)
+names(SydObs.tmin90p.clim.raw) <- c("Month", "Day", "Tmin90p")
 
 
 # Get current half hourly data for the past 3 days
@@ -43,9 +47,10 @@ plot_ly(x = ~date_time, y = ~air_temp, type = 'scatter', mode = 'lines') %>%
 # 90th pc Tmax and 90th pc Tmin from BOM statistics
 # --
 
-# Let's first get the current month and current date_time
+# Let's first get the current month, day and current date_time
 current.date_time <- SydObs.df$date_time[1]
 current.month <- month(current.date_time)
+current.day <- day(current.date_time)
 # Now let's get the air_temp max and min over the past
 # 24h and average them
 Tmax.now <- max(SydObs.df$air_temp[1:48])
@@ -55,8 +60,13 @@ Tmin.now <- min(SydObs.df$air_temp[1:48])
 Tavg.now <- mean(c(Tmax.now, Tmin.now))
 
 #Now we get the 90th pc Tmax and Tmin from the climatology
-Tmax90p.clim <- as.numeric(BOMstats.raw[7, current.month+1])
-Tmin90p.clim <- as.numeric(BOMstats.raw[17, current.month+1])
+# row 7 is Decile 9 maximum temperature (Degrees C) for years 1859 to 2017
+# row 17 is Decile 9 minimum temperature (Degrees C) for years 1859 to 2017
+clim.row <- which(SydObs.tmax90p.clim.raw$Month == current.month &
+                    SydObs.tmax90p.clim.raw$Day == current.day)
+# Tmax90p is in the third column
+Tmax90p.clim <- as.numeric(SydObs.tmax90p.clim.raw[clim.row, 3])
+Tmin90p.clim <- as.numeric(SydObs.tmin90p.clim.raw[clim.row, 3])
 Tavg90p.clim <- mean(c(Tmax90p.clim, Tmin90p.clim))
 
 # Now we return 1 if Tavg.now >= Tavg90p.clim and
