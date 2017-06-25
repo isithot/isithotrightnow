@@ -13,7 +13,7 @@ tmin.index = pd.to_datetime(tmin[['Year','Month','Day']])
 
 # 90th percentile
 tmax90p = tmax['Maximum temperature (Degree C)'].groupby([lambda x : x.month,lambda x : x.day]).quantile(.90)
-tmin90p = tmin['Minimum temperature (Degree C)'].groupby([lambda x : x.month,lambda x : x.day]).quantile(.10)
+tmin90p = tmin['Minimum temperature (Degree C)'].groupby([lambda x : x.month,lambda x : x.day]).quantile(.90)
 tmax90p=tmax90p.round(decimals=2)
 tmin90p=tmin90p.round(decimals=2)
 tmax90p.to_csv('data/tmax90p_%s.csv' %stationid)
