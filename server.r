@@ -1,15 +1,20 @@
 library(shiny)
 library(ggplot2)
 
+# server logic: calc output based on inputs
 function(input, output) {
 
+  # use reactive() to ensure that dataset is updated whenever
+  # inout$sampleSize changes
   dataset <- reactive({
-    diamonds[sample(nrow(diamonds), input$sampleSize),]
+    diamonds[sample(nrow(diamonds), input$sampleSize), ]
   })
 
+  # renderPlot() does the plot rendering. duh.
   output$plot <- renderPlot({
 
-    p <- ggplot(dataset(), aes_string(x=input$x, y=input$y)) + geom_point()
+    p <- ggplot(dataset(), aes_string(x=input$x, y=input$y)) +
+      geom_point()
 
     if (input$color != 'None')
       p <- p + aes_string(color=input$color)
@@ -25,6 +30,6 @@ function(input, output) {
 
     print(p)
 
-  }, height=700)
+  }, height = 700)
 
 }

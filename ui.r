@@ -3,6 +3,8 @@ library(ggplot2)
 
 dataset <- diamonds
 
+# names and lays out the ui components
+# server.r refers to these named components as input$name
 fluidPage(
 
   titlePanel("Diamonds Explorer"),
