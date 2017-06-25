@@ -55,6 +55,8 @@ Tmin.now <- min(SydObs.df$air_temp[1:48])
 Tavg.now <- mean(c(Tmax.now, Tmin.now))
 
 #Now we get the 90th pc Tmax and Tmin from the climatology
+# row 7 is Decile 9 maximum temperature (Degrees C) for years 1859 to 2017
+# row 17 is Decile 9 minimum temperature (Degrees C) for years 1859 to 2017
 Tmax90p.clim <- as.numeric(BOMstats.raw[7, current.month+1])
 Tmin90p.clim <- as.numeric(BOMstats.raw[17, current.month+1])
 Tavg90p.clim <- mean(c(Tmax90p.clim, Tmin90p.clim))
