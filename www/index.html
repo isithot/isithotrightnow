@@ -3,9 +3,10 @@
     <script src="shared/jquery.js" type="text/javascript"></script>
     <script src="shared/shiny.js" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="shared/shiny.css"/>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
   </head>
   <body>
-    <h1>
+    <h2>
       Is it
       <select name="extrema">
         <option value="hot">hot</option>
@@ -18,14 +19,16 @@
         <option value="sydney">Sydney</option>
       </select>
       right now?
-    </h1>
+    </h2>
     <h1 id="isit_answer" class="shiny-text-output">
       YES
     </h1>
-    <h3 id="isit_comment" class="shiny-text-output">
+    <h2 id="isit_comment" class="shiny-text-output">
       it's hot af right now
-    </h3>
-    <button type="button">Dig deeper</button>
-    <button type="button">About</button>
+    </h2>
+    <div id="foot_buttons">
+      <button type="button" disabled>Dig deeper</button>
+      <button type="button" disabled>About</button>
+    </div>
   </body>
 </html>
