@@ -1,0 +1,31 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <script src="shared/jquery.js" type="text/javascript"></script>
+    <script src="shared/shiny.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="shared/shiny.css"/>
+  </head>
+  <body>
+    <h1>
+      Is it
+      <select name="extrema">
+        <option value="hot">hot</option>
+        <option value="cold">cold</option>
+        <option value="wet">wet</option>
+        <option value="dry">dry</option>
+      </select>
+      in
+      <select name="place">
+        <option value="sydney">sydney</option>
+      </select>
+      right now?
+    </h1>
+    <h1 id="isit_answer" class="shiny-text-output">
+      YES
+    </h1>
+    <h3 id="isit_comment" class="shiny-text-output">
+      it's hot af right now
+    </h3>
+    <button type="button">Dig deeper</button>
+    <button type="button">About</button>
+  </body>
+</html>
