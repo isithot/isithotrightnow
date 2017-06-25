@@ -1,0 +1,40 @@
+body
+{
+  text-align: center;
+  padding-top: 100px;
+}
+
+h1, h2, button, select
+{
+  font-family: "Helvetica Neue", "Helvetica", "Arial", serif;
+  font-weight: bold;
+}
+
+h1
+{
+  font-size: 6em;
+}
+
+h2
+{
+  font-size: 3em;
+}
+
+button
+{
+  font-size: 2em;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+select
+{
+  font-size: 100%;
+  color: red;
+  
+  background-color: #fff;
+  border: 0;
+}
