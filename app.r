@@ -34,9 +34,9 @@ server <- function(input, output) {
   SydObs.df <- data.frame(date_time, air_temp)
   
   # sample plot
-  plot_ly(x = ~date_time, y = ~air_temp, type = 'scatter', mode = 'lines') %>%
-    layout(xaxis = list(title = "Time"),
-           yaxis = list(title = "Temperature (Degrees C)"))
+  # plot_ly(x = ~date_time, y = ~air_temp, type = 'scatter', mode = 'lines') %>%
+  #   layout(xaxis = list(title = "Time"),
+  #          yaxis = list(title = "Temperature (Degrees C)"))
   
   # Now the algorithm
   # --
