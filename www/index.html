@@ -6,28 +6,52 @@
     <link rel="stylesheet" type="text/css" href="style.css"/>
   </head>
   <body>
-    <h2>
-      Is it hot in Sydney right now?
-      <!--<select name="extrema">
-        <option value="hot">hot</option>
-        <option value="cold">cold</option>
-        <option value="wet">wet</option>
-        <option value="dry">dry</option>
-      </select>
-      in
-      <select name="place">
-        <option value="sydney">Sydney</option>
-      </select>
-      right now?-->
-    </h2>
-    <h1 id="isit_answer" class="shiny-text-output">
-      . . .
-    </h1>
-    <h2 id="isit_comment" class="shiny-text-output">
-    </h2>
-    <div id="foot_buttons">
-      <button type="button" disabled>Dig deeper</button>
-    </div>
-    <h3>By Mat Lipson, Stefan Contractor and James Goldie</h3>
+    <section id="summary">
+      <h2>
+        Is it hot in Sydney right now?
+        <!--<select name="extrema">
+          <option value="hot">hot</option>
+          <option value="cold">cold</option>
+          <option value="wet">wet</option>
+          <option value="dry">dry</option>
+        </select>
+        in
+        <select name="place">
+          <option value="sydney">Sydney</option>
+        </select>
+        right now?-->
+      </h2>
+      <h1 id="isit_answer" class="shiny-text-output">
+        . . .
+      </h1>
+      <h2 id="isit_comment" class="shiny-text-output">
+      </h2>
+      <!-- <div id="foot_buttons">
+        <button type="button" disabled>Dig deeper</button>
+      </div> -->
+    </section>
+
+    <section id="detail">
+      <div id="detail_normal" class="detail_element">
+        <h2>Today is much hotter than normal...</h2>
+        <div class="detail_element_content">
+          <div class="plot" id="detail_normal_plot"></div>
+          <p class="plot_caption" id="detail_normal_caption">Because of lots of reasons, a whole buncha reasons, the best reasons. We got so many reasons it's hotter than normal you wouldn't believe it, folks are always sayin' about the reasons it's hot, I tell ya...</p>
+        </div>
+      </div>
+
+      <div id="detail_cc" class="detail_element">
+        <h2>... but climate change has changed normal.</h2>
+        <div class="detail_element_content">
+          <div class="plot" id="detail_cc_plot"></div>
+          <p class="plot_caption" id="detail_cc_caption">Because of lots of reasons, a whole buncha reasons, the best reasons. We got so many reasons it's hotter than normal you wouldn't believe it, folks are always sayin' about the reasons it's hot, I tell ya...</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="footer">
+      <p>By Mat Lipson, Stefan Contractor and James Goldie</p>
+    </section>
+
   </body>
 </html>
