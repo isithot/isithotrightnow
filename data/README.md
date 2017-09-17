@@ -1,5 +1,17 @@
 Data from the following sources:
 
+Current Observations
+====================
+
+* IDN60901: product code
+* 94768: ? ID (different to station ID)
+
+Current observations html (syd obs) 
+http://www.bom.gov.au/products/IDN60901/IDN60901.94768.shtml
+
+JavaScript Object Notation format (JSON) in row-major order
+http://www.bom.gov.au/fwo/IDN60901/IDN60901.94768.json
+
 Monthly Max/Min temperatures per station
 ======================================
 
@@ -13,14 +25,14 @@ IDCJAC0010\_066062\_1800_Data.csv
 
 * IDCJAC0010: product code - daily **maximum** temperature
 * 066062: station number - Sydney observatory
-* 1800: ???
+* 1800: time period (s)
 
 IDCJAC0011\_066062\_1800_Data.csv
 ---------------------------------
 
 * IDCJAC0011: product code - daily **minimum** temperature
 * 066062: station number - Sydney observatory
-* 1800: ???
+* 1800: time period (s)
 
 Daily max/min temperatures per station
 ======================================
