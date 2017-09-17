@@ -1,16 +1,14 @@
+# is it hot right now
+# stefan, mat and james
+
 library(shiny)
 library(ggplot2)
-
-# IsItHotRightNow.com
-# Algorithm
-
-# Libraries
 library(jsonlite)
 library(lubridate)
 library(plotly)
 
 # server logic: calc output based on inputs
-function(input, output) {
+server <- function(input, output) {
 
   # Get Data
   # Get Climatology data
@@ -76,7 +74,7 @@ function(input, output) {
   #        return 0 otherwise
   if (Tavg.now >= Tavg90p.clim) {
     # answer = 1
-    output$isit_answer = renderText({'Yuuuup'})
+    output$isit_answer = renderText({"Yuuuup"})
     output$isit_comment = renderText({"it's super hot"})
   } else {
     # answer = 0
@@ -86,36 +84,4 @@ function(input, output) {
   
 }
 
-
-
-
-
-
-
-# use reactive() to ensure that dataset is updated whenever
-# inout$sampleSize changes
-# dataset <- reactive({
-#   diamonds[sample(nrow(diamonds), input$sampleSize), ]
-# })
-
-# renderPlot() does the plot rendering. duh.
-# output$plot <- renderPlot({
-
-#   p <- ggplot(dataset(), aes_string(x=input$x, y=input$y)) +
-#     geom_point()
-
-#   if (input$color != 'None')
-#     p <- p + aes_string(color=input$color)
-
-#   facets <- paste(input$facet_row, '~', input$facet_col)
-#   if (facets != '. ~ .')
-#     p <- p + facet_grid(facets)
-
-#   if (input$jitter)
-#     p <- p + geom_jitter()
-#   if (input$smooth)
-#     p <- p + geom_smooth()
-
-#   print(p)
-
-# }, height = 700)
+shinyApp(ui = htmlTemplate("www/index.html"), server)
