@@ -1,10 +1,16 @@
 body
 {
-  text-align: center;
-  padding-top: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  
+  padding: 0;
+  margin: 0;
+  min-width: 320px;
 }
 
-h1, h2, h3, button, select
+h1, h2, h3, p, button, select
 {
   font-family: "Helvetica Neue", "Helvetica", "Arial", serif;
   font-weight: bold;
@@ -42,4 +48,121 @@ select
   
   background-color: #fff;
   border: 0;
+}
+
+/* summary section */
+
+#summary
+{
+  background-color: #ffbb00;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+
+  height: 100vh;
+  min-height: 760px;
+}
+
+
+/* detail section */
+
+#detail
+{
+  background-color: #bbff00;
+  padding: 20px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+#detail .detail_element
+{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+#detail .detail_element h2
+{
+  text-align: left;
+  width: 100%;
+}
+
+/* plot-and-caption group: horizontal for desktop, vertical for mobile */
+#detail .detail_element_content
+{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+#detail .plot_caption 
+{
+  flex: 1 50%;
+  background-color: rgba(0, 0, 0, 0.15);
+  margin: 0;
+}
+
+#detail .plot
+{
+  height: 150px;
+  flex: 1 50%;
+  background-color: rgba(0, 0, 0, 0.25);
+  margin: 0;
+}
+
+@media (max-width: 640px)
+{
+  #detail .detail_element_content
+  {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+
+  #detail .plot, #detail .plot_caption
+  {
+    width: 100%
+  }
+
+  #detail .plot
+  {
+    height: 150px;
+  }
+}
+
+/* footer section */
+
+#footer
+{
+  background-color: #00bbff;
+  padding: 20px;
+}
+
+/* plots */
+
+#detail_normal_plot
+{
+  background: url('assets/examplepic.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 250px;
+}
+
+#detail_cc_plot
+{
+  background: url('assets/examplepic.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 250px;
 }
