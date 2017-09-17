@@ -28,8 +28,8 @@ calcHistPercentiles <- function(Obs, date = Sys.Date()) {
 
 calcPercentiles <- function(obsSingleVar, date) {
   # calculates percentiles and returns a vector
-  return(quantile(obsSingleVar[which(obsSingleVar$Day == day(current.date) & 
-                                    obsSingleVar$Month == month(current.date)),4],
+  return(quantile(obsSingleVar[which(obsSingleVar$Day == day(date) & 
+                                    obsSingleVar$Month == month(date)),4],
            probs = c(0.05, 0.1, 0.4, 0.6, 0.9, 0.95)))
   # the column index 4 in the above line is because Tmax/Tmin should be the 4th column
 }
