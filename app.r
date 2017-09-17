@@ -48,19 +48,31 @@ server <- function(input, output) {
   # max and min values
   Tavg.now <- mean(c(Tmax.now, Tmin.now))
   
-  # Now we return 1 if Tavg.now >= Tavg90p.clim and
-  #        return 0 otherwise
-  Tavg90p.clim <- histPercentiles$Tavg[5]
+  # 
 
-  if (Tavg.now >= Tavg90p.clim) {
-    # answer = 1
-    output$isit_answer = renderText({"Yuuuup"})
-    output$isit_comment = renderText({"it's super hot"})
-  } else {
-    # answer = 0
-    output$isit_answer = renderText({'Naaaah'})
-    output$isit_comment = renderText({"it's not so hot"})
+  if (Tavg.now < histPercentiles$Tavg[1]) {
+    output$isit_answer = renderText({"No"})
+    output$isit_comment = renderText({"Are you kidding?! It's bloody cold"})
+  } else if (Tavg.now >= histPercentiles$Tavg[1] & Tavg.now < histPercentiles$Tavg[2]) {
+    output$isit_answer = renderText({'No'})
+    output$isit_comment = renderText({"it's actually really cold"})
+  } else if (Tavg.now >= histPercentiles$Tavg[2] & Tavg.now < histPercentiles$Tavg[3]) {
+    output$isit_answer = renderText({'No'})
+    output$isit_comment = renderText({"it's actually kinda cool"})
+  } else if (Tavg.now >= histPercentiles$Tavg[3] & Tavg.now < histPercentiles$Tavg[4]) {
+    output$isit_answer = renderText({'No'})
+    output$isit_comment = renderText({"it's about average"})
+  } else if (Tavg.now >= histPercentiles$Tavg[4] & Tavg.now < histPercentiles$Tavg[5]) {
+    output$isit_answer = renderText({'Yes'})
+    output$isit_comment = renderText({"it's warmer than average"})
+  } else if (Tavg.now >= histPercentiles$Tavg[5] & Tavg.now < histPercentiles$Tavg[6]) {
+    output$isit_answer = renderText({'Yes'})
+    output$isit_comment = renderText({"it's really hot!"})
+  } else if (Tavg.now >= histPercentiles$Tavg[1] & Tavg.now < histPercentiles$Tavg[2]) {
+    output$isit_answer = renderText({'Yes'})
+    output$isit_comment = renderText({"it's bloody hot!"})
   }
+    
   
 }
 
