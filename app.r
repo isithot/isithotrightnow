@@ -82,6 +82,10 @@ server <- function(input, output) {
   #   plot(Tavg ~ Year, data = SydHistObs, type = 'n'),
   #   lines(Tavg ~ Year, data = SydHistObs)
   # )
+  plotPNG(func = function() {
+    plot(Tavg ~ Year, data = SydHistObs, type = 'n')
+    lines(Tavg ~ Year, data = SydHistObs)},
+    filename = "www/assets/detail_normal_plot.png")
 }
 
 shinyApp(ui = htmlTemplate("www/index.html"), server)
