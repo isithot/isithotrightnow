@@ -18,10 +18,7 @@ getHistoricalObs <- function() {
 
 getCurrentObs <- function() {
   # Returns a data frame with latest 3 day half hourly obs called SydObs.df
-  # from http://www.bom.gov.au/fwo/IDN60901/IDN60901.94768.json
-  url = "http://www.bom.gov.au/fwo/IDN60901/IDN60901.94768.json"
-  SydObs.json <- readLines(url)
-  SydObs.data <- fromJSON(SydObs.json)
+  SydObs.data <- fromJSON("data/IDN60901.94768.json")
   # Create a dataframe with Date_time in first column and air_temp in second column
   date_time <- ymd_hms(SydObs.data$observations$data$local_date_time_full,
                        tz = "Australia/Sydney")
