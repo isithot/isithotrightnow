@@ -6,6 +6,7 @@ library(ggplot2)
 library(jsonlite)
 library(lubridate)
 library(plotly)
+library(dplyr)
 
 # load functions from app_functions.R
 source("app_functions.R")
@@ -33,7 +34,8 @@ server <- function(input, output) {
   current.date <- ymd(substr(current.date_time, 1, 10))
   
   # Calculate percentiles of historical data
-  histPercentiles <- calcHistPercentiles(Obs = getHistoricalObs(), date = current.date)
+  SydHistObs <- getHistoricalObs(date = current.date)
+  histPercentiles <- calcHistPercentiles(Obs = SydHistObs)
   
   # sample plot
   # plot_ly(x = ~date_time, y = ~air_temp, type = 'scatter', mode = 'lines') %>%
@@ -50,30 +52,36 @@ server <- function(input, output) {
   
   # 
 
-  if (Tavg.now < histPercentiles$Tavg[1]) {
+  if (Tavg.now < histPercentiles[,"Tavg"][1]) {
     output$isit_answer = renderText({"No"})
     output$isit_comment = renderText({"Are you kidding?! It's bloody cold"})
-  } else if (Tavg.now >= histPercentiles$Tavg[1] & Tavg.now < histPercentiles$Tavg[2]) {
+  } else if (Tavg.now >= histPercentiles[,"Tavg"][1] & Tavg.now < histPercentiles[,"Tavg"][2]) {
     output$isit_answer = renderText({'No'})
     output$isit_comment = renderText({"it's actually really cold"})
-  } else if (Tavg.now >= histPercentiles$Tavg[2] & Tavg.now < histPercentiles$Tavg[3]) {
+  } else if (Tavg.now >= histPercentiles[,"Tavg"][2] & Tavg.now < histPercentiles[,"Tavg"][3]) {
     output$isit_answer = renderText({'No'})
     output$isit_comment = renderText({"it's actually kinda cool"})
-  } else if (Tavg.now >= histPercentiles$Tavg[3] & Tavg.now < histPercentiles$Tavg[4]) {
+  } else if (Tavg.now >= histPercentiles[,"Tavg"][3] & Tavg.now < histPercentiles[,"Tavg"][4]) {
     output$isit_answer = renderText({'No'})
     output$isit_comment = renderText({"it's about average"})
-  } else if (Tavg.now >= histPercentiles$Tavg[4] & Tavg.now < histPercentiles$Tavg[5]) {
+  } else if (Tavg.now >= histPercentiles[,"Tavg"][4] & Tavg.now < histPercentiles[,"Tavg"][5]) {
     output$isit_answer = renderText({'Yes'})
     output$isit_comment = renderText({"it's warmer than average"})
-  } else if (Tavg.now >= histPercentiles$Tavg[5] & Tavg.now < histPercentiles$Tavg[6]) {
+  } else if (Tavg.now >= histPercentiles[,"Tavg"][5] & Tavg.now < histPercentiles[,"Tavg"][6]) {
     output$isit_answer = renderText({'Yes'})
     output$isit_comment = renderText({"it's really hot!"})
-  } else if (Tavg.now >= histPercentiles$Tavg[1] & Tavg.now < histPercentiles$Tavg[2]) {
+  } else if (Tavg.now >= histPercentiles[,"Tavg"][1] & Tavg.now < histPercentiles[,"Tavg"][2]) {
     output$isit_answer = renderText({'Yes'})
     output$isit_comment = renderText({"it's bloody hot!"})
   }
-    
   
+  # output$detail_normal_plot <- renderPlot(
+  # plot_ly(y = ~Tavg, x = ~Year, data = SydHistObs, type = 'scatter', mode = "lines")
+  # )
+  # output$detail_normal_plot <- renderPlot(
+  #   plot(Tavg ~ Year, data = SydHistObs, type = 'n'),
+  #   lines(Tavg ~ Year, data = SydHistObs)
+  # )
 }
 
 shinyApp(ui = htmlTemplate("www/index.html"), server)
