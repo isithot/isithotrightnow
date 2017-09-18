@@ -75,17 +75,17 @@ server <- function(input, output) {
     output$isit_comment = renderText({"it's bloody hot!"})
   }
   
-  # output$detail_normal_plot <- renderPlot(
+  # output$detail_normal_plot <- renderPlotly({
   # plot_ly(y = ~Tavg, x = ~Year, data = SydHistObs, type = 'scatter', mode = "lines")
-  # )
-  # output$detail_normal_plot <- renderPlot(
-  #   plot(Tavg ~ Year, data = SydHistObs, type = 'n'),
-  #   lines(Tavg ~ Year, data = SydHistObs)
-  # )
-  plotPNG(func = function() {
+  # })
+  output$detail_normal_plot <- renderPlot({
     plot(Tavg ~ Year, data = SydHistObs, type = 'n')
-    lines(Tavg ~ Year, data = SydHistObs)},
-    filename = "www/assets/detail_normal_plot.png")
+    lines(Tavg ~ Year, data = SydHistObs)
+  })
+  # plotPNG(func = function() {
+  #   plot(Tavg ~ Year, data = SydHistObs, type = 'n')
+  #   lines(Tavg ~ Year, data = SydHistObs)},
+  #   filename = "www/assets/detail_normal_plot.png")
 }
 
 shinyApp(ui = htmlTemplate("www/index.html"), server)
