@@ -96,7 +96,7 @@ server <- function(input, output) {
                                  Tmax = Tmax.now, Tmin = Tmin.now, Tavg = Tavg.now, Date = current.date))
 
   TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
-    ggtitle('Daily average temperatures since 1850 for today\'s date') +
+    ggtitle(paste('Daily average since 1850 for',format(current.date_time, format="%d %B"))) +
     xlab(NULL) + 
     ylab('Daily average temperatue') + 
     # annotate("text",x=ymd("18700101"),y=20,label = 'test') +
