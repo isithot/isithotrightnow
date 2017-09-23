@@ -112,7 +112,7 @@ server <- function(input, output) {
                  date_labels = '%Y') +
     theme_bw(base_size = 20) +
     theme(panel.background = element_rect(fill = "transparent", colour = NA),
-          plot.title = element_text(size=16),
+          plot.title = element_text(size=16,hjust = 0.5),
           panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
           plot.background = element_rect(fill = "transparent", colour = NA))
 
@@ -149,6 +149,7 @@ server <- function(input, output) {
 
   
   dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) + 
+    ggtitle(paste('Distribution since 1850 for',format(current.date_time, format="%d %B"))) +
     geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
     theme_bw(base_size = 20) +
     theme(panel.background = element_rect(fill = "transparent", colour = NA),
@@ -162,6 +163,7 @@ server <- function(input, output) {
     geom_vline(xintercept = histPercentiles[,"Tavg"][1], linetype = 2, alpha = 0.5) +
     geom_vline(xintercept = histPercentiles[,"Tavg"][6], linetype = 2, alpha = 0.5) + 
     theme(axis.title.y = element_blank(),
+          plot.title = element_text(size=16,hjust = 0.5),
           axis.text.y = element_blank(),
           axis.ticks.y = element_blank()) +
     scale_y_continuous(expand = c(0,0)) +
