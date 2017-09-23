@@ -78,8 +78,23 @@ server <- function(input, output) {
                                bh = "it's bloody hot!")})
   
 
+  latest.time <- substr(head(SydObs.df, 1)[1,1],12,16)
+  latest.temp <- head(SydObs.df, 1)[1,2]
+  latest.string <- paste('It was', latest.temp,'°C','at', latest.time,'at Sydney Observatory')
   # render current conditions to output$isit_current
+
   # output$isit_current = TKTKTK
+
+  
+  ggplot(data = SydHistObs, aes(Year, Tavg)) + 
+    geom_line() + 
+    geom_point(aes(x = year(current.date), y = Tavg.now), colour = "firebrick", size = rel(5)) +
+    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2, colour = 'red') +
+    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2, colour = 'blue') +
+    theme(text = element_text(size = rel(5)))
+  
+
+  output$isit_current = renderText({latest.string})
 
 
   # output$detail_normal_plot <- renderPlotly({
