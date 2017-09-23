@@ -89,41 +89,51 @@ server <- function(input, output) {
 
   SydHistObs$Date = ymd(paste(SydHistObs$Year, SydHistObs$Month, SydHistObs$Day, sep = '-'))  
   
-  TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) + 
-    geom_line() + 
+  SydHistObs <- rbind(SydHistObs,
+                      data.frame(Year = year(current.date), Month = month(current.date), Day = day(current.date),
+                                 Tmax = Tmax.now, Tmin = Tmin.now, Tavg = Tavg.now, Date = current.date))
+  
+  TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
+    geom_line() +
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick", size = rel(5)) +
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2, colour = 'red') +
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2, colour = 'blue') +
     scale_x_date(breaks = ymd(paste0(seq(round(min(SydHistObs$Year)/10)*10, round(max(SydHistObs$Year)/10)*10, 20),"0101")),
-                 date_labels = '%Y') + 
-    theme_bw(base_size = 20) + 
-    theme(panel.background = element_rect(fill = "transparent", colour = NA), 
+                 date_labels = '%Y') +
+    theme_bw(base_size = 20) +
+    theme(panel.background = element_rect(fill = "transparent", colour = NA),
           panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
           plot.background = element_rect(fill = "transparent", colour = NA))
 
   output$detail_normal_plot <- renderPlot({switch(category.now,
-                                                  bc = TS.plot,
-                                                  rc = TS.plot + 
-                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][1], 
-                                                                ymax = histPercentiles[,"Tavg"][2], 
+                                                  bc = TS.plot +
+                                                    geom_ribbon(ymin = -100,
+                                                                ymax = histPercentiles[,"Tavg"][1],
                                                                 alpha = 0.2, fill = "darkblue"),
-                                                  c = TS.plot + 
-                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][2], 
-                                                                ymax = histPercentiles[,"Tavg"][3], 
+                                                  rc = TS.plot +
+                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][1],
+                                                                ymax = histPercentiles[,"Tavg"][2],
+                                                                alpha = 0.2, fill = "darkblue"),
+                                                  c = TS.plot +
+                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][2],
+                                                                ymax = histPercentiles[,"Tavg"][3],
                                                                 alpha = 0.2, fill = "blue"),
-                                                  a = TS.plot + 
-                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][3], 
-                                                                ymax = histPercentiles[,"Tavg"][4], 
+                                                  a = TS.plot +
+                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][3],
+                                                                ymax = histPercentiles[,"Tavg"][4],
                                                                 alpha = 0.2, fill = "gray"),
-                                                  h = TS.plot + 
-                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][4], 
-                                                                ymax = histPercentiles[,"Tavg"][5], 
+                                                  h = TS.plot +
+                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][4],
+                                                                ymax = histPercentiles[,"Tavg"][5],
                                                                 alpha = 0.2, fill = "red"),
-                                                  rh = TS.plot + 
-                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][5], 
-                                                                ymax = histPercentiles[,"Tavg"][6], 
+                                                  rh = TS.plot +
+                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][5],
+                                                                ymax = histPercentiles[,"Tavg"][6],
                                                                 alpha = 0.2, fill = "darkred"),
-                                                  bh = TS.plot)})  
+                                                  bh = TS.plot +
+                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][6],
+                                                                ymax = 100,
+                                                                alpha = 0.2, fill = "darkred"))})
 
 
   # output$detail_normal_plot <- renderPlotly({
