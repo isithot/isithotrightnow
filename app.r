@@ -96,25 +96,30 @@ server <- function(input, output) {
                                  Tmax = Tmax.now, Tmin = Tmin.now, Tavg = Tavg.now, Date = current.date))
 
   TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
-    ggtitle(paste('Daily average since 1850 for',format(current.date_time, format="%d %B"))) +
+    ggtitle(paste0('Daily average temperature for all the ', format(current.date_time, format="%d %B"), 's since 1850')) +
     xlab(NULL) + 
-    ylab('Daily average temperatue') + 
+    ylab('Daily average temperature (°C)') + 
     # annotate("text",x=ymd("18700101"),y=20,label = 'test') +
     geom_line(size = 1.05, colour = '#999999') +
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick", size = rel(5)) +
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2, alpha = 0.5) +
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2, alpha = 0.5) +
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-             y = histPercentiles[,"Tavg"][6], label = "95th percentile", alpha = 0.5, size = 4, hjust=0, vjust = -0.5) + 
+             y = histPercentiles[,"Tavg"][6], label = "95th percentile", alpha = 0.5, size = 4, hjust=0, vjust = -0.5, fontface = "bold") + 
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-             y = histPercentiles[,"Tavg"][1], label = "5th percentile", alpha = 0.5, size = 4, hjust = 0, vjust = 1.5) +
+             y = histPercentiles[,"Tavg"][1], label = "5th percentile", alpha = 0.5, size = 4, hjust = 0, vjust = 1.5, fontface = "bold") +
     scale_x_date(breaks = ymd(paste0(seq(round(min(SydHistObs$Year)/10)*10, round(max(SydHistObs$Year)/10)*10, 20),"0101")),
                  date_labels = '%Y') +
     theme_bw(base_size = 20) +
     theme(panel.background = element_rect(fill = "transparent", colour = NA),
-          plot.title = element_text(size=16),
+          plot.title = element_text(size = 16, face = "bold", hjust = 0.5, color = '#333333'),
           panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
-          plot.background = element_rect(fill = "transparent", colour = NA))
+          plot.background = element_rect(fill = "transparent", colour = NA),
+          panel.border = element_blank(),
+          axis.line = element_line(),
+          axis.text.x = element_text(face = "bold"),
+          axis.text.y = element_text(face = "bold"),
+          axis.title.y = element_text(face = "bold", size = 16))
 
   output$detail_normal_plot <- renderPlot({switch(category.now,
                                                   bc = TS.plot +
@@ -156,7 +161,7 @@ server <- function(input, output) {
           plot.background = element_rect(fill = "transparent", colour = NA), 
           panel.border = element_blank(),
           axis.text.x = element_text(face = "bold"),
-          axis.title.x = element_text(face = "bold")) +
+          axis.title.x = element_text(face = "bold", size = 16)) +
     geom_vline(xintercept = Tavg.now, colour = 'firebrick', size = rel(1.5)) +
     geom_vline(xintercept = median(SydHistObs$Tavg), linetype = 2, alpha = 0.5) + 
     geom_vline(xintercept = histPercentiles[,"Tavg"][1], linetype = 2, alpha = 0.5) +
