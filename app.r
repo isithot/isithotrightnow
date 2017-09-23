@@ -141,7 +141,7 @@ server <- function(input, output) {
                                                     geom_ribbon(ymin = histPercentiles[,"Tavg"][6],
                                                                 ymax = 100,
                                                                 alpha = 0.2, fill = "darkred"))},
-                                          bg = "transparent")
+                                          bg = "transparent", execOnResize = TRUE)
 
   
   dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) + 
@@ -150,7 +150,9 @@ server <- function(input, output) {
     theme(panel.background = element_rect(fill = "transparent", colour = NA),
           panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
           plot.background = element_rect(fill = "transparent", colour = NA), 
-          panel.border = element_blank()) +
+          panel.border = element_blank(),
+          axis.text.x = element_text(face = "bold"),
+          axis.title.x = element_text(face = "bold")) +
     geom_vline(xintercept = Tavg.now, colour = 'firebrick', size = rel(1.5)) +
     geom_vline(xintercept = median(SydHistObs$Tavg), linetype = 2, alpha = 0.5) + 
     geom_vline(xintercept = histPercentiles[,"Tavg"][1], linetype = 2, alpha = 0.5) +
@@ -159,13 +161,13 @@ server <- function(input, output) {
           axis.text.y = element_blank(),
           axis.ticks.y = element_blank()) +
     scale_y_continuous(expand = c(0,0)) +
-    xlab("Daily average temperature") + 
-    annotate("text", x = median(SydHistObs$Tavg), y = Inf, vjust = -0.5,hjust=1.1,label = "50th percentile", size = 4, angle = 90, alpha = 0.5) +
-    annotate("text", x = histPercentiles[,"Tavg"][1], y = Inf, vjust = -0.5,hjust=1.1,label = "5th percentile", size = 4, angle = 90, alpha = 0.5) +
-    annotate("text", x = histPercentiles[,"Tavg"][6], y = Inf, vjust = -0.5,hjust=1.1,label = "95th percentile", size = 4, angle = 90, alpha = 0.5) +
-    annotate("text", x = Tavg.now, y = Inf, vjust = -0.5,hjust=1.1,label = "Today", colour = 'firebrick', size = 4, angle = 90, alpha = 0.5)
+    xlab("Daily average temperature (°C)") + 
+    annotate("text", x = median(SydHistObs$Tavg), y = Inf, vjust = -0.75,hjust=1.1,label = "50th percentile", size = 4, angle = 90, alpha = 0.5, fontface = "bold") +
+    annotate("text", x = histPercentiles[,"Tavg"][1], y = Inf, vjust = -0.75,hjust=1.1,label = "5th percentile", size = 4, angle = 90, alpha = 0.5, fontface = "bold") +
+    annotate("text", x = histPercentiles[,"Tavg"][6], y = Inf, vjust = -0.75,hjust=1.1,label = "95th percentile", size = 4, angle = 90, alpha = 0.5, fontface = "bold") +
+    annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust=1.1,label = "Today", colour = 'firebrick', size = 4, angle = 90, alpha = 0.5, fontface = "bold")
   
-  output$detail_dist_plot <- renderPlot({dist.plot}, bg= "transparent")
+  output$detail_dist_plot <- renderPlot({dist.plot}, bg= "transparent", execOnResize = TRUE)
 
   # output$detail_normal_plot <- renderPlotly({
   # plot_ly(y = ~Tavg, x = ~Year, data = SydHistObs, type = 'scatter', mode = "lines")
