@@ -115,7 +115,7 @@ server <- function(input, output) {
     # annotate("text", x = ymd(paste0(substr(current.date,1,4),"0101")),
     #          y = histPercentiles[,"Tavg"][1], label = paste(round(histPercentiles[,"Tavg"][1],1),'°C'), alpha = 0.5, size = 4, hjust=0, vjust = -0.5, fontface = "bold") + 
     # annotate("text", x = ymd(paste0(substr(current.date,1,4),"0101")),
-             y = median(SydHistObs$Tavg), label = paste(round(median(SydHistObs$Tavg)),'°C'), alpha = 0.5, size = 4, hjust=0, vjust = -0.5, fontface = "bold") + 
+             # y = median(SydHistObs$Tavg), label = paste(round(median(SydHistObs$Tavg)),'°C'), alpha = 0.5, size = 4, hjust=0, vjust = -0.5, fontface = "bold") + 
     scale_x_date(breaks = ymd(paste0(seq(round(min(SydHistObs$Year)/10)*10, round(max(SydHistObs$Year)/10)*10, 20),"0101")),
                  date_labels = '%Y') +
     theme_bw(base_size = 20) +
