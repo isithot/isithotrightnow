@@ -104,6 +104,7 @@ server <- function(input, output) {
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick", size = rel(5)) +
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2, alpha = 0.5) +
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2, alpha = 0.5) +
+    annotate("text", x = current.date, y = Tavg.now, vjust = -0.75, hjust=1.1,label = "Today", colour = 'firebrick', size = 4, fontface = "bold") + 
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
              y = histPercentiles[,"Tavg"][6], label = "95th percentile", alpha = 0.5, size = 4, hjust=0, vjust = -0.5) + 
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
