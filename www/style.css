@@ -31,6 +31,12 @@ h3
   font-size: 1.5em;
 }
 
+p
+{
+  font-size: 1em;
+  line-height: 150%;
+}
+
 button
 {
   font-size: 2em;
@@ -108,7 +114,7 @@ select
 
 #detail .plot
 {
-  height: 200px;
+  height: 400px;
   flex: 1 67%;
   width: 67%;
   /* background-color: rgba(0, 0, 0, 0.25); */
