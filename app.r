@@ -102,7 +102,10 @@ server <- function(input, output) {
           plot.background = element_rect(fill = "transparent", colour = NA))
 
   output$detail_normal_plot <- renderPlot({switch(category.now,
-                                                  bc = TS.plot,
+                                                  bc = TS.plot +
+                                                    geom_ribbon(ymin = -100, 
+                                                                ymax = histPercentiles[,"Tavg"][1], 
+                                                                alpha = 0.2, fill = "darkblue"),
                                                   rc = TS.plot + 
                                                     geom_ribbon(ymin = histPercentiles[,"Tavg"][1], 
                                                                 ymax = histPercentiles[,"Tavg"][2], 
@@ -123,7 +126,10 @@ server <- function(input, output) {
                                                     geom_ribbon(ymin = histPercentiles[,"Tavg"][5], 
                                                                 ymax = histPercentiles[,"Tavg"][6], 
                                                                 alpha = 0.2, fill = "darkred"),
-                                                  bh = TS.plot)})  
+                                                  bh = TS.plot +
+                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][6], 
+                                                                ymax = 100, 
+                                                                alpha = 0.2, fill = "darkred"))})  
 
 
   # output$detail_normal_plot <- renderPlotly({
