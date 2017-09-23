@@ -52,33 +52,31 @@ server <- function(input, output) {
   
   # 
   message(paste('Updating answer based on: Tavg.now ', Tavg.now, ', histPercentiles ', histPercentiles[,"Tavg"], '\n'))
-
-  if (Tavg.now < histPercentiles[,"Tavg"][1]) {
-    output$isit_answer = renderText({"No"})
-    output$isit_comment = renderText({"Are you kidding?! It's bloody cold"})
-  } else if (Tavg.now >= histPercentiles[,"Tavg"][1] & Tavg.now < histPercentiles[,"Tavg"][2]) {
-    output$isit_answer = renderText({'No'})
-    output$isit_comment = renderText({"it's actually really cold"})
-  } else if (Tavg.now >= histPercentiles[,"Tavg"][2] & Tavg.now < histPercentiles[,"Tavg"][3]) {
-    output$isit_answer = renderText({'No'})
-    output$isit_comment = renderText({"it's actually kinda cool"})
-  } else if (Tavg.now >= histPercentiles[,"Tavg"][3] & Tavg.now < histPercentiles[,"Tavg"][4]) {
-    output$isit_answer = renderText({'No'})
-    output$isit_comment = renderText({"it's about average"})
-  } else if (Tavg.now >= histPercentiles[,"Tavg"][4] & Tavg.now < histPercentiles[,"Tavg"][5]) {
-    output$isit_answer = renderText({'Yes'})
-    output$isit_comment = renderText({"it's warmer than average"})
-  } else if (Tavg.now >= histPercentiles[,"Tavg"][5] & Tavg.now < histPercentiles[,"Tavg"][6]) {
-    output$isit_answer = renderText({'Yes'})
-    output$isit_comment = renderText({"it's really hot!"})
-  } else if (Tavg.now >= histPercentiles[,"Tavg"][6]) {
-    output$isit_answer = renderText({'Yes'})
-    output$isit_comment = renderText({"it's bloody hot!"})
-  } else
-  {
-    output$isit_answer = renderText({'ERROR'})
-  }
   
+  category.now <- as.character(cut(Tavg.now, breaks = c(-100,histPercentiles[,"Tavg"],100), 
+                     labels = c("bc","rc","c","a","h","rh","bh"),
+                     include.lowest = T, right = F))
+  # The -100 and 100 allow us to have the lowest and highest bins
+  
+  output$isit_answer = renderText({switch(category.now, 
+                              bc = 'Hell No!',
+                              rc = 'Nope!',
+                              c = 'No!',
+                              a = 'No',
+                              h = 'Yup',
+                              rh = 'Yeah!',
+                              bh = 'Hell Yeah!')})
+  
+  output$isit_comment = renderText({switch(category.now,
+                               bc = "Are you kidding?! It's bloody cold",
+                               rc = "it's actually really cold",
+                               c = "it's actually kinda cool",
+                               a = "it's about average",
+                               h = "it's warmer than average",
+                               rh = "it's really hot!",
+                               bh = "it's bloody hot!")})
+  
+
   # output$detail_normal_plot <- renderPlotly({
   # plot_ly(y = ~Tavg, x = ~Year, data = SydHistObs, type = 'scatter', mode = "lines")
   # })
