@@ -42,31 +42,27 @@
       <h1 id="isit_answer" class="shiny-text-output">. . .</h1>
       <h2 id="isit_comment" class="shiny-text-output"></h2>
       <div>
-        <!-- <h4 id="isit_current" class="shiny-text-output">(getting conditions)</h4>
-        <h4 id="isit_average" class="shiny-text-output">(getting conditions)</h4> -->
         <a href="#detail">
           <i class="fa fa-5x fa-arrow-circle-down" aria-hidden="true"></i>
           <h4>Dig deeper</h4>
         </a>
       </div>
-      <!-- <div id="foot_buttons">
-        <button type="button" disabled>Dig deeper</button>
-      </div> -->
     </section>
 
     <section id="detail">
       <div id="detail_normal" class="detail_element">
         <h2>Here's how today compares.</h2>
+        <!-- <h4 id="isit_current" class="shiny-text-output">(getting conditions)</h4>
+        <h4 id="isit_average" class="shiny-text-output">(getting conditions)</h4> -->
         <div class="detail_element_content">
-          <p class="plot_caption" id="detail_normal_caption">Here are the daily average temperatures at Sydney Observatory going back to 1850. We compare them to the average temperature over the last 24 hours (the red spot) to tell you whether it's hot or not. The <em>really</em> hot and cold days (top and bottom 5%, respectively) are outside the dotted lines.</p>
+          <p class="plot_caption" id="detail_normal_caption">Here are the daily average temperatures at Sydney Observatory going back to 1850. Today's (in red, calculated over the last 24 hours) was <span id="isit_current" class="shiny-text-output"></span>, is hotter than <span id="isit_average" class="shiny-text-output"></span> of the days for this date since 1850.The <em>really</em> hot and cold days (top and bottom 5%, respectively) are outside the dotted lines.</p>
           <div class="shiny-plot-output plot" id="detail_normal_plot"></div>
         </div>
       </div>
 
       <div id="detail_cc" class="detail_element">
-        <!-- <h2>But with climate change, there's a new normal.</h2> -->
         <div class="detail_element_content">
-          <p class="plot_caption" id="detail_dist_caption">Here you can see the distribution of temperatures: </p>
+          <p class="plot_caption" id="detail_dist_caption">Here you can see how those temperatures are distributed, with today's average temperature in <span class="firebrick">red</span>.</p>
           <div class="shiny-plot-output plot" id="detail_dist_plot"></div>
         </div>
       </div>

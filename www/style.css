@@ -103,6 +103,11 @@ select
   align-items: center;
 }
 
+#detail .shiny-text-output, #detail .firebrick
+{
+  color: #b22222;
+}
+
 #detail .detail_element
 {
   width: 100%;
@@ -115,7 +120,7 @@ select
 
 #detail .detail_element h2
 {
-  text-align: left;
+  text-align: center;
   width: 100%;
 }
 
@@ -182,6 +187,7 @@ select
   background-color: #fff;
   color: #000;
   padding: 20px;
+  text-align: center;
 }
 
 /* plots */
