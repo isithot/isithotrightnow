@@ -3,35 +3,28 @@
 
 # app_functions.R
 
-getHistoricalObs <- function() {
-  # returns a list of dataframe of historical Tmax and Tmin 90p obs called Tmax and Tmin
-  # Get historical obs for Tmax and Tmin
-  # Data must have columns:
+getHistoricalObs <- function(date = Sys.Date()) {
+  # returns a dataframe of historical Tmax, Tmin and Tavg obs for the date provided
+  # raw csv data must have columns:
   # Product.code	BOM.station.number	Year	Month	Day	Max(Min).temperature	Days.of.acumulation	Quality
   # The first two columns are not read in
+  if(missing(date)) warning("Warning: Date missing. Calculating percentiles for today's date")
   SydObs.Tmax <- read.csv("data/IDCJAC0010_066062_1800_Data.csv", header = T,
-                          stringsAsFactors = F)[,-c(1,2)]
+                          stringsAsFactors = F)[,c(3:6)]
   SydObs.Tmin <- read.csv("data/IDCJAC0011_066062_1800_Data.csv", header = T,
-                          stringsAsFactors = F)[,-c(1,2)]
-  return(list(Tmax = SydObs.Tmax, Tmin = SydObs.Tmin))
+                          stringsAsFactors = F)[,c(3:6)]
+  SydObs <- merge(SydObs.Tmax, SydObs.Tmin, all = TRUE)
+  names(SydObs)[4:5] <- c("Tmax", "Tmin")
+  SydObs = mutate(SydObs, Tavg = (Tmax + Tmin)/2)
+  return(SydObs %>% filter(Month == month(date), Day == day(date)))
 }
 
-calcHistPercentiles <- function(Obs, date = Sys.Date()) {
-  # returns a list of tmax and tmin, each a vector of 6 elements, one for each percentile:
+calcHistPercentiles <- function(Obs) {
+  # returns a dataframe with columns Tmax, Tmin and Tavg, each row refering to the 6 percentiles:
   # 5, 10, 40, 60, 90, 95
   if(missing(Obs)) stop("Error: Missing historical observations")
-  if(missing(date)) warning("Warning: Date missing. Calculating percentiles for today's date")
-  histPercentiles = lapply(Obs, FUN = calcPercentiles, date = date)
-  histPercentiles$Tavg = apply(rbind(histPercentiles$Tmax, histPercentiles$Tmin), 2, mean)
-  return(histPercentiles)
-}
-
-calcPercentiles <- function(obsSingleVar, date) {
-  # calculates percentiles and returns a vector
-  return(quantile(obsSingleVar[which(obsSingleVar$Day == day(date) & 
-                                    obsSingleVar$Month == month(date)),4],
-           probs = c(0.05, 0.1, 0.4, 0.6, 0.9, 0.95)))
-  # the column index 4 in the above line is because Tmax/Tmin should be the 4th column
+  return(sapply(SydHistObs %>% select(-c(Year, Month, Day)), 
+                FUN = quantile, probs = c(0.05,0.1,0.4,0.6,0.9,0.95)))
 }
 
 getCurrentObs <- function() {
