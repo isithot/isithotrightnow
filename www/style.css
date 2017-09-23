@@ -60,7 +60,8 @@ select
 
 #summary
 {
-  background-color: #ffbb00;
+  /* background-color: #ffbb00; */
+  background-color: #fff;
 
   display: flex;
   flex-direction: column;
@@ -80,7 +81,8 @@ select
 
 #detail
 {
-  background-color: #bbff00;
+  /* background-color: #bbff00; */
+  background-color: #eee;
   padding: 20px;
 
   display: flex;
@@ -160,7 +162,9 @@ select
 
 #footer
 {
-  background-color: #00bbff;
+  /* background-color: #00bbff; */
+  background-color: #333;
+  color: #fff;
   padding: 20px;
 }
 
