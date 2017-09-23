@@ -95,7 +95,7 @@ select
 {
   /* background-color: #bbff00; */
   background-color: #eee;
-  padding: 20px;
+  padding: 40px;
 
   display: flex;
   flex-direction: column;
@@ -111,6 +111,7 @@ select
 #detail .detail_element
 {
   width: 100%;
+  max-width: 1200px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
