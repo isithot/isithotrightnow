@@ -12,8 +12,20 @@ body
 
 h1, h2, h3, h4, p, button, select
 {
-  font-family: "Helvetica Neue", "Helvetica", "Arial", serif;
+  font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   font-weight: bold;
+}
+
+p
+{
+  line-height: 175%;
+  font-weight: bold;
+}
+
+a
+{
+  color: #b22222;
+  text-decoration: none;
 }
 
 h1
@@ -93,10 +105,12 @@ select
 
 #detail .detail_element
 {
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+  padding-bottom: 50px;
 }
 
 #detail .detail_element h2
@@ -121,7 +135,7 @@ select
   flex: 1 67%;
   width: 67%;
   /* background-color: rgba(0, 0, 0, 0.25); */
-  margin: 0 10px 0 0;
+  margin: 0 0 0 10px;
 }
 
 #detail .plot_caption 
@@ -130,7 +144,8 @@ select
   width: 33%;
   /* background-color: rgba(0, 0, 0, 0.15); */
   height: auto;
-  margin: 0 0 0 10px;
+  margin: 0 10px 0 0;
+  text-align: justify;
 }
 
 @media (max-width: 640px)
@@ -164,8 +179,8 @@ select
 #footer
 {
   /* background-color: #00bbff; */
-  background-color: #333;
-  color: #fff;
+  background-color: #fff;
+  color: #000;
   padding: 20px;
 }
 
