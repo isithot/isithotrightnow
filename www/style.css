@@ -10,7 +10,7 @@ body
   min-width: 320px;
 }
 
-h1, h2, h3, p, button, select
+h1, h2, h3, h4, p, button, select
 {
   font-family: "Helvetica Neue", "Helvetica", "Arial", serif;
   font-weight: bold;
@@ -29,6 +29,12 @@ h2
 h3
 {
   font-size: 1.5em;
+}
+
+p
+{
+  font-size: 1em;
+  line-height: 150%;
 }
 
 button
@@ -54,7 +60,8 @@ select
 
 #summary
 {
-  background-color: #ffbb00;
+  /* background-color: #ffbb00; */
+  background-color: #fff;
 
   display: flex;
   flex-direction: column;
@@ -74,7 +81,8 @@ select
 
 #detail
 {
-  background-color: #bbff00;
+  /* background-color: #bbff00; */
+  background-color: #eee;
   padding: 20px;
 
   display: flex;
@@ -106,19 +114,22 @@ select
   align-items: flex-start;
 }
 
-#detail .plot_caption 
-{
-  flex: 1 50%;
-  background-color: rgba(0, 0, 0, 0.15);
-  margin: 0;
-}
-
 #detail .plot
 {
-  height: 150px;
-  flex: 1 50%;
-  background-color: rgba(0, 0, 0, 0.25);
-  margin: 0;
+  height: 400px;
+  flex: 1 67%;
+  width: 67%;
+  /* background-color: rgba(0, 0, 0, 0.25); */
+  margin: 0 10px 0 0;
+}
+
+#detail .plot_caption 
+{
+  flex: 1 33%;
+  width: 33%;
+  /* background-color: rgba(0, 0, 0, 0.15); */
+  height: auto;
+  margin: 0 0 0 10px;
 }
 
 @media (max-width: 640px)
@@ -131,14 +142,19 @@ select
     align-items: flex-start;
   }
 
-  #detail .plot, #detail .plot_caption
-  {
-    width: 100%
-  }
-
   #detail .plot
   {
-    height: 150px;
+    width: 100%;
+    height: auto;
+    margin: 0 0 10px 0;
+  }
+
+  #detail .plot_caption
+  {
+    flex: 1;
+    width: 100%;
+    height: auto;
+    margin: 10px 0 0 0;
   }
 }
 
@@ -146,7 +162,9 @@ select
 
 #footer
 {
-  background-color: #00bbff;
+  /* background-color: #00bbff; */
+  background-color: #333;
+  color: #fff;
   padding: 20px;
 }
 

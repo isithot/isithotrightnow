@@ -32,8 +32,12 @@
         right now?-->
       </h2>
       <h1 id="isit_answer" class="shiny-text-output">. . .</h1>
-      <h2 id="isit_comment" class="shiny-text-output"></h2>
-      <h3 id="isit_current" class="shiny-text-output"></h3>
+      <div>
+        <h2 id="isit_comment" class="shiny-text-output"></h2>
+        <br>
+        <h4 id="isit_current" class="shiny-text-output">(getting conditions)</h4>
+        <h4 id="isit_average" class="shiny-text-output">(getting conditions)</h4>
+      </div>
       <!-- <div id="foot_buttons">
         <button type="button" disabled>Dig deeper</button>
       </div> -->
@@ -41,19 +45,19 @@
 
     <section id="detail">
       <div id="detail_normal" class="detail_element">
-        <h2>Today is much hotter than normal...</h2>
+        <h2>Here's today compared to the last 150 years.</h2>
         <div class="detail_element_content">
           <div class="shiny-plot-output plot" id="detail_normal_plot">
           </div>
-          <p class="plot_caption" id="detail_normal_caption">Because of lots of reasons, a whole buncha reasons, the best reasons. We got so many reasons it's hotter than normal you wouldn't believe it, folks are always sayin' about the reasons it's hot, I tell ya...</p>
+          <p class="plot_caption" id="detail_normal_caption">Here are the daily average temperatures at Sydney Observatory going back to 1850. We compare them to the average temperature over the last 24 hours (the red spot) to tell you whether it's hot or not. The <em>really</em> hot and cold days (top and bottom 5%, respectively) are outside the dotted lines.</p>
         </div>
       </div>
 
       <div id="detail_cc" class="detail_element">
-        <h2>... but climate change has changed normal.</h2>
+        <h2>But with climate change, there's a new normal.</h2>
         <div class="detail_element_content">
           <div class="plot" id="detail_cc_plot"></div>
-          <p class="plot_caption" id="detail_cc_caption">Because of lots of reasons, a whole buncha reasons, the best reasons. We got so many reasons it's hotter than normal you wouldn't believe it, folks are always sayin' about the reasons it's hot, I tell ya...</p>
+          <p class="plot_caption" id="detail_cc_caption">Here you can see the distribution of temperatures: </p>
         </div>
       </div>
     </section>
