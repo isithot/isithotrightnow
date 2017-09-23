@@ -190,6 +190,16 @@ select
   text-align: center;
 }
 
+#footer h4
+{
+  font-size: 1.25em;
+}
+
+#footer p
+{
+  font-size: 0.75em;
+}
+
 /* plots */
 
 #detail_normal_plot
