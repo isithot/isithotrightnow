@@ -63,10 +63,13 @@ select
   text-align: center;
 
   height: 100vh;
-  min-height: 760px;
+  min-height: 400px;
 }
 
-
+#summary > *
+{
+  margin: auto;
+}
 /* detail section */
 
 #detail

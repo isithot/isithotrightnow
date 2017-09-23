@@ -53,6 +53,7 @@ server <- function(input, output) {
   # 
   message(paste('Updating answer based on: Tavg.now ', Tavg.now, ', histPercentiles ', histPercentiles[,"Tavg"], '\n'))
   
+
   category.now <- as.character(cut(Tavg.now, breaks = c(-100,histPercentiles[,"Tavg"],100), 
                      labels = c("bc","rc","c","a","h","rh","bh"),
                      include.lowest = T, right = F))
@@ -76,6 +77,10 @@ server <- function(input, output) {
                                rh = "it's really hot!",
                                bh = "it's bloody hot!")})
   
+
+  # render current conditions to output$isit_current
+  # output$isit_current = TKTKTK
+
 
   # output$detail_normal_plot <- renderPlotly({
   # plot_ly(y = ~Tavg, x = ~Year, data = SydHistObs, type = 'scatter', mode = "lines")
