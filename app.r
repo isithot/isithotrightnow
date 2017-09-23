@@ -78,9 +78,11 @@ server <- function(input, output) {
                                bh = "it's bloody hot!")})
   
 
+  latest.time <- substr(head(SydObs.df, 1)[1,1],12,16)
+  latest.temp <- head(SydObs.df, 1)[1,2]
+  latest.string <- paste('It was', latest.temp,'°C','at', latest.time,'at Sydney Observatory')
   # render current conditions to output$isit_current
-  # output$isit_current = TKTKTK
-
+  output$isit_current = renderText({latest.string})
 
   # output$detail_normal_plot <- renderPlotly({
   # plot_ly(y = ~Tavg, x = ~Year, data = SydHistObs, type = 'scatter', mode = "lines")
