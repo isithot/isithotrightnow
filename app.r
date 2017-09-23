@@ -79,6 +79,9 @@ server <- function(input, output) {
     output$isit_answer = renderText({'ERROR'})
   }
   
+  # render current conditions to output$isit_current
+  # output$isit_current = TKTKTK
+
   # output$detail_normal_plot <- renderPlotly({
   # plot_ly(y = ~Tavg, x = ~Year, data = SydHistObs, type = 'scatter', mode = "lines")
   # })
