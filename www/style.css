@@ -153,7 +153,7 @@ select
   text-align: justify;
 }
 
-@media (max-width: 720px)
+@media (max-width: 760px), (-webkit-min-device-pixel-ratio: 2) and (max-width: 1024px)
 {
   #detail .detail_element_content
   {
@@ -175,7 +175,7 @@ select
     flex: 1;
     width: 100%;
     height: auto;
-    margin: 0 0 10px 0;
+    margin: 0 0 40px 0;
   }
 }
 
