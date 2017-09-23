@@ -136,23 +136,28 @@ server <- function(input, output) {
                                                                 alpha = 0.2, fill = "darkred"))})
 
   
-  ggplot(data = SydHistObs, aes(Tavg)) + 
-    geom_density(adjust = 0.4, colour = '#666666', fill = '#666666') + 
+  dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) + 
+    geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
     theme_bw(base_size = 20) +
     theme(panel.background = element_rect(fill = "transparent", colour = NA),
           panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
-          plot.background = element_rect(fill = "transparent", colour = NA)) +
+          plot.background = element_rect(fill = "transparent", colour = NA), 
+          panel.border = element_blank()) +
     geom_vline(xintercept = Tavg.now, colour = 'firebrick', size = rel(1.5)) +
-    geom_vline(xintercept = median(SydHistObs$Tavg), linetype = 2) + 
-    geom_vline(xintercept = histPercentiles[,"Tavg"][1], linetype = 2) +
-    geom_vline(xintercept = histPercentiles[,"Tavg"][6], linetype = 2) + 
+    geom_vline(xintercept = median(SydHistObs$Tavg), linetype = 2, alpha = 0.5) + 
+    geom_vline(xintercept = histPercentiles[,"Tavg"][1], linetype = 2, alpha = 0.5) +
+    geom_vline(xintercept = histPercentiles[,"Tavg"][6], linetype = 2, alpha = 0.5) + 
     theme(axis.title.y = element_blank(),
           axis.text.y = element_blank(),
           axis.ticks.y = element_blank()) +
-    xlab("Daily average temperature")
-    
+    scale_y_continuous(expand = c(0,0)) +
+    xlab("Daily average temperature") + 
+    annotate("text", x = median(SydHistObs$Tavg), y = Inf, vjust = -0.5,hjust=1.1,label = "50th percentile", size = 4, angle = 90, alpha = 0.5) +
+    annotate("text", x = histPercentiles[,"Tavg"][1], y = Inf, vjust = -0.5,hjust=1.1,label = "5th percentile", size = 4, angle = 90, alpha = 0.5) +
+    annotate("text", x = histPercentiles[,"Tavg"][6], y = Inf, vjust = -0.5,hjust=1.1,label = "95th percentile", size = 4, angle = 90, alpha = 0.5) +
+    annotate("text", x = Tavg.now, y = Inf, vjust = -0.5,hjust=1.1,label = "Today", colour = 'firebrick', size = 4, angle = 90, alpha = 0.5)
   
-    
+  output$detail_dist_plot <- renderPlot({dist.plot}, bg= "transparent")
 
   # output$detail_normal_plot <- renderPlotly({
   # plot_ly(y = ~Tavg, x = ~Year, data = SydHistObs, type = 'scatter', mode = "lines")
