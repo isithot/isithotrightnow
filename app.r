@@ -135,6 +135,24 @@ server <- function(input, output) {
                                                                 ymax = 100,
                                                                 alpha = 0.2, fill = "darkred"))})
 
+  
+  ggplot(data = SydHistObs, aes(Tavg)) + 
+    geom_density(adjust = 0.4, colour = '#666666', fill = '#666666') + 
+    theme_bw(base_size = 20) +
+    theme(panel.background = element_rect(fill = "transparent", colour = NA),
+          panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
+          plot.background = element_rect(fill = "transparent", colour = NA)) +
+    geom_vline(xintercept = Tavg.now, colour = 'firebrick', size = rel(1.5)) +
+    geom_vline(xintercept = median(SydHistObs$Tavg), linetype = 2) + 
+    geom_vline(xintercept = histPercentiles[,"Tavg"][1], linetype = 2) +
+    geom_vline(xintercept = histPercentiles[,"Tavg"][6], linetype = 2) + 
+    theme(axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks.y = element_blank()) +
+    xlab("Daily average temperature")
+    
+  
+    
 
   # output$detail_normal_plot <- renderPlotly({
   # plot_ly(y = ~Tavg, x = ~Year, data = SydHistObs, type = 'scatter', mode = "lines")
