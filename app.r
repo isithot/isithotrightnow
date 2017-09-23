@@ -49,7 +49,6 @@ server <- function(input, output) {
   # Note this is not a true average, just an average of the 
   # max and min values
   Tavg.now <- mean(c(Tmax.now, Tmin.now))
-  
   # 
   message(paste('Updating answer based on: Tavg.now ', Tavg.now, ', histPercentiles ', histPercentiles[,"Tavg"], '\n'))
   
@@ -88,22 +87,48 @@ server <- function(input, output) {
   output$isit_current = renderText({current.string})
   output$isit_average = renderText({average.string})
 
+  SydHistObs$Date = ymd(paste(SydHistObs$Year, SydHistObs$Month, SydHistObs$Day, sep = '-'))  
   
-  ggplot(data = SydHistObs, aes(Year, Tavg)) + 
+  TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) + 
     geom_line() + 
-    geom_point(aes(x = year(current.date), y = Tavg.now), colour = "firebrick", size = rel(5)) +
+    geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick", size = rel(5)) +
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2, colour = 'red') +
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2, colour = 'blue') +
-    theme(text = element_text(size = rel(5)))
+    scale_x_date(breaks = ymd(paste0(seq(round(min(SydHistObs$Year)/10)*10, round(max(SydHistObs$Year)/10)*10, 20),"0101")),
+                 date_labels = '%Y') + 
+    theme_bw(base_size = 20) + 
+    theme(panel.background = element_rect(fill = "transparent", colour = NA), 
+          panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
+          plot.background = element_rect(fill = "transparent", colour = NA))
+
+  output$detail_normal_plot <- renderPlot({switch(category.now,
+                                                  bc = TS.plot,
+                                                  rc = TS.plot + 
+                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][1], 
+                                                                ymax = histPercentiles[,"Tavg"][2], 
+                                                                alpha = 0.2, fill = "darkblue"),
+                                                  c = TS.plot + 
+                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][2], 
+                                                                ymax = histPercentiles[,"Tavg"][3], 
+                                                                alpha = 0.2, fill = "blue"),
+                                                  a = TS.plot + 
+                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][3], 
+                                                                ymax = histPercentiles[,"Tavg"][4], 
+                                                                alpha = 0.2, fill = "gray"),
+                                                  h = TS.plot + 
+                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][4], 
+                                                                ymax = histPercentiles[,"Tavg"][5], 
+                                                                alpha = 0.2, fill = "red"),
+                                                  rh = TS.plot + 
+                                                    geom_ribbon(ymin = histPercentiles[,"Tavg"][5], 
+                                                                ymax = histPercentiles[,"Tavg"][6], 
+                                                                alpha = 0.2, fill = "darkred"),
+                                                  bh = TS.plot)})  
 
 
   # output$detail_normal_plot <- renderPlotly({
   # plot_ly(y = ~Tavg, x = ~Year, data = SydHistObs, type = 'scatter', mode = "lines")
   # })
-  output$detail_normal_plot <- renderPlot({
-    plot(Tavg ~ Year, data = SydHistObs, type = 'n')
-    lines(Tavg ~ Year, data = SydHistObs)
-  })
   # plotPNG(func = function() {
   #   plot(Tavg ~ Year, data = SydHistObs, type = 'n')
   #   lines(Tavg ~ Year, data = SydHistObs)},
