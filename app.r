@@ -59,13 +59,13 @@ server <- function(input, output) {
   # The -100 and 100 allow us to have the lowest and highest bins
   
   output$isit_answer = renderText({switch(category.now, 
-                              bc = 'Hell No!',
+                              bc = 'Hell no!',
                               rc = 'Nope!',
                               c = 'No!',
                               a = 'No',
                               h = 'Yup',
                               rh = 'Yeah!',
-                              bh = 'Hell Yeah!')})
+                              bh = 'Hell yeah!')})
   
   output$isit_comment = renderText({switch(category.now,
                                bc = "Are you kidding?! It's bloody cold",
