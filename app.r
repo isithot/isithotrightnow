@@ -77,13 +77,16 @@ server <- function(input, output) {
                                rh = "it's really hot!",
                                bh = "it's bloody hot!")})
   
-
-  latest.time <- substr(head(SydObs.df, 1)[1,1],12,16)
-  latest.temp <- head(SydObs.df, 1)[1,2]
-  latest.string <- paste('It was', latest.temp,'°C','at', latest.time,'at Sydney Observatory')
+  #### latest info no longer being used ####
+  # latest.time <- substr(head(SydObs.df, 1)[1,1],12,16)
+  # latest.temp <- head(SydObs.df, 1)[1,2]
+  # latest.string <- paste(latest.temp,'°C','at', latest.time,'at Sydney Observatory')
+  current.string <- paste('The average of the max and min temperatures over the last 24 hours was', Tavg.now,'°C')
+  average.percent <- 100*round(ecdf(SydHistObs$Tavg)(Tavg.now),digits=2)
+  average.string <- paste0('This is warmer than ',average.percent,'% of average temperatures for todays date')
   # render current conditions to output$isit_current
-
-  # output$isit_current = TKTKTK
+  output$isit_current = renderText({current.string})
+  output$isit_average = renderText({average.string})
 
   
   ggplot(data = SydHistObs, aes(Year, Tavg)) + 
@@ -92,9 +95,6 @@ server <- function(input, output) {
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2, colour = 'red') +
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2, colour = 'blue') +
     theme(text = element_text(size = rel(5)))
-  
-
-  output$isit_current = renderText({latest.string})
 
 
   # output$detail_normal_plot <- renderPlotly({
