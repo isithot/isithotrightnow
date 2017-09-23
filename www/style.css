@@ -10,7 +10,7 @@ body
   min-width: 320px;
 }
 
-h1, h2, h3, p, button, select
+h1, h2, h3, h4, p, button, select
 {
   font-family: "Helvetica Neue", "Helvetica", "Arial", serif;
   font-weight: bold;
@@ -29,6 +29,12 @@ h2
 h3
 {
   font-size: 1.5em;
+}
+
+p
+{
+  font-size: 1em;
+  line-height: 150%;
 }
 
 button
@@ -108,19 +114,19 @@ select
 
 #detail .plot
 {
-  height: 200px;
+  height: 400px;
+  flex: 1 67%;
   width: 67%;
-  flex: 1 50%;
-  background-color: rgba(0, 0, 0, 0.25);
+  /* background-color: rgba(0, 0, 0, 0.25); */
   margin: 0 10px 0 0;
 }
 
 #detail .plot_caption 
 {
-  flex: 1 50%;
-  background-color: rgba(0, 0, 0, 0.15);
-  height: auto;
+  flex: 1 33%;
   width: 33%;
+  /* background-color: rgba(0, 0, 0, 0.15); */
+  height: auto;
   margin: 0 0 0 10px;
 }
 
@@ -143,6 +149,7 @@ select
 
   #detail .plot_caption
   {
+    flex: 1;
     width: 100%;
     height: auto;
     margin: 10px 0 0 0;
