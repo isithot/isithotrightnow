@@ -96,14 +96,18 @@ server <- function(input, output) {
                                  Tmax = Tmax.now, Tmin = Tmin.now, Tavg = Tavg.now, Date = current.date))
 
   TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
-    ggtitle('Daily average temperatures since 1850 for today\'s date') +
+    ggtitle(paste('Daily average since 1850 for',format(current.date_time, format="%d %B"))) +
     xlab(NULL) + 
     ylab('Daily average temperatue') + 
     # annotate("text",x=ymd("18700101"),y=20,label = 'test') +
-    geom_line() +
+    geom_line(size = 1.05, colour = '#999999') +
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick", size = rel(5)) +
-    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2, colour = 'black') +
-    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2, colour = 'black') +
+    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2, alpha = 0.5) +
+    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2, alpha = 0.5) +
+    annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
+             y = histPercentiles[,"Tavg"][6], label = "95th percentile", alpha = 0.5, size = 4, hjust=0, vjust = -0.5) + 
+    annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
+             y = histPercentiles[,"Tavg"][1], label = "5th percentile", alpha = 0.5, size = 4, hjust = 0, vjust = 1.5) +
     scale_x_date(breaks = ymd(paste0(seq(round(min(SydHistObs$Year)/10)*10, round(max(SydHistObs$Year)/10)*10, 20),"0101")),
                  date_labels = '%Y') +
     theme_bw(base_size = 20) +
