@@ -106,19 +106,22 @@ select
   align-items: flex-start;
 }
 
+#detail .plot
+{
+  height: 200px;
+  width: 67%;
+  flex: 1 50%;
+  background-color: rgba(0, 0, 0, 0.25);
+  margin: 0 10px 0 0;
+}
+
 #detail .plot_caption 
 {
   flex: 1 50%;
   background-color: rgba(0, 0, 0, 0.15);
-  margin: 0;
-}
-
-#detail .plot
-{
-  height: 150px;
-  flex: 1 50%;
-  background-color: rgba(0, 0, 0, 0.25);
-  margin: 0;
+  height: auto;
+  width: 33%;
+  margin: 0 0 0 10px;
 }
 
 @media (max-width: 640px)
@@ -131,14 +134,18 @@ select
     align-items: flex-start;
   }
 
-  #detail .plot, #detail .plot_caption
-  {
-    width: 100%
-  }
-
   #detail .plot
   {
-    height: 150px;
+    width: 100%;
+    height: auto;
+    margin: 0 0 10px 0;
+  }
+
+  #detail .plot_caption
+  {
+    width: 100%;
+    height: auto;
+    margin: 10px 0 0 0;
   }
 }
 
