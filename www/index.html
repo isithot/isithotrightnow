@@ -2,6 +2,7 @@
   <head>
     <script src="shared/jquery.js" type="text/javascript"></script>
     <script src="shared/shiny.js" type="text/javascript"></script>
+    <script src="https://use.fontawesome.com/bf57bcfa12.js"></script>
     <link rel="stylesheet" type="text/css" href="shared/shiny.css"/>
     <link rel="stylesheet" type="text/css" href="style.css"/>
     <script>
@@ -17,25 +18,16 @@
   </head>
   <body>
     <section id="summary">
-      <h2>
-        Is it hot in Sydney right now?
-        <!--<select name="extrema">
-          <option value="hot">hot</option>
-          <option value="cold">cold</option>
-          <option value="wet">wet</option>
-          <option value="dry">dry</option>
-        </select>
-        in
-        <select name="place">
-          <option value="sydney">Sydney</option>
-        </select>
-        right now?-->
-      </h2>
+      <h2>Is it hot in Sydney right now?</h2>
       <h1 id="isit_answer" class="shiny-text-output">. . .</h1>
       <h2 id="isit_comment" class="shiny-text-output"></h2>
       <div>
-        <h4 id="isit_current" class="shiny-text-output">(getting conditions)</h4>
-        <h4 id="isit_average" class="shiny-text-output">(getting conditions)</h4>
+        <!-- <h4 id="isit_current" class="shiny-text-output">(getting conditions)</h4>
+        <h4 id="isit_average" class="shiny-text-output">(getting conditions)</h4> -->
+        <a href="#detail">
+          <i class="fa fa-5x fa-arrow-circle-down" aria-hidden="true"></i>
+          <h4>Dig deeper</h4>
+        </a>
       </div>
       <!-- <div id="foot_buttons">
         <button type="button" disabled>Dig deeper</button>
@@ -44,25 +36,24 @@
 
     <section id="detail">
       <div id="detail_normal" class="detail_element">
-        <h2>Here's today compared to the last 150 years.</h2>
+        <h2>Here's how today compares.</h2>
         <div class="detail_element_content">
-          <div class="shiny-html-output plot" id="detail_normal_plot">
-          </div>
           <p class="plot_caption" id="detail_normal_caption">Here are the daily average temperatures at Sydney Observatory going back to 1850. We compare them to the average temperature over the last 24 hours (the red spot) to tell you whether it's hot or not. The <em>really</em> hot and cold days (top and bottom 5%, respectively) are outside the dotted lines.</p>
+          <div class="shiny-plot-output plot" id="detail_normal_plot"></div>
         </div>
       </div>
 
       <div id="detail_cc" class="detail_element">
-        <h2>But with climate change, there's a new normal.</h2>
+        <!-- <h2>But with climate change, there's a new normal.</h2> -->
         <div class="detail_element_content">
-          <div class="shiny-html-output plot" id="detail_cc_plot"></div>
           <p class="plot_caption" id="detail_cc_caption">Here you can see the distribution of temperatures: </p>
+          <div class="shiny-plot-output plot" id="detail_cc_plot"></div>
         </div>
       </div>
     </section>
 
     <section id="footer">
-      <p>By Mat Lipson, Stefan Contractor and James Goldie</p>
+      <h4>By <a href="https://theurbanist.com.au/about">Mat Lipson</a>, <a href="https://steefancontractor.github.io/my_website/">Stefan Contractor</a> and <a href="https://rensa.co">James Goldie</a></h4>
     </section>
 
   </body>
