@@ -51,6 +51,7 @@ server <- function(input, output) {
   Tavg.now <- mean(c(Tmax.now, Tmin.now))
   
   # 
+  message(paste('Updating answer based on: Tavg.now ', Tavg.now, ', histPercentiles ', histPercentiles[,"Tavg"], '\n'))
 
   if (Tavg.now < histPercentiles[,"Tavg"][1]) {
     output$isit_answer = renderText({"No"})
@@ -70,9 +71,12 @@ server <- function(input, output) {
   } else if (Tavg.now >= histPercentiles[,"Tavg"][5] & Tavg.now < histPercentiles[,"Tavg"][6]) {
     output$isit_answer = renderText({'Yes'})
     output$isit_comment = renderText({"it's really hot!"})
-  } else if (Tavg.now >= histPercentiles[,"Tavg"][1] & Tavg.now < histPercentiles[,"Tavg"][2]) {
+  } else if (Tavg.now >= histPercentiles[,"Tavg"][6]) {
     output$isit_answer = renderText({'Yes'})
     output$isit_comment = renderText({"it's bloody hot!"})
+  } else
+  {
+    output$isit_answer = renderText({'ERROR'})
   }
   
   # output$detail_normal_plot <- renderPlotly({
