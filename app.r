@@ -80,12 +80,10 @@ server <- function(input, output) {
   # latest.time <- substr(head(SydObs.df, 1)[1,1],12,16)
   # latest.temp <- head(SydObs.df, 1)[1,2]
   # latest.string <- paste(latest.temp,'°C','at', latest.time,'at Sydney Observatory')
-  current.string <- paste('The average of the max and min temperatures over the last 24 hours was', Tavg.now,'°C')
   average.percent <- 100*round(ecdf(SydHistObs$Tavg)(Tavg.now),digits=2)
-  average.string <- paste0('This is warmer than ',average.percent,"% of average temperatures for today's date")
   # render current conditions to output$isit_current
-  output$isit_current = renderText({current.string})
-  output$isit_average = renderText({average.string})
+  output$isit_current = renderText({Tavg.now})
+  output$isit_average = renderText({average.percent})
   
   ################################################################################################
 
