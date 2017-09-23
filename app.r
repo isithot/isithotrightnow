@@ -96,7 +96,7 @@ server <- function(input, output) {
                                  Tmax = Tmax.now, Tmin = Tmin.now, Tavg = Tavg.now, Date = current.date))
 
   TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
-    ggtitle('Daily averages for todays date') +
+    ggtitle('Daily average temperatures since 1850 for today\'s date') +
     xlab(NULL) + 
     ylab('Daily average temperatue') + 
     # annotate("text",x=ymd("18700101"),y=20,label = 'test') +
@@ -140,7 +140,8 @@ server <- function(input, output) {
                                                   bh = TS.plot +
                                                     geom_ribbon(ymin = histPercentiles[,"Tavg"][6],
                                                                 ymax = 100,
-                                                                alpha = 0.2, fill = "darkred"))})
+                                                                alpha = 0.2, fill = "darkred"))},
+                                          bg = "transparent")
 
   
   ggplot(data = SydHistObs, aes(Tavg)) + 
