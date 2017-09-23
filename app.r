@@ -93,6 +93,10 @@ server <- function(input, output) {
   #   plot(Tavg ~ Year, data = SydHistObs, type = 'n')
   #   lines(Tavg ~ Year, data = SydHistObs)},
   #   filename = "www/assets/detail_normal_plot.png")
+
+  # comments on the (currently two) plots
+  # output$detail_normal_caption <-
+  # output$detail_cc_caption <-
 }
 
 shinyApp(ui = htmlTemplate("www/index.html"), server)
