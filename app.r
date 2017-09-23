@@ -69,12 +69,12 @@ server <- function(input, output) {
   
   output$isit_comment = renderText({switch(category.now,
                                bc = "Are you kidding?! It's bloody cold",
-                               rc = "it's actually really cold",
-                               c = "it's actually kinda cool",
-                               a = "it's about average",
-                               h = "it's warmer than average",
-                               rh = "it's really hot!",
-                               bh = "it's bloody hot!")})
+                               rc = "It's actually really cold",
+                               c = "It's actually kinda cool",
+                               a = "It's about average",
+                               h = "It's warmer than average",
+                               rh = "It's really hot!",
+                               bh = "It's bloody hot!")})
   
   #### latest info no longer being used ####
   # latest.time <- substr(head(SydObs.df, 1)[1,1],12,16)
@@ -82,26 +82,33 @@ server <- function(input, output) {
   # latest.string <- paste(latest.temp,'°C','at', latest.time,'at Sydney Observatory')
   current.string <- paste('The average of the max and min temperatures over the last 24 hours was', Tavg.now,'°C')
   average.percent <- 100*round(ecdf(SydHistObs$Tavg)(Tavg.now),digits=2)
-  average.string <- paste0('This is warmer than ',average.percent,'% of average temperatures for todays date')
+  average.string <- paste0('This is warmer than ',average.percent,"% of average temperatures for today's date")
   # render current conditions to output$isit_current
   output$isit_current = renderText({current.string})
   output$isit_average = renderText({average.string})
+  
+  ################################################################################################
 
   SydHistObs$Date = ymd(paste(SydHistObs$Year, SydHistObs$Month, SydHistObs$Day, sep = '-'))  
   
   SydHistObs <- rbind(SydHistObs,
                       data.frame(Year = year(current.date), Month = month(current.date), Day = day(current.date),
                                  Tmax = Tmax.now, Tmin = Tmin.now, Tavg = Tavg.now, Date = current.date))
-  
+
   TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
+    ggtitle('Daily average temperatures since 1850 for today\'s date') +
+    xlab(NULL) + 
+    ylab('Daily average temperatue') + 
+    # annotate("text",x=ymd("18700101"),y=20,label = 'test') +
     geom_line() +
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick", size = rel(5)) +
-    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2, colour = 'red') +
-    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2, colour = 'blue') +
+    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2, colour = 'black') +
+    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2, colour = 'black') +
     scale_x_date(breaks = ymd(paste0(seq(round(min(SydHistObs$Year)/10)*10, round(max(SydHistObs$Year)/10)*10, 20),"0101")),
                  date_labels = '%Y') +
     theme_bw(base_size = 20) +
     theme(panel.background = element_rect(fill = "transparent", colour = NA),
+          plot.title = element_text(size=16),
           panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
           plot.background = element_rect(fill = "transparent", colour = NA))
 
@@ -133,7 +140,8 @@ server <- function(input, output) {
                                                   bh = TS.plot +
                                                     geom_ribbon(ymin = histPercentiles[,"Tavg"][6],
                                                                 ymax = 100,
-                                                                alpha = 0.2, fill = "darkred"))})
+                                                                alpha = 0.2, fill = "darkred"))},
+                                          bg = "transparent")
 
   
   dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) + 
