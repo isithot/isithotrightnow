@@ -112,15 +112,15 @@ server <- function(input, output) {
       label = "TODAY", colour = 'firebrick', size = 4,
       family = 'Roboto Condensed', fontface = "bold") + 
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-      y = histPercentiles[, "Tavg"][6], label = "95TH PERCENTILE",
+      y = histPercentiles[, "Tavg"][6], label = paste0("95TH PERCENTILE:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
       alpha = 0.5, size = 4, hjust=0, vjust = -0.5,
       family = 'Roboto Condensed', fontface = "bold") + 
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-      y = histPercentiles[, "Tavg"][1], label = "5TH PERCENTILE",
+      y = histPercentiles[, "Tavg"][1], label = paste0("5TH PERCENTILE:  ",round(histPercentiles[,"Tavg"][1],1),'°C'),
       alpha = 0.5, size = 4, hjust = 0, vjust = 1.5,
       family = 'Roboto Condensed', fontface = "bold") +
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-      y = median(SydHistObs$Tavg), label = "50TH PERCENTILE",
+      y = median(SydHistObs$Tavg), label = paste0("50TH PERCENTILE:  ",round(median(SydHistObs$Tavg)),'°C'),
       alpha = 0.5, size = 4, hjust = 0, vjust = -0.5,
       family = 'Roboto Condensed', fontface = "bold") +
     scale_x_date(
