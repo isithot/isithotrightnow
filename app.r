@@ -102,19 +102,19 @@ server <- function(input, output) {
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2, alpha = 0.5) +
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2, alpha = 0.5) +
     geom_hline(aes(yintercept = median(SydHistObs$Tavg)), linetype = 2, alpha = 0.5) +
-    annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,label = "Today", colour = 'firebrick', size = 4, fontface = "bold") + 
+    annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,label = "Today", colour = 'firebrick', size = 4) + 
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-             y = histPercentiles[,"Tavg"][6], label = "95th percentile", alpha = 0.5, size = 4, hjust=0, vjust = -0.5, fontface = "bold") + 
+             y = histPercentiles[,"Tavg"][6], label = "95th percentile", alpha = 0.5, size = 4, hjust=0, vjust = -0.5) + 
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-             y = histPercentiles[,"Tavg"][1], label = "5th percentile", alpha = 0.5, size = 4, hjust = 0, vjust = 1.5, fontface = "bold") +
+             y = histPercentiles[,"Tavg"][1], label = "5th percentile", alpha = 0.5, size = 4, hjust = 0, vjust = 1.5) +
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-             y = median(SydHistObs$Tavg), label = "50th percentile", alpha = 0.5, size = 4, hjust = 0, vjust = -0.5, fontface = "bold") +
+             y = median(SydHistObs$Tavg), label = "50th percentile", alpha = 0.5, size = 4, hjust = 0, vjust = -0.5) +
     # annotate("text", x = ymd(paste0(substr(current.date,1,4),"0101")),
-    #          y = histPercentiles[,"Tavg"][6], label = paste(round(histPercentiles[,"Tavg"][6],1),'°C'), alpha = 0.5, size = 4, hjust=0, vjust = -0.5, fontface = "bold") + 
+    #          y = histPercentiles[,"Tavg"][6], label = paste(round(histPercentiles[,"Tavg"][6],1),'°C'), alpha = 0.5, size = 4, hjust=0, vjust = -0.5) + 
     # annotate("text", x = ymd(paste0(substr(current.date,1,4),"0101")),
-    #          y = histPercentiles[,"Tavg"][1], label = paste(round(histPercentiles[,"Tavg"][1],1),'°C'), alpha = 0.5, size = 4, hjust=0, vjust = -0.5, fontface = "bold") + 
+    #          y = histPercentiles[,"Tavg"][1], label = paste(round(histPercentiles[,"Tavg"][1],1),'°C'), alpha = 0.5, size = 4, hjust=0, vjust = -0.5) + 
     # annotate("text", x = ymd(paste0(substr(current.date,1,4),"0101")),
-             # y = median(SydHistObs$Tavg), label = paste(round(median(SydHistObs$Tavg)),'°C'), alpha = 0.5, size = 4, hjust=0, vjust = -0.5, fontface = "bold") + 
+             # y = median(SydHistObs$Tavg), label = paste(round(median(SydHistObs$Tavg)),'°C'), alpha = 0.5, size = 4, hjust=0, vjust = -0.5) + 
     scale_x_date(breaks = ymd(paste0(seq(round(min(SydHistObs$Year)/10)*10, round(max(SydHistObs$Year)/10)*10, 20),"0101")),
                  date_labels = '%Y') +
     theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
@@ -151,10 +151,10 @@ server <- function(input, output) {
           axis.ticks.y = element_blank()) +
     scale_y_continuous(expand = c(0,0)) +
     xlab("Daily average temperature (°C)") + 
-    annotate("text", x = median(SydHistObs$Tavg), y = Inf, vjust = -0.75,hjust=1.1,label = "50th percentile", size = 4, angle = 90, alpha = 0.5, fontface = "bold") +
-    annotate("text", x = histPercentiles[,"Tavg"][1], y = Inf, vjust = -0.75,hjust=1.1,label = "5th percentile", size = 4, angle = 90, alpha = 0.5, fontface = "bold") +
-    annotate("text", x = histPercentiles[,"Tavg"][6], y = Inf, vjust = -0.75,hjust=1.1,label = "95th percentile", size = 4, angle = 90, alpha = 0.5, fontface = "bold") +
-    annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust=1.1,label = "Today", colour = 'firebrick', size = 4, angle = 90, alpha = 1, fontface = "bold")
+    annotate("text", x = median(SydHistObs$Tavg), y = Inf, vjust = -0.75,hjust=1.1,label = "50th percentile", size = 4, angle = 90, alpha = 0.5) +
+    annotate("text", x = histPercentiles[,"Tavg"][1], y = Inf, vjust = -0.75,hjust=1.1,label = "5th percentile", size = 4, angle = 90, alpha = 0.5) +
+    annotate("text", x = histPercentiles[,"Tavg"][6], y = Inf, vjust = -0.75,hjust=1.1,label = "95th percentile", size = 4, angle = 90, alpha = 0.5) +
+    annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust=1.1,label = "Today", colour = 'firebrick', size = 4, angle = 90, alpha = 1)
   
   
   output$detail_normal_plot <- renderPlot({TS.plot}, bg = "transparent", execOnResize = TRUE)
