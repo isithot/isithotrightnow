@@ -5,7 +5,6 @@ library(shiny)
 library(ggplot2)
 library(jsonlite)
 library(lubridate)
-library(plotly)
 library(dplyr)
 
 # load functions from app_functions.R
@@ -87,7 +86,7 @@ server <- function(input, output) {
   
   ################################################################################################
 
-  SydHistObs$Date = ymd(paste(SydHistObs$Year, SydHistObs$Month, SydHistObs$Day, sep = '-'))  
+  SydHistObs$Date = ymd(paste(SydHistObs$Year, SydHistObs$Month, SydHistObs$Day, sep = '-'))
   
   SydHistObs <- rbind(SydHistObs,
                       data.frame(Year = year(current.date), Month = month(current.date), Day = day(current.date),
@@ -112,7 +111,7 @@ server <- function(input, output) {
              y = median(SydHistObs$Tavg), label = "50th percentile", alpha = 0.5, size = 4, hjust = 0, vjust = -0.5, fontface = "bold") +
     scale_x_date(breaks = ymd(paste0(seq(round(min(SydHistObs$Year)/10)*10, round(max(SydHistObs$Year)/10)*10, 20),"0101")),
                  date_labels = '%Y') +
-    theme_bw(base_size = 20) +
+    theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
     theme(panel.background = element_rect(fill = "transparent", colour = NA),
           plot.title = element_text(size = 18, face = "bold", hjust = 0.5, color = '#333333'),
           panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
@@ -128,7 +127,7 @@ server <- function(input, output) {
   dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) + 
     ggtitle(paste('Distribution of daily average temperatures\n since 1850 for',format(current.date_time, format="%d %B"))) +
     geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
-    theme_bw(base_size = 20) +
+    theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
     theme(panel.background = element_rect(fill = "transparent", colour = NA),
           panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
           plot.background = element_rect(fill = "transparent", colour = NA),

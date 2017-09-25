@@ -10,10 +10,17 @@ body
   min-width: 320px;
 }
 
-h1, h2, h3, h4, p, button, select
+h1, h2, h3, h4
 {
-  font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-  font-weight: bold;
+  font-family: "Roboto Condensed", "Helvetica Neue Condensed", "Arial", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+p
+{
+  font-family: "Roboto", "Helvetica Neue", "Arial", sans-serif;
+  font-weight: 300;
 }
 
 p
@@ -59,14 +66,14 @@ button
   margin-bottom: 20px;
 }
 
-select
+/* select
 {
   font-size: 100%;
   color: red;
   
   background-color: #fff;
   border: 0;
-}
+} */
 
 /* summary section */
 
@@ -88,6 +95,11 @@ select
 #summary > *
 {
   margin: auto;
+}
+
+#digdeeper h4
+{
+  font-style: italic;
 }
 /* detail section */
 
