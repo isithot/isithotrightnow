@@ -102,9 +102,9 @@ server <- function(input, output) {
     geom_line(size = 1.05, colour = '#999999') +
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick",
       size = rel(5)) +
-    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2,
+    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][5]), linetype = 2,
       alpha = 0.5) +
-    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2,
+    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][2]), linetype = 2,
       alpha = 0.5) +
     geom_hline(aes(yintercept = median(SydHistObs$Tavg)), linetype = 2,
       alpha = 0.5) +
@@ -112,17 +112,17 @@ server <- function(input, output) {
       label = "TODAY", colour = 'firebrick', size = 4,
       family = 'Roboto Condensed', fontface = "bold") + 
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-      y = histPercentiles[, "Tavg"][6], label = paste0("95TH PERCENTILE:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
+      y = histPercentiles[, "Tavg"][5], label = paste0("90TH PERCENTILE:  ",round(histPercentiles[,"Tavg"][5],1),'°C'),
       alpha = 0.5, size = 4, hjust=0, vjust = -0.5,
       family = 'Roboto Condensed', fontface = "bold") + 
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-      y = histPercentiles[, "Tavg"][1], label = paste0("5TH PERCENTILE:  ",round(histPercentiles[,"Tavg"][1],1),'°C'),
-      alpha = 0.5, size = 4, hjust = 0, vjust = 1.5,
-      family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-      y = median(SydHistObs$Tavg), label = paste0("50TH PERCENTILE:  ",round(median(SydHistObs$Tavg)),'°C'),
+      y = histPercentiles[, "Tavg"][2], label = paste0("10TH PERCENTILE:  ",round(histPercentiles[,"Tavg"][2],1),'°C'),
       alpha = 0.5, size = 4, hjust = 0, vjust = -0.5,
       family = 'Roboto Condensed', fontface = "bold") +
+    # annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
+    #   y = median(SydHistObs$Tavg), label = paste0("50TH PERCENTILE:  ",round(median(SydHistObs$Tavg)),'°C'),
+    #   alpha = 0.5, size = 4, hjust = 0, vjust = -0.5,
+    #   family = 'Roboto Condensed', fontface = "bold") +
     scale_x_date(
       breaks = ymd(paste0(
         seq(round(min(SydHistObs$Year)/10)*10,
@@ -167,19 +167,19 @@ server <- function(input, output) {
     geom_vline(xintercept = Tavg.now, colour = 'firebrick', size = rel(1.5)) +
     geom_vline(xintercept = median(SydHistObs$Tavg), linetype = 2, alpha = 0.5) + 
     geom_vline(
-      xintercept = histPercentiles[,"Tavg"][1], linetype = 2, alpha = 0.5) +
+      xintercept = histPercentiles[,"Tavg"][2], linetype = 2, alpha = 0.5) +
     geom_vline(
-      xintercept = histPercentiles[,"Tavg"][6], linetype = 2, alpha = 0.5) + 
+      xintercept = histPercentiles[,"Tavg"][5], linetype = 2, alpha = 0.5) + 
     scale_y_continuous(expand = c(0,0)) +
     xlab("Daily average temperature (°C)") + 
-    annotate("text", x = median(SydHistObs$Tavg), y = Inf, vjust = -0.75,
-      hjust=1.1,label = "50TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
+    # annotate("text", x = median(SydHistObs$Tavg), y = Inf, vjust = -0.75,
+    #   hjust=1.1,label = "50TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
+    #   family = 'Roboto Condensed', fontface = "bold") +
+    annotate("text", x = histPercentiles[,"Tavg"][2], y = Inf, vjust = -0.75,
+      hjust=1.1,label = "10TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
       family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = histPercentiles[,"Tavg"][1], y = Inf, vjust = -0.75,
-      hjust=1.1,label = "5TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
-      family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = histPercentiles[,"Tavg"][6], y = Inf, vjust = -0.75,
-      hjust=1.1,label = "95TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
+    annotate("text", x = histPercentiles[,"Tavg"][5], y = Inf, vjust = -0.75,
+      hjust=1.1,label = "90TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
       family = 'Roboto Condensed', fontface = "bold") +
     annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust = 1.1,
       label = "TODAY", colour = 'firebrick', size = 4, angle = 90, alpha = 1,
