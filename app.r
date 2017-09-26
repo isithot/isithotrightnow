@@ -110,6 +110,9 @@ server <- function(input, output) {
       alpha = 0.5) +
     annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
       label = "TODAY", colour = 'firebrick', size = 4,
+      family = 'Roboto Condensed', fontface = "bold") +
+    annotate("text", x = current.date, y = Tavg.now, vjust = 2.5,
+      label = paste0(Tavg.now,'°C'), colour = 'firebrick', size = 4,
       family = 'Roboto Condensed', fontface = "bold") + 
     annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
       y = histPercentiles[, "Tavg"][6], label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
@@ -182,7 +185,7 @@ server <- function(input, output) {
       hjust=1.1,label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
       size = 4, angle = 90, alpha = 0.5, family = 'Roboto Condensed', fontface = "bold") +
     annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust = 1.1,
-      label = "TODAY", colour = 'firebrick', size = 4, angle = 90, alpha = 1,
+      label = paste0("TODAY:  ",Tavg.now,'°C'), colour = 'firebrick', size = 4, angle = 90, alpha = 1,
       family = 'Roboto Condensed', fontface = "bold")
   
   output$detail_normal_plot <- renderPlot({TS.plot}, bg = "transparent", execOnResize = TRUE)
