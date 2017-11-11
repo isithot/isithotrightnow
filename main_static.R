@@ -176,11 +176,11 @@ dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) +
            family = 'Roboto Condensed', fontface = "bold")
 
 # Save plots in www/output/<station ID>/
-ggsave(filename = "www/output/IDN60901.94768/ts_plot.png", 
+ggsave(filename = paste0("www/output/", stationId, "/ts_plot.png"), 
        plot = TS.plot,
        height = 4.5, width = 8, units = "in", device = "png")
 
-ggsave(filename = "www/output/IDN60901.94768/density_plot.png", 
+ggsave(filename = paste0("www/output/", stationId, "/density_plot.png"), 
        plot = dist.plot,
        height = 4.5, width = 8, units = "in", device = "png")
 
