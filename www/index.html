@@ -3,6 +3,7 @@
     <script src="shared/jquery.js" type="text/javascript"></script>
     <script src="shared/shiny.js" type="text/javascript"></script>
     <script src="https://use.fontawesome.com/bf57bcfa12.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:700|Roboto:300,300i" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="shared/shiny.css"/>
     <link rel="stylesheet" type="text/css" href="style.css"/>
     
@@ -24,9 +25,10 @@
     <meta name="author" content="Mat Lipson, Steefan Contractor and James Goldie">
     <meta property="og:title" content="Is it Hot Right Now?">
     <meta property="author" content="Mat Lipson, Steefan Contractor and James Goldie">
-    <meta property="og:image" content="assets/social.jpg">
+    <meta property="og:image" content="http://isithotrightnow.com/assets/social.png">
     <meta property="og:url" content="isithotrightnow.com">
     <meta property="og:description" content="Is it actually hot in Sydney today, or does it just feel that way?">
+    <meta property="fb:app_id" content="1583566641860122">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:description" content="Is it actually hot in Sydney today, or does it just feel that way?">
     <meta name="twitter:title" content="Is it Hot Right Now?">
@@ -34,7 +36,7 @@
     <meta name="twitter:site" content="Is it Hot Right Now?">
     <meta name="twitter:creator" content="@rensa_co">
     <meta name="twitter:domain" content="isithotrightnow.com">
-    <meta property="twitter:image" content="assets/social.jpg">
+    <meta property="twitter:image" content="http://isithotrightnow.com/assets/social.png">
   </head>
   <body>
     <section id="summary">
@@ -42,18 +44,17 @@
       <h1 id="isit_answer" class="shiny-text-output">. . .</h1>
       <h2 id="isit_comment" class="shiny-text-output"></h2>
       <div>
-        <a href="#detail">
+        <a id="digdeeper" href="#detail">
           <i class="fa fa-5x fa-arrow-circle-down" aria-hidden="true"></i>
-          <h4>Dig deeper</h4>
+          <h3>Dig deeper</h3>
+          
         </a>
       </div>
     </section>
 
     <section id="detail">
       <div id="detail_normal" class="detail_element">
-        <h2>Here's how today compares.</h2>
-        <!-- <h4 id="isit_current" class="shiny-text-output">(getting conditions)</h4>
-        <h4 id="isit_average" class="shiny-text-output">(getting conditions)</h4> -->
+        <h2>Here's how today compares</h2>
         <div class="detail_element_content">
           <p class="plot_caption" id="detail_normal_caption">The average temperature over the last 24 hours was <span id="isit_current" class="shiny-text-output"></span><span class="firebrick"> °C</span>, which is hotter than <span id="isit_average" class="shiny-text-output"></span><span class="firebrick">%</span> of the daily average temperatures at Sydney Observatory for this date since 1850. The <em>really</em> hot and cold days (top and bottom 5%, respectively) are above and below the dotted lines.</p>
           <div class="shiny-plot-output plot" id="detail_normal_plot"></div>
@@ -62,14 +63,16 @@
 
       <div id="detail_cc" class="detail_element">
         <div class="detail_element_content">
-          <p class="plot_caption" id="detail_dist_caption">Here you can see how those temperatures are distributed. The coldest days are on the left; the hottest are on the right. The curve is higher at temperatures that are more common and lower at rare temperatures.</p>
+          <p class="plot_caption" id="detail_dist_caption">Here you can see how those temperatures are distributed. The coldest days are on the left; the hottest are on the right. The curve is higher at more common temperatures and lower at rare temperatures.</p>
           <div class="shiny-plot-output plot" id="detail_dist_plot"></div>
         </div>
       </div>
     </section>
 
     <section id="footer">
-      <h4>By <a href="https://theurbanist.com.au/about">Mat Lipson</a>, <a href="https://steefancontractor.github.io/my_website/">Steefan Contractor</a> and <a href="https://rensa.co">James Goldie</a>. Image of Sydney (used under Creative Commons) by <a href="https://www.flickr.com/photos/sidneiensis/14872650212">Jason Tong</a>.</h4>
+      <h3>By <a href="https://theurbanist.com.au/about">Mat Lipson</a>, <a href="https://steefancontractor.github.io/my_website/">Steefan Contractor</a> and <a href="https://rensa.co">James Goldie</a>.</h3>
+      <p> ©️ 2017 under the <a href="https://github.com/isithot/isithotrightnow/blob/master/LICENSE">MIT licence</a>.
+      Data from the <a href="https://www.bom.gov.au">Bureau of Meteorology</a>.</p>
     </section>
 
   </body>

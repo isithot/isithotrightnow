@@ -3,12 +3,27 @@
 # It is run through crontab, editable with:
 # sudo crontab -u shiny -e
 
-# download latest observations 
+# download latest observations
+
+### NEW SOUTH WALES (N) ###
+# Sydney Obsevatory
 curl -o /srv/isithotrightnow/data/IDN60901.94768.axf http://www.bom.gov.au/fwo/IDN60901/IDN60901.94768.axf
 curl -o /srv/isithotrightnow/data/IDN60901.94768.json http://www.bom.gov.au/fwo/IDN60901/IDN60901.94768.json
 
+### VICTORIA (V) ###
+# Melbourne (Olympic Park)
+curl -o /srv/isithotrightnow/data/IDV60901.95936.axf http://www.bom.gov.au/fwo/IDV60901/IDV60901.95936.axf
+curl -o /srv/isithotrightnow/data/IDV60901.95936.json http://www.bom.gov.au/fwo/IDV60901/IDV60901.95936.json
+
+### QUEENSLAND (Q) ###
+# Brisbane
+curl -o /srv/isithotrightnow/data/IDQ60901.94576.axf http://www.bom.gov.au/fwo/IDQ60901/IDQ60901.94576.axf
+curl -o /srv/isithotrightnow/data/IDQ60901.94576.json http://www.bom.gov.au/fwo/IDQ60901/IDQ60901.94576.json
+
 # grep last 30min obs (line starting with '0,') into data/hist_ file
 grep -o '^0,.*' /srv/isithotrightnow/data/IDN60901.94768.axf >> /srv/isithotrightnow/data/hist_IDN60901.94768.csv
+grep -o '^0,.*' /srv/isithotrightnow/data/IDV60901.95936.axf >> /srv/isithotrightnow/data/hist_IDV60901.95936.csv
+grep -o '^0,.*' /srv/isithotrightnow/data/IDQ60901.94576.axf >> /srv/isithotrightnow/data/hist_IDQ60901.94576.csv
 
 echo "latest observations have been scraped"
 exit
