@@ -92,6 +92,11 @@ button
   margin: auto;
 }
 
+#digdeeper
+{
+  color: #eee;
+}
+
 #digdeeper h4
 {
   font-style: italic;
@@ -104,7 +109,8 @@ button
   background-color: #eee;
   padding: 40px;
 
-  display: flex;
+  /* display: flex enabled by js event! */
+  display: none;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
@@ -185,6 +191,12 @@ button
     height: auto;
     margin: 0 0 40px 0;
   }
+}
+
+#detail .plot img
+{
+  width: 100%;
+  height: 100%;
 }
 
 /* footer section */
