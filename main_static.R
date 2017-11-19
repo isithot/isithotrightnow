@@ -96,7 +96,7 @@ TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
              alpha = 0.5) +
   geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2,
              alpha = 0.5) +
-  geom_hline(aes(yintercept = median(SydHistObs$Tavg)), linetype = 2,
+  geom_hline(aes(yintercept = median(SydHistObs$Tavg, na.rm = T)), linetype = 2,
              alpha = 0.5) +
   annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
            label = "TODAY", colour = 'firebrick', size = 4,
@@ -155,7 +155,7 @@ dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) +
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank()) +
   geom_vline(xintercept = Tavg.now, colour = 'firebrick', size = rel(1.5)) +
-  geom_vline(xintercept = median(SydHistObs$Tavg), linetype = 2, alpha = 0.5) + 
+  geom_vline(xintercept = median(SydHistObs$Tavg, na.rm = T), linetype = 2, alpha = 0.5) + 
   geom_vline(
     xintercept = histPercentiles[,"Tavg"][1], linetype = 2, alpha = 0.5) +
   geom_vline(
