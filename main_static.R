@@ -176,11 +176,11 @@ dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) +
            family = 'Roboto Condensed', fontface = "bold")
 
 # Save plots in www/output/<station ID>/
-ggsave(filename = paste0("srv/isithotrightnow/www/output/", stationId, "/ts_plot.png"), 
+ggsave(filename = paste0("/srv/isithotrightnow/www/output/", stationId, "/ts_plot.png"), 
        plot = TS.plot,
        height = 4.5, width = 8, units = "in", device = "png")
 
-ggsave(filename = paste0("srv/isithotrightnow/www/output/", stationId, "/density_plot.png"), 
+ggsave(filename = paste0("/srv/isithotrightnow/www/output/", stationId, "/density_plot.png"), 
        plot = dist.plot,
        height = 4.5, width = 8, units = "in", device = "png")
 
@@ -193,4 +193,4 @@ statsList <- vector(mode = "list", length = 4)
   statsList[[4]] <- average.percent
 
 exportJSON <- toJSON(statsList)
-write(exportJSON, file = "srv/isithotrightnow/www/output/IDN60901.94768/stats.json")
+write(exportJSON, file = "/srv/isithotrightnow/www/output/IDN60901.94768/stats.json")
