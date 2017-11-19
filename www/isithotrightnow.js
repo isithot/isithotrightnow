@@ -29,7 +29,7 @@
       loaded_resources.isit_stats = true;
 
       // enable page if all resources are loaded
-      if (loaded_resources.every(function(x) { return x; }))
+      if ($.each(loaded_resources, function(index, value) { return value; }))
       {
         $("#detail").attr("style", "display: flex;");
         $("#digdeeper").attr("style", "color: #b22222;");
@@ -49,7 +49,7 @@
         plot_target.attr("src", $(this).attr("src"));
 
         // enable page if all resources are loaded
-        if (loaded_resources.every(function(x) { return x; }))
+        if ($.each(loaded_resources, function(index, value) { return value; }))
         {
           $("#detail").attr("style", "display: flex;");
           $("#digdeeper").attr("style", "color: #b22222;");
@@ -65,7 +65,7 @@
     // apologise if resources aren't all loaded after 10 secs
     setTimeout(function()
     {
-      if (!loaded_resources.every(function(x) { return x; }))
+      if (!$.each(loaded_resources, function(index, value) { return value; }))
       {
         $("#digdeeper h3").text("We're having some trouble downloading the data... 😅");
       }  
