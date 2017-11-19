@@ -11,9 +11,9 @@
       "output/" + default_location + "/";
     loaded_resources = 
     {
-      isit_stats = false,
-      isit_ts_plot = false,
-      isit_density_plot = false
+      isit_stats: false,
+      isit_ts_plot: false,
+      isit_density_plot: false
     }
     
     // dl stats as json and insert on success.
