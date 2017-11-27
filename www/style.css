@@ -107,7 +107,7 @@ button
 {
   /* background-color: #bbff00; */
   background-color: #eee;
-  padding: 40px;
+  padding: 0 40px;
 
   /* display: flex enabled by js event! */
   display: none;
@@ -129,7 +129,7 @@ button
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  padding-bottom: 50px;
+  padding-bottom: 40px;
 }
 
 #detail .detail_element h2
@@ -178,7 +178,7 @@ button
   {
     width: 100%;
     flex: 1;
-    margin: 0 0 10px 0;
+    margin: 0;
   }
 
   #detail .plot_caption
