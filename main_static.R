@@ -10,7 +10,7 @@ library(readr)
 library(RJSONIO)
 
 # load functions from app_functions.R
-source("app_functions_static.R")
+source("/srv/isithotrightnow/app_functions_static.R")
 
 # The algorithm
 # --
