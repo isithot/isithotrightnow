@@ -150,10 +150,8 @@ button
 
 #detail .plot
 {
-  height: 400px;
   flex: 1 67%;
   width: 67%;
-  /* background-color: rgba(0, 0, 0, 0.25); */
   margin: 0 0 0 10px;
 }
 
@@ -161,7 +159,6 @@ button
 {
   flex: 1 33%;
   width: 33%;
-  /* background-color: rgba(0, 0, 0, 0.15); */
   height: auto;
   margin: 0 10px 0 0;
   text-align: justify;
@@ -180,7 +177,7 @@ button
   #detail .plot
   {
     width: 100%;
-    height: 200px;
+    flex: 1;
     margin: 0 0 10px 0;
   }
 
@@ -196,14 +193,12 @@ button
 #detail .plot img
 {
   width: 100%;
-  height: 100%;
 }
 
 /* footer section */
 
 #footer
 {
-  /* background-color: #00bbff; */
   background-color: #fff;
   color: #000;
   padding: 20px;
@@ -224,18 +219,14 @@ button
 
 #detail_normal_plot
 {
-  /* background: url('assets/detail_normal_plot.png'); */
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  height: 250px;
 }
 
 #detail_dist_plot
 {
-  /* background: url('assets/examplepic.png'); */
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  height: 250px;
 }
