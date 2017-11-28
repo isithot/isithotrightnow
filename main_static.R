@@ -177,11 +177,11 @@ dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) +
 
 # Save plots in www/output/<station ID>/
 ggsave(filename = paste0("www/output/", stationId, "/ts_plot.png"), 
-       plot = TS.plot,
+       plot = TS.plot, bg = "transparent", 
        height = 4.5, width = 8, units = "in", device = "png")
 
 ggsave(filename = paste0("www/output/", stationId, "/density_plot.png"), 
-       plot = dist.plot,
+       plot = dist.plot, bg = "transparent", 
        height = 4.5, width = 8, units = "in", device = "png")
 
 # Save JSON file
