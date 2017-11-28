@@ -1,4 +1,16 @@
-Data from the following sources:
+Readme for observation data
+===========================
+
+There seems to be two station ID formats in use by BOM. 
+Eg Sydney has IDN60901.94768 and 066062
+* ID = ID
+* N = NSW (Q=QLD, V=VIC etc)
+* 60901 = product number
+* 94768 = station number (used in current obs)
+
+* 066062 = also station number (used in long historical record files)
+
+We will stick with IDN60901.94768 for now as those files are downloaded every half hour.
 
 Current Observations
 ====================

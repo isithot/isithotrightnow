@@ -10,9 +10,9 @@ getHistoricalObs <- function(stationId, date = Sys.Date()) {
   # The first two columns are not read in
   if(missing(stationId)) stop("Error: Station ID missing")
   if(missing(date)) warning("Warning: Date missing. Calculating percentiles for today's date")
-  SydObs.Tmax <- read.csv(paste0("data/", stationId, "_TMAX.csv"), header = T,
+  SydObs.Tmax <- read.csv(paste0("/srv/isithotrightnow/data/", stationId, "_TMAX.csv"), header = T,
                           stringsAsFactors = F)[,c(3:6)]
-  SydObs.Tmin <- read.csv(paste0("data/", stationId, "_TMIN.csv"), header = T,
+  SydObs.Tmin <- read.csv(paste0("/srv/isithotrightnow/data/", stationId, "_TMIN.csv"), header = T,
                           stringsAsFactors = F)[,c(3:6)]
   SydObs <- merge(SydObs.Tmax, SydObs.Tmin, all = TRUE)
   names(SydObs)[4:5] <- c("Tmax", "Tmin")
@@ -30,7 +30,7 @@ calcHistPercentiles <- function(Obs) {
 
 getCurrentObs <- function(stationId) {
   # Returns a data frame with latest 3 day half hourly obs called SydObs.df
-  SydObs.data <- read_csv(file = paste0("data/", stationId, ".axf"), skip = 19)[,c(6,19)]
+  SydObs.data <- read_csv(file = paste0("/srv/isithotrightnow/data/", stationId, ".axf"), skip = 19)[,c(6,19)]
   # Create a dataframe with Date_time in first column and air_temp in second column
   date_time <- ymd_hms(SydObs.data$`local_date_time_full[80]`,
                        tz = "Australia/Sydney")

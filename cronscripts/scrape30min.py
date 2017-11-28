@@ -5,7 +5,7 @@
 # Description: 
 # This is a script run every half hour to scrape current observations
 # It is run through crontab, editable with:
-# 	sudo crontab -u shiny -e
+# 	crontab -e
 
 import os
 import urllib
@@ -17,8 +17,8 @@ path = '/srv/isithotrightnow'
 stations = ['IDN60901.94768','IDV60901.95936','IDQ60901.94576']
 
 # retrieve latest observations from BOM and append to historical file for each station
-for i,statname in enumerate(stations):
+for statname in stations:
 	urllib.urlretrieve('http://www.bom.gov.au/fwo/%s/%s.axf' %(statname.split('.')[0],statname), '%s/data/%s.axf' %(path,statname))
 	os.system("grep -o '^0,.*' %s/data/%s.axf >> %s/data/hist_%s.csv" %(path,statname,path,statname))
-
-print('latest observations have been scraped')
+	# make backup
+	os.system('cp %s/data/hist_%s.csv %s/databackup/hist_%s.backup'  %(path,statname,path,statname))
