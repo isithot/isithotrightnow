@@ -109,15 +109,15 @@ TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
            family = 'Roboto Condensed', fontface = "bold") + 
   annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
            y = histPercentiles[, "Tavg"][6], label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
-           alpha = 0.5, size = 4, hjust=0, vjust = -0.5,
+           alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
            family = 'Roboto Condensed', fontface = "bold") + 
   annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-           y = median(SydHistObs$Tavg, na.rm = T), label = paste0("Average:  ",round(median(SydHistObs$Tavg, na.rm = T),1),'°C'),
-           alpha = 0.5, size = 4, hjust=0, vjust = -0.5,
+           y = median(SydHistObs$Tavg, na.rm = T), label = paste0("50th percentile:  ",round(median(SydHistObs$Tavg, na.rm = T),1),'°C'),
+           alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
            family = 'Roboto Condensed', fontface = "bold") + 
   annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
            y = histPercentiles[, "Tavg"][1], label = paste0("5th percentile:  ",round(histPercentiles[,"Tavg"][1],1),'°C'),
-           alpha = 0.5, size = 4, hjust = 0, vjust = -0.5,
+           alpha = 0.9, size = 4, hjust = 0, vjust = -0.5,
            family = 'Roboto Condensed', fontface = "bold") +
   # annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
   #   y = median(SydHistObs$Tavg), label = paste0("50TH PERCENTILE:  ",round(median(SydHistObs$Tavg)),'°C'),
@@ -174,13 +174,13 @@ dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) +
   #   family = 'Roboto Condensed', fontface = "bold") +
   annotate("text", x = histPercentiles[,"Tavg"][1], y = Inf, vjust = -0.75,
            hjust=1.1,label = paste0("5th percentile:  ",round(histPercentiles[,"Tavg"][1],1),'°C'), 
-           size = 4, angle = 90, alpha = 0.5, family = 'Roboto Condensed', fontface = "bold") +
+           size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
   annotate("text", x = median(SydHistObs$Tavg, na.rm = T), y = Inf, vjust = -0.75,
-           hjust=1.1,label = paste0("Average:  ",round(median(SydHistObs$Tavg, na.rm = T),1),'°C'), 
-           size = 4, angle = 90, alpha = 0.5, family = 'Roboto Condensed', fontface = "bold") +
+           hjust=1.1,label = paste0("50th percentile:  ",round(median(SydHistObs$Tavg, na.rm = T),1),'°C'), 
+           size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
   annotate("text", x = histPercentiles[,"Tavg"][6], y = Inf, vjust = -0.75,
            hjust=1.1,label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
-           size = 4, angle = 90, alpha = 0.5, family = 'Roboto Condensed', fontface = "bold") +
+           size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
   annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust = 1.1,
            label = paste0("TODAY:  ",Tavg.now,'°C'), colour = 'firebrick', size = 4, angle = 90, alpha = 1,
            family = 'Roboto Condensed', fontface = "bold")
