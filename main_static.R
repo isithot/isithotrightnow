@@ -91,8 +91,8 @@ TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
       format(current.date_time, format="%d %B"))) +
   xlab(NULL) + 
   ylab('Daily average temperature (°C)') + 
-  geom_point(size = rel(2), colour = '#999999') +
   geom_line(size = 0.2, colour = '#CCCCCC') + 
+  geom_point(size = rel(2), colour = '#999999') +
   geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick",
              size = rel(5)) +
   geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2,
@@ -172,13 +172,13 @@ dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) +
   # annotate("text", x = median(SydHistObs$Tavg), y = Inf, vjust = -0.75,
   #   hjust=1.1,label = "50TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
   #   family = 'Roboto Condensed', fontface = "bold") +
-  annotate("text", x = histPercentiles[,"Tavg"][1], y = Inf, vjust = -0.75,
+  annotate("text", x = histPercentiles[,"Tavg"][1], y = 0, vjust = -0.75,
            hjust=1.1,label = paste0("5th percentile:  ",round(histPercentiles[,"Tavg"][1],1),'°C'), 
            size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
-  annotate("text", x = median(SydHistObs$Tavg, na.rm = T), y = Inf, vjust = -0.75,
+  annotate("text", x = median(SydHistObs$Tavg, na.rm = T), y = 0, vjust = -0.75,
            hjust=1.1,label = paste0("50th percentile:  ",round(median(SydHistObs$Tavg, na.rm = T),1),'°C'), 
            size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
-  annotate("text", x = histPercentiles[,"Tavg"][6], y = Inf, vjust = -0.75,
+  annotate("text", x = histPercentiles[,"Tavg"][6], y = 0, vjust = -0.75,
            hjust=1.1,label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
            size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
   annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust = 1.1,
