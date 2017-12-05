@@ -1,7 +1,7 @@
 # is it hot right now
 # stefan, mat and james
 
-library(shiny)
+# library(shiny)
 library(ggplot2)
 library(jsonlite)
 library(lubridate)
@@ -173,13 +173,13 @@ dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) +
   #   hjust=1.1,label = "50TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
   #   family = 'Roboto Condensed', fontface = "bold") +
   annotate("text", x = histPercentiles[,"Tavg"][1], y = 0, vjust = -0.75,
-           hjust=1.1,label = paste0("5th percentile:  ",round(histPercentiles[,"Tavg"][1],1),'°C'), 
+           hjust=-0.05,label = paste0("5th percentile:  ",round(histPercentiles[,"Tavg"][1],1),'°C'), 
            size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
   annotate("text", x = median(SydHistObs$Tavg, na.rm = T), y = 0, vjust = -0.75,
-           hjust=1.1,label = paste0("50th percentile:  ",round(median(SydHistObs$Tavg, na.rm = T),1),'°C'), 
+           hjust=-0.05,label = paste0("50th percentile:  ",round(median(SydHistObs$Tavg, na.rm = T),1),'°C'), 
            size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
   annotate("text", x = histPercentiles[,"Tavg"][6], y = 0, vjust = -0.75,
-           hjust=1.1,label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
+           hjust=-0.05,label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
            size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
   annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust = 1.1,
            label = paste0("TODAY:  ",Tavg.now,'°C'), colour = 'firebrick', size = 4, angle = 90, alpha = 1,
