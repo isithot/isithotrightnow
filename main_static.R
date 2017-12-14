@@ -195,12 +195,14 @@ ggsave(filename = paste0(fullpath,"www/output/", stationId, "/density_plot.png")
        height = 4.5, width = 8, units = "in", device = "png")
 
 # Save JSON file
-statsList <- vector(mode = "list", length = 4)
-  names(statsList) <- c("isit_answer", "isit_comment", "isit_current", "isit_average")
+statsList <- vector(mode = "list", length = 6)
+  names(statsList) <- c("isit_answer","isit_comment","isit_current","isit_average","isit_maximum","isit_minimum")
   statsList[[1]] <- isit_answer
   statsList[[2]] <- isit_comment
   statsList[[3]] <- Tavg.now
   statsList[[4]] <- average.percent
+  statsList[[5]] <- Tmax.now
+  statsList[[6]] <- Tmin.now
 
 exportJSON <- toJSON(statsList)
 write(exportJSON, file = paste0(fullpath,"www/output/IDN60901.94768/stats.json"))
