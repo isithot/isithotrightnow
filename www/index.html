@@ -62,7 +62,15 @@
       <div id="detail_normal" class="detail_element">
         <h2>Here's how today compares</h2>
         <div class="detail_element_content">
-          <p class="plot_caption" id="detail_ts_caption">The average temperature over the last 24 hours was <span id="isit_current" class="shiny-text-output"></span><span class="firebrick"> &deg;C</span>, which is hotter than <span id="isit_average" class="shiny-text-output"></span><span class="firebrick">%</span> of the daily average temperatures at Sydney Observatory for this date since 1850. The <em>really</em> hot and cold days (top and bottom 5%, respectively) are above and below the dotted lines.</p>
+          <p class="plot_caption" id="detail_ts_caption">
+            The maximum temperature over the last 24 hours was <span id="isit_maximum">[max]</span>
+            &deg;C, and the minimum <span id="isit_minimum">[min]</span>
+            &deg;C. The average of the two is <span id="isit_current" class="shiny-text-output"></span><span class="firebrick">&deg;C</span>
+            , which is hotter than <span id="isit_average" class="shiny-text-output"></span><span class="firebrick">% </span>
+            of the daily average temperatures at Sydney Observatory for this date since 1850. The 
+            <em>really </em>
+            hot and cold days (top and bottom 5%, respectively) are above and below the dotted lines.
+            </p>
           <div class="shiny-plot-output plot" id="isit_ts_plot">
             <img src="assets/clear.gif">
           </div>
