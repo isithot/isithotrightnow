@@ -3,14 +3,19 @@
 
 # app_functions.R
 
+monthDay <- function(date) {
+  if(missing(date)) stop("Error: Date missing in monthDay()")
+  return(sprintf("%04d", month(date)*100 + day(date))) #month(date)*100 + day(date))
+}
 
-getHistoricalObs <- function(stationId, date = Sys.Date()) {
+getHistoricalObs <- function(stationId, date = Sys.Date(), window = 7) {
   # returns a dataframe of historical Tmax, Tmin and Tavg obs for the date provided
   # raw csv data must have columns:
   # Product.code	BOM.station.number	Year	Month	Day	Max(Min).temperature	Days.of.acumulation	Quality
   # The first two columns are not read in
   if(missing(stationId)) stop("Error: Station ID missing")
   if(missing(date)) warning("Warning: Date missing. Calculating percentiles for today's date")
+  if(missing(window)) warning("Warning: Window missing. Getting historical obs over +/- 7 day window")
   SydObs.Tmax <- read.table(paste0(fullpath,"data/acorn.sat.maxT.", stationId, ".daily.txt"),
                             header = FALSE, skip = 1,
                             col.names = c("Date","Tmax"),
@@ -23,8 +28,12 @@ getHistoricalObs <- function(stationId, date = Sys.Date()) {
   SydObs$Year <- as.integer(substr(SydObs$Date,1,4))
   SydObs$Month <- as.integer(substr(SydObs$Date,5,6))
   SydObs$Day <- as.integer(substr(SydObs$Date,7,8))
-  SydObs = mutate(SydObs, Tavg = (Tmax + Tmin)/2)
-  return(SydObs %>% filter(Month == month(date), Day == day(date)))
+  # SydObs = mutate(SydObs, Tavg = (Tmax + Tmin)/2)
+  SydObs = SydObs %>% mutate(Tavg = (Tmax + Tmin)/2, 
+                           monthDay = monthDay(ymd(paste(Year, Month, Day))))
+  dates <- seq(date - window, date + window, by = 1)
+  # return(SydObs %>% filter(Month == month(date), Day == day(date)))
+  return(SydObs %>% filter(monthDay %in% monthDay(dates)) %>% select(-monthDay))
 }
 
 calcHistPercentiles <- function(Obs) {
