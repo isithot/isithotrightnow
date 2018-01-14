@@ -24,11 +24,24 @@ http://www.bom.gov.au/products/IDN60901/IDN60901.94768.shtml
 JavaScript Object Notation format (JSON) in row-major order
 http://www.bom.gov.au/fwo/IDN60901/IDN60901.94768.json
 
-Daily Max/Min temperatures per station
-======================================
+Historical Daily Max/Min temperatures per station
+=================================================
 
 http://www.bom.gov.au/climate/data/stations/
 Select location and data type. Max/min data is free
+
+ACORN-SAT stations
+==================
+
+Australian data:
+http://www.bom.gov.au/climate/change/acorn-sat/#tabs=Data-and-networks
+
+Sydney data:
+http://www.bom.gov.au/climate/change/acorn/sat/data/acorn.sat.minT.066062.daily.txt
+http://www.bom.gov.au/climate/change/acorn/sat/data/acorn.sat.maxT.066062.daily.txt
+
+station catalogue useful when we start expanding:
+http://www.bom.gov.au/climate/change/acorn-sat/documents/ACORN-SAT-Station-Catalogue-2012-WEB.pdf
 
 XML Feeds
 =========

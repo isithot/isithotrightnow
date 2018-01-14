@@ -11,12 +11,18 @@ getHistoricalObs <- function(stationId, date = Sys.Date()) {
   # The first two columns are not read in
   if(missing(stationId)) stop("Error: Station ID missing")
   if(missing(date)) warning("Warning: Date missing. Calculating percentiles for today's date")
-  SydObs.Tmax <- read.csv(paste0(fullpath,"data/", stationId, "_TMAX.csv"), header = T,
-                          stringsAsFactors = F)[,c(3:6)]
-  SydObs.Tmin <- read.csv(paste0(fullpath,"data/", stationId, "_TMIN.csv"), header = T,
-                          stringsAsFactors = F)[,c(3:6)]
+  SydObs.Tmax <- read.table(paste0(fullpath,"data/acorn.sat.maxT.", stationId, ".daily.txt"),
+                            header = FALSE, skip = 1,
+                            col.names = c("Date","Tmax"),
+                            na.strings = "99999.9")
+  SydObs.Tmin <- read.table(paste0(fullpath,"data/acorn.sat.minT.", stationId, ".daily.txt"),
+                            header = FALSE, skip = 1,
+                            col.names = c("Date","Tmin"),
+                            na.strings = "99999.9")
   SydObs <- merge(SydObs.Tmax, SydObs.Tmin, all = TRUE)
-  names(SydObs)[4:5] <- c("Tmax", "Tmin")
+  SydObs$Year <- as.integer(substr(SydObs$Date,1,4))
+  SydObs$Month <- as.integer(substr(SydObs$Date,5,6))
+  SydObs$Day <- as.integer(substr(SydObs$Date,7,8))
   SydObs = mutate(SydObs, Tavg = (Tmax + Tmin)/2)
   return(SydObs %>% filter(Month == month(date), Day == day(date)))
 }
