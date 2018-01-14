@@ -90,7 +90,7 @@ HistObs <- HistObs %>%
 
 # first the distribution plot because it uses all historical data
 dist.plot <- ggplot(data = HistObs, aes(Tavg)) + 
-  ggtitle(paste0('Daily average temperature distribution \n at this time of year since ',substr(SydHistObs[1,1],1,4))) + 
+  ggtitle(paste0('Daily average temperature distribution \n at this time of year since ',substr(HistObs[1,1],1,4))) + 
   geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
   theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
   theme(panel.background = element_rect(fill = "transparent", colour = NA),
@@ -143,7 +143,7 @@ TS.plot <- ggplot(data = HistObs, aes(x = Date, y = Tavg)) +
   ggtitle(
     paste0(
       'Daily average temperatures for\n',
-      format(current.date_time, format="%d %B"),' since ',substr(SydHistObs[1,1],1,4))) +
+      format(current.date_time, format="%d %B"),' since ',substr(HistObs[1,1],1,4))) +
   xlab(NULL) + 
   ylab('Daily average temperature (°C)') + 
   geom_line(size = 0.75, colour = '#CCCCCC') + 
