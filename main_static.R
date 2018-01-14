@@ -7,7 +7,7 @@ library(lubridate)
 library(dplyr)
 library(readr)
 library(RJSONIO)
-library(rvest)
+library(xml2)
 
 if (Sys.info()["user"] == "ubuntu")
 {
@@ -23,39 +23,35 @@ source(paste0(fullpath,"app_functions_static.R"))
 
 # The algorithm
 # --
-# Take the maximum and minimum temperatures of the last 24h
-# and average them to the the avg(Tmax,Tmin)
-# then compare this Tavg with the climatology.
+# Take the maximum and minimum temperatures reported from the last
+# daytime and nighttime periods and average them.
+# Then compare this Tavg with the climatology.
 # We download daily Tmax and Tmin data from BOM,
 # calculate 6 percentiles (0.05,0.1,0.4,0.6,0.9,0.95),
 # and figure out which bin our daily Tmax,Tmin or Tavg 
 # sits in.
 # --
 
-stationId = "IDN60901.94768"
+station_id = "066062"
 
 # Get current half hourly data for the past 3 days
-SydObs.df <- getCurrentObs(stationId)
-
-# Let's first get the current month, day and current date_time
-# Because we are averaging the max and min temperatures over the
-# past 24h, the current date is the date 12h ago
-current.date_time <- SydObs.df$date_time[13]
-current.date <- ymd(substr(current.date_time, 1, 10))
+SydObs.df <- getCurrentObs(station_id)
 
 # Calculate percentiles of historical data
-SydHistObs <- getHistoricalObs(stationId, date = current.date)
+SydHistObs <- getHistoricalObs(station_id)
 histPercentiles <- calcHistPercentiles(Obs = SydHistObs)
+
 # Now let's get the air_temp max and min over the past
 # 24h and average them
-Tmax.now <- max(SydObs.df$air_temp[1:48])
-Tmin.now <- min(SydObs.df$air_temp[1:48])
-# Note this is not a true average, just an average of the 
-# max and min values
-Tavg.now <- mean(c(Tmax.now, Tmin.now))
-# 
-message(paste('Updating answer based on: Tavg.now ', Tavg.now, ', histPercentiles ', histPercentiles[,"Tavg"], '\n'))
+Tmax.now <- SydObs.df$tmax
+Tmin.now <- SydObs.df$tmin
 
+# Note this is not a true average, just a simple average of the 
+# max and min values (which is the way daily avg. temp is usually done)
+Tavg.now <- mean(c(Tmax.now, Tmin.now))
+
+message(paste('Updating answer based on: Tavg.now ', Tavg.now,
+  ', histPercentiles ', histPercentiles[,"Tavg"], '\n'))
 
 category.now <- as.character(cut(Tavg.now, breaks = c(-100,histPercentiles[,"Tavg"],100), 
                                  labels = c("bc","rc","c","a","h","rh","bh"),
@@ -192,11 +188,11 @@ dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) +
            family = 'Roboto Condensed', fontface = "bold")
 
 # Save plots in www/output/<station ID>/
-ggsave(filename = paste0(fullpath,"www/output/",stationId, "/ts_plot.png"), 
+ggsave(filename = paste0(fullpath,"www/output/",station_id, "/ts_plot.png"), 
        plot = TS.plot, bg = "transparent", 
        height = 4.5, width = 8, units = "in", device = "png")
 
-ggsave(filename = paste0(fullpath,"www/output/", stationId, "/density_plot.png"), 
+ggsave(filename = paste0(fullpath,"www/output/", station_id, "/density_plot.png"), 
        plot = dist.plot, bg = "transparent", 
        height = 4.5, width = 8, units = "in", device = "png")
 

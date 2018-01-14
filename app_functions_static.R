@@ -28,14 +28,50 @@ calcHistPercentiles <- function(Obs) {
                 FUN = quantile, probs = c(0.05,0.1,0.4,0.6,0.9,0.95), na.rm = T))
 }
 
-getCurrentObs <- function(stationId) {
-  # Returns a data frame with latest 3 day half hourly obs called SydObs.df
-  SydObs.data <- read_csv(file = paste0(fullpath,"data/", stationId, ".axf"), skip = 19)[,c(6,19)]
-  # Create a dataframe with Date_time in first column and air_temp in second column
-  date_time <- ymd_hms(SydObs.data$`local_date_time_full[80]`,
-                       tz = "Australia/Sydney")
-  air_temp <- SydObs.data$air_temp
-  # Now create the data frame
-  SydObs.df <- data.frame(date_time, air_temp)
-  return(SydObs.df)
+getCurrentObs <- function(station_id) {
+  # Returns a data frame with the max and min temps reported by the station
+
+  # infer the state from the station id
+  region_code <- as.integer(substr(station_id, 2, 3))
+  state <- case_when(
+    between(region_code, 1, 13) ~ "wa",
+    between(region_code, 14, 15) ~ "nt",
+    between(region_code, 16, 26) ~ "sa",
+    between(region_code, 27, 45) ~ "qld",
+    between(region_code, 46, 75) ~ "nsw",
+    between(region_code, 76, 90) ~ "vic",
+    between(region_code, 91, 99) ~ "tas",
+    TRUE ~ "err")
+  print(station_id)
+  print(region_code)
+  print(state)
+  print(exists(state))
+  if (state == "err" | state == "")
+    stop ("Invalid station ID")
+
+  # get the current max and min from the xml file
+  # TODO - is there an edge case that requires us to look at the las ttwo days?
+  obs_data <-
+    read_xml(paste0(fullpath, "data/latest/latest-", state, ".xml")) %>%
+    xml_find_first(paste0("//station[@bom-id='", station_id, "']"))
+
+  # note: there's code here tte also include max/min timestamps
+  # (if we need them later)
+  return(
+    data.frame(
+      # tmax_time = obs_data %>%
+      #   xml_find_first("//element[@type='maximum_air_temperature']") %>%
+      #   xml_attr("time-local"),
+      tmax = obs_data %>%
+        xml_find_first("//element[@type='maximum_air_temperature']") %>%
+        xml_text() %>%
+        as.numeric(),
+      # tmin_time = obs_data %>%
+      #   xml_find_first("//element[@type='minimum_air_temperature']") %>%
+      #   xml_attr("time-local"),
+      tmin = obs_data %>%
+        xml_find_first("//element[@type='minimum_air_temperature']") %>%
+        xml_text() %>%
+        as.numeric())
+  )
 }
