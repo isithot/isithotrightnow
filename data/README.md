@@ -1,14 +1,17 @@
 Readme for observation data
 ===========================
 
-There seems to be two station ID formats in use by BOM. 
-Eg Sydney has IDN60901.94768 and 066062
-* ID = ID
-* N = NSW (Q=QLD, V=VIC etc)
-* 60901 = product number
-* 94768 = station number (used in current obs)
-
-* 066062 = also station number (used in long historical record files)
+There are a few relevant codes used by the BOM and WMO:
+* WMO station ID code: a five digit code (eg. 94768 for Sydney Obs Hill)
+  - Australian stations are all in the 94100–94998 range
+* BOM station ID code: a six digit code (eg. 066062 for Sydney Obs Hill):
+  - Digit 1: type of station (0 = land-based)
+  - Digits 2–3: region (regions can be used to infer states: see repo README)
+* A BoM _product_ code. Some products are for a single station, but the product code is distinct from station codes (some include a WMO station code, though):
+  - "ID"
+  - State letter (see repo README): eg. N for NSW, Q for QLD, V for VIC, etc)
+  - 60901 = product number
+  - 94768 = WMO station number (used in current obs)
 
 We will stick with IDN60901.94768 for now as those files are downloaded every half hour.
 
