@@ -44,7 +44,7 @@ current.date_time <- SydObs.df$date_time[13]
 current.date <- ymd(substr(current.date_time, 1, 10))
 
 # Calculate percentiles of historical data
-SydHistObs <- getHistoricalObs(stationId, date = current.date)
+SydHistObs <- getHistoricalObs(stationId, date = current.date, window = 7)
 histPercentiles <- calcHistPercentiles(Obs = SydHistObs)
 # Now let's get the air_temp max and min over the past
 # 24h and average them
@@ -84,11 +84,59 @@ average.percent <- 100*round(ecdf(SydHistObs$Tavg)(Tavg.now),digits=2)
 
 ################################################################################################
 
-SydHistObs$Date = ymd(paste(SydHistObs$Year, SydHistObs$Month, SydHistObs$Day, sep = '-'))
+SydHistObs <- SydHistObs %>% 
+  mutate(Date = ymd(paste(SydHistObs$Year, SydHistObs$Month, SydHistObs$Day, sep = '-'))) %>%
+  rbind(data.frame(Year = year(current.date), Month = month(current.date), Day = day(current.date),
+                   Tmax = Tmax.now, Tmin = Tmin.now, Tavg = Tavg.now, Date = current.date))
 
-SydHistObs <- rbind(SydHistObs,
-                    data.frame(Year = year(current.date), Month = month(current.date), Day = day(current.date),
-                               Tmax = Tmax.now, Tmin = Tmin.now, Tavg = Tavg.now, Date = current.date))
+# first the distribution plot because it uses all historical data
+dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) + 
+  ggtitle(
+    paste(
+      'Distribution of daily average temperatures\nsince 1850 for',
+      format(current.date_time, format="%d %B"))) +
+  geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
+  theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
+  theme(panel.background = element_rect(fill = "transparent", colour = NA),
+        panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        panel.border = element_blank(),
+        plot.title = element_text(family = 'Roboto Condensed', face = "bold",
+                                  color = '#333333', size = 18, hjust = 0.5),
+        axis.text.x = element_text(family = 'Roboto Condensed', face = "bold"),
+        axis.title.x = element_text(family = 'Roboto Condensed', face = "bold",
+                                    size = 16),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()) +
+  geom_vline(xintercept = Tavg.now, colour = 'firebrick', size = rel(1.5)) +
+  geom_vline(xintercept = median(SydHistObs$Tavg, na.rm = T), linetype = 2, alpha = 0.5) + 
+  geom_vline(
+    xintercept = histPercentiles[,"Tavg"][1], linetype = 2, alpha = 0.5) +
+  geom_vline(
+    xintercept = histPercentiles[,"Tavg"][6], linetype = 2, alpha = 0.5) + 
+  scale_y_continuous(expand = c(0,0)) +
+  xlab("Daily average temperature (°C)") + 
+  # annotate("text", x = median(SydHistObs$Tavg), y = Inf, vjust = -0.75,
+  #   hjust=1.1,label = "50TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
+  #   family = 'Roboto Condensed', fontface = "bold") +
+  annotate("text", x = histPercentiles[,"Tavg"][1], y = 0, vjust = -0.75,
+           hjust=-0.05,label = paste0("5th percentile:  ",round(histPercentiles[,"Tavg"][1],1),'°C'), 
+           size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
+  annotate("text", x = median(SydHistObs$Tavg, na.rm = T), y = 0, vjust = -0.75,
+           hjust=-0.05,label = paste0("50th percentile:  ",round(median(SydHistObs$Tavg, na.rm = T),1),'°C'), 
+           size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
+  annotate("text", x = histPercentiles[,"Tavg"][6], y = 0, vjust = -0.75,
+           hjust=-0.05,label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
+           size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
+  annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust = 1.1,
+           label = paste0("TODAY:  ",Tavg.now,'°C'), colour = 'firebrick', size = 4, angle = 90, alpha = 1,
+           family = 'Roboto Condensed', fontface = "bold")
+
+# Now for the time series the historical data must only include days with the same monthDay
+SydHistObs <- SydHistObs %>%
+              filter(month(Date) == month(current.date), day(Date) == day(current.date))
+  
 
 TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
   ggtitle(
@@ -147,49 +195,6 @@ TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
         axis.text.y = element_text(family = 'Roboto Condensed', face = "bold"),
         axis.title.y = element_text(family = 'Roboto Condensed', face = "bold",
                                     size = 16))
-
-dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) + 
-  ggtitle(
-    paste(
-      'Distribution of daily average temperatures\nsince 1850 for',
-      format(current.date_time, format="%d %B"))) +
-  geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
-  theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
-  theme(panel.background = element_rect(fill = "transparent", colour = NA),
-        panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
-        plot.background = element_rect(fill = "transparent", colour = NA),
-        panel.border = element_blank(),
-        plot.title = element_text(family = 'Roboto Condensed', face = "bold",
-                                  color = '#333333', size = 18, hjust = 0.5),
-        axis.text.x = element_text(family = 'Roboto Condensed', face = "bold"),
-        axis.title.x = element_text(family = 'Roboto Condensed', face = "bold",
-                                    size = 16),
-        axis.title.y = element_blank(),
-        axis.text.y = element_blank(),
-        axis.ticks.y = element_blank()) +
-  geom_vline(xintercept = Tavg.now, colour = 'firebrick', size = rel(1.5)) +
-  geom_vline(xintercept = median(SydHistObs$Tavg, na.rm = T), linetype = 2, alpha = 0.5) + 
-  geom_vline(
-    xintercept = histPercentiles[,"Tavg"][1], linetype = 2, alpha = 0.5) +
-  geom_vline(
-    xintercept = histPercentiles[,"Tavg"][6], linetype = 2, alpha = 0.5) + 
-  scale_y_continuous(expand = c(0,0)) +
-  xlab("Daily average temperature (°C)") + 
-  # annotate("text", x = median(SydHistObs$Tavg), y = Inf, vjust = -0.75,
-  #   hjust=1.1,label = "50TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
-  #   family = 'Roboto Condensed', fontface = "bold") +
-  annotate("text", x = histPercentiles[,"Tavg"][1], y = 0, vjust = -0.75,
-           hjust=-0.05,label = paste0("5th percentile:  ",round(histPercentiles[,"Tavg"][1],1),'°C'), 
-           size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
-  annotate("text", x = median(SydHistObs$Tavg, na.rm = T), y = 0, vjust = -0.75,
-           hjust=-0.05,label = paste0("50th percentile:  ",round(median(SydHistObs$Tavg, na.rm = T),1),'°C'), 
-           size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
-  annotate("text", x = histPercentiles[,"Tavg"][6], y = 0, vjust = -0.75,
-           hjust=-0.05,label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
-           size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
-  annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust = 1.1,
-           label = paste0("TODAY:  ",Tavg.now,'°C'), colour = 'firebrick', size = 4, angle = 90, alpha = 1,
-           family = 'Roboto Condensed', fontface = "bold")
 
 # Save plots in www/output/<station ID>/
 ggsave(filename = paste0(fullpath,"www/output/",stationId, "/ts_plot.png"), 
