@@ -21,7 +21,7 @@
       ga('send', 'pageview');
     </script>
 
-    <!-- social and other metadata -->
+    <!-- social metadata -->
     <meta name="title" content="Is it Hot Right Now?">
     <meta name="description" content="Is it actually hot in Sydney today, or does it just feel that way?">
     <meta name="author" content="Mat Lipson, Steefan Contractor and James Goldie">
@@ -39,6 +39,14 @@
     <meta name="twitter:creator" content="@rensa_co">
     <meta name="twitter:domain" content="isithotrightnow.com">
     <meta property="twitter:image" content="http://isithotrightnow.com/assets/social.png">
+    <!-- icon metadata -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://isithotrightnow.com/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="https://isithotrightnow.com/apple-touch-icon-152x152.png" />
+    <link rel="icon" type="image/png" href="https://isithotrightnow.com/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="https://isithotrightnow.com/favicon-16x16.png" sizes="16x16" />
+    <meta name="application-name" content="is it hot right now?"/>
+    <meta name="msapplication-TileColor" content="#FFFFFF" />
+    <meta name="msapplication-TileImage" content="https://isithotrightnow.com/mstile-144x144.png" />
   </head>
   
   <body>
@@ -59,7 +67,15 @@
       <div id="detail_normal" class="detail_element">
         <h2>Here's how today compares</h2>
         <div class="detail_element_content">
-          <p class="plot_caption" id="detail_ts_caption">The average temperature over the last 24 hours was <span id="isit_current" class="shiny-text-output"></span><span class="firebrick"> &deg;C</span>, which is hotter than <span id="isit_average" class="shiny-text-output"></span><span class="firebrick">%</span> of the daily average temperatures at Sydney Observatory for this date since 1850. The <em>really</em> hot and cold days (top and bottom 5%, respectively) are above and below the dotted lines.</p>
+          <p class="plot_caption" id="detail_ts_caption">
+            The maximum temperature over the last 24 hours was <span id="isit_maximum">[max]</span>
+            &deg;C, and the minimum <span id="isit_minimum">[min]</span>
+            &deg;C. The average of the two is <span id="isit_current" class="shiny-text-output"></span><span class="firebrick">&deg;C</span>
+            , which is hotter than <span id="isit_average" class="shiny-text-output"></span><span class="firebrick">% </span>
+            of the daily average temperatures at Sydney Observatory for this date since 1850. The 
+            <em>really </em>
+            hot and cold days (top and bottom 5%, respectively) are above and below the dotted lines.
+            </p>
           <div class="shiny-plot-output plot" id="isit_ts_plot">
             <img src="assets/clear.gif">
           </div>
