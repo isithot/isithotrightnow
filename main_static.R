@@ -32,10 +32,12 @@ source(paste0(fullpath, "app_functions_static.R"))
 # sits in.
 # --
 
+# Get current time with GMT + 11 hours (Sydney)
+current.date_time <- Sys.time()+3600*11
+current.date <- ymd(substr(current.date_time, 1, 10))
+
 station_id = "066062"
 window = 7
-current.date_time <- Sys.time()
-current.date <- Sys.Date()
 
 # Get current max/min data for today
 CurrObs.df <- getCurrentObs(station_id)
