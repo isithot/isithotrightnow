@@ -9,8 +9,14 @@ library(dplyr)
 library(readr)
 library(RJSONIO)
 
-fullpath = "/srv/isithotrightnow/"
-# fullpath = "./"
+if (Sys.info()["user"] == "ubuntu")
+{
+  # running on the server
+  fullpath = "/srv/isithotrightnow/"
+} else {
+  # testing locally
+  fullpath = "./"
+}
 
 # load functions from app_functions.R
 source(paste0(fullpath,"app_functions_static.R"))
