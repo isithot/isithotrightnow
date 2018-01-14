@@ -24,8 +24,21 @@ http://www.bom.gov.au/products/IDN60901/IDN60901.94768.shtml
 JavaScript Object Notation format (JSON) in row-major order
 http://www.bom.gov.au/fwo/IDN60901/IDN60901.94768.json
 
-Monthly Max/Min temperatures per station
+Daily Max/Min temperatures per station
 ======================================
+
+http://www.bom.gov.au/climate/data/stations/
+Select location and data type. Max/min data is free
+
+XML Feeds
+=========
+General: http://www.bom.gov.au/catalogue/data-feeds.shtml
+Anonymous: http://www.bom.gov.au/catalogue/anon-ftp.shtml
+Index: ftp://ftp.bom.gov.au/anon/gen/fwo/
+NSW: ftp://ftp.bom.gov.au/anon/gen/fwo/IDN60920.xml
+
+Monthly Max/Min temperatures per station
+========================================
 
 Source: [http://www.bom.gov.au/climate/data/stations/](http://www.bom.gov.au/climate/data/stations/)
 currently need to go through GUI
