@@ -3,6 +3,7 @@
 
 # app_functions.R
 
+
 getHistoricalObs <- function(stationId, date = Sys.Date()) {
   # returns a dataframe of historical Tmax, Tmin and Tavg obs for the date provided
   # raw csv data must have columns:
