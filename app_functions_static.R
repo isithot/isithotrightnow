@@ -3,6 +3,10 @@
 
 # app_functions.R
 
+monthDay <- function(date) {
+  if(missing(date)) stop("Error: Date missing in monthDay()")
+  return(sprintf("%04d", month(date)*100 + day(date))) #month(date)*100 + day(date))
+}
 
 getHistoricalObs <- function(stationId, date = Sys.Date()) {
   # returns a dataframe of historical Tmax, Tmin and Tavg obs for the date provided
@@ -17,8 +21,10 @@ getHistoricalObs <- function(stationId, date = Sys.Date()) {
                           stringsAsFactors = F)[,c(3:6)]
   SydObs <- merge(SydObs.Tmax, SydObs.Tmin, all = TRUE)
   names(SydObs)[4:5] <- c("Tmax", "Tmin")
-  SydObs = mutate(SydObs, Tavg = (Tmax + Tmin)/2)
-  return(SydObs %>% filter(Month == month(date), Day == day(date)))
+  SydObs = SydObs %>% mutate(Tavg = (Tmax + Tmin)/2, 
+                             monthDay = monthDay(ymd(paste(Year, Month, Day))))
+  dates <- seq(date - 7, date + 7, by = 1)
+  return(SydObs %>% filter(monthDay %in% monthDay(dates)) %>% select(-monthDay))
 }
 
 calcHistPercentiles <- function(Obs) {
