@@ -216,4 +216,6 @@ statsList <- vector(mode = "list", length = 6)
   statsList[[6]] <- average.percent
 
 exportJSON <- toJSON(statsList)
-write(exportJSON, file = paste0(fullpath,"www/output/IDN60901.94768/stats.json"))
+write(
+  exportJSON,
+  file = paste0(fullpath, "www/output/", station_id, "/stats.json"))
