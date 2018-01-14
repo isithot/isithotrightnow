@@ -1,13 +1,13 @@
 # is it hot right now
 # stefan, mat and james
 
-# library(shiny)
 library(ggplot2)
 library(jsonlite)
 library(lubridate)
 library(dplyr)
 library(readr)
 library(RJSONIO)
+library(rvest)
 
 if (Sys.info()["user"] == "ubuntu")
 {
