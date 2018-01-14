@@ -69,12 +69,11 @@
         <h2>Here's how today compares</h2>
         <div class="detail_element_content">
           <p class="plot_caption" id="detail_ts_caption">
-            The maximum temperature over the last 24 hours was <span id="isit_maximum">[max]</span>
-            &deg;C, and the minimum <span id="isit_minimum">[min]</span>
-            &deg;C. The average of the two is <span id="isit_current" class="shiny-text-output"></span><span class="firebrick">&deg;C</span>
+            Today's maximum temperature so far is <span id="isit_maximum">[max]</span>&deg;C, 
+            and the minimum overnight was <span id="isit_minimum">[min]</span>&deg;C. 
+            The average of the two is <span id="isit_current" class="shiny-text-output"></span><span class="firebrick">&deg;C</span>
             , which is hotter than <span id="isit_average" class="shiny-text-output"></span><span class="firebrick">% </span>
-            of the daily average temperatures at Sydney Observatory for this date since 1850. The 
-            <em>really </em>
+            of daily average temperatures at Sydney Observatory for this time of year since 1850. The <em>really </em>
             hot and cold days (top and bottom 5%, respectively) are above and below the dotted lines.
             </p>
           <div class="shiny-plot-output plot" id="isit_ts_plot">
@@ -85,7 +84,7 @@
 
       <div id="detail_cc" class="detail_element">
         <div class="detail_element_content">
-          <p class="plot_caption" id="detail_dist_caption">Here you can see how those temperatures are distributed. The coldest days are on the left; the hottest are on the right. The curve is higher at more common temperatures and lower at rare temperatures.</p>
+          <p class="plot_caption" id="detail_dist_caption">Here you can see the distribution of typical temperatures at this time of year and how today compares. We base typical temperatures on a 15-day moving window. Much like a bell curve, the curve is higher at more common temperatures and lower at rare temperatures.</p>
           <div class="shiny-plot-output plot" id="isit_density_plot">
             <img src="assets/clear.gif">
           </div>

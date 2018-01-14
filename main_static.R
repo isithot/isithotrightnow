@@ -89,10 +89,7 @@ SydHistObs <- SydHistObs %>%
 
 # first the distribution plot because it uses all historical data
 dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) + 
-  ggtitle(
-    paste(
-      'Distribution of daily average temperatures\nsince 1850 for',
-      format(current.date_time, format="%d %B"))) +
+  ggtitle('Distribution of daily average temperatures\nat this time of year since 1850') + 
   geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
   theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
   theme(panel.background = element_rect(fill = "transparent", colour = NA),
@@ -141,8 +138,8 @@ SydHistObs <- SydHistObs %>%
 TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
   ggtitle(
     paste0(
-      'Daily average temperatures\nsince 1850 for ',
-      format(current.date_time, format="%d %B"))) +
+      'Daily average temperatures for\n',
+      format(current.date_time, format="%d %B"),' since 1850')) +
   xlab(NULL) + 
   ylab('Daily average temperature (°C)') + 
   geom_line(size = 0.2, colour = '#CCCCCC') + 
