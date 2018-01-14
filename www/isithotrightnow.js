@@ -9,7 +9,7 @@ console.log('Isithot: JS file loaded');
     
 $(function()
 {
-  default_location = "IDN60901.94768";
+  default_location = "066062";
   default_path =
     "output/" + default_location + "/";
   
