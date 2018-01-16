@@ -19,8 +19,10 @@ Sites
 | 015590 | Alice Springs Airport | Alice Springs - Airport | NT    | 1910  | 2017 | Y     |
 | 014015 | Darwin Airport        | Darwin - Airport        | NT    | 1910  | 2017 | Y     |
 | 009021 | Perth Airport         | Perth - Airport         | WA    | 1910  | 2017 | Y     |
+| 300001 | Mawson 				 | Antarctica			   | ANT   | 1958  | 2016 | Y     |
 
 For more sites, check out the whole [ACORN-SAT network](http://www.bom.gov.au/climate/change/acorn-sat/#tabs=Data-and-networks).
+
 For site descriptions, check out the [BOM Station Catalogue](http://www.bom.gov.au/climate/change/acorn-sat/documents/ACORN-SAT-Station-Catalogue-2012-WEB.pdf).
 
 Current observations
@@ -28,13 +30,13 @@ Current observations
 
 Current observations are based on XML [data feeds](http://www.bom.gov.au/catalogue/data-feeds.shtml) from the Bureau.
 
-* [New South Wales & Canberra](ftp://ftp.bom.gov.au/anon/gen/fwo/IDN60920.xml)
-* [Northern Territory](ftp://ftp.bom.gov.au/anon/gen/fwo/IDD60920.xml)
-* [Queensland](ftp://ftp.bom.gov.au/anon/gen/fwo/IDQ60920.xml)
-* [South Australia](ftp://ftp.bom.gov.au/anon/gen/fwo/IDS60920.xml)
-* [Victoria](ftp://ftp.bom.gov.au/anon/gen/fwo/IDV60920.xml)
-* [Western Australia](ftp://ftp.bom.gov.au/anon/gen/fwo/IDW60920.xml)
-* [Tasmania and ... Antarctica (coming soon???)](ftp://ftp.bom.gov.au/anon/gen/fwo/IDT60920.xml)
+* [New South Wales & Canberra](ftp.bom.gov.au/anon/gen/fwo/IDN60920.xml)
+* [Northern Territory](ftp.bom.gov.au/anon/gen/fwo/IDD60920.xml)
+* [Queensland](ftp.bom.gov.au/anon/gen/fwo/IDQ60920.xml)
+* [South Australia](ftp.bom.gov.au/anon/gen/fwo/IDS60920.xml)
+* [Victoria](ftp.bom.gov.au/anon/gen/fwo/IDV60920.xml)
+* [Western Australia](ftp.bom.gov.au/anon/gen/fwo/IDW60920.xml)
+* [Tasmania and ... Antarctica (coming soon???)](ftp.bom.gov.au/anon/gen/fwo/IDT60920.xml)
 
 BoM product info
 ================

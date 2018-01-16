@@ -2,7 +2,7 @@
   {
     "id": "066062",
     "name": "Observatory Hill",
-    "label": "Sydney",
+    "label": "Sydney City",
     "tz": "Sydney",
     "record_start": "1910",
     "record_end": "2017"
@@ -10,7 +10,7 @@
   {
     "id": "067105",
     "name": "Richmond RAAF",
-    "label": "Western Sydney",
+    "label": "Sydney West",
     "tz": "Sydney",
     "record_start": "1939",
     "record_end": "2017"
@@ -18,7 +18,7 @@
   {
     "id": "087031",
     "name": "Laverton RAAF",
-    "label": "Melbourne",
+    "label": "Melbourne West",
     "tz": "Melbourne",
     "record_start": "1943",
     "record_end": "2017"
@@ -78,5 +78,13 @@
     "tz": "Perth",
     "record_start": "1910",
     "record_end": "2017"
+  }
+  {
+    "id": "300001",
+    "name": "Mawson",
+    "label": "Antarctica",
+    "tz": "Perth",
+    "record_start": "1958",
+    "record_end": "2016"
   }
 ]

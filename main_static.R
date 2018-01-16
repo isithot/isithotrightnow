@@ -102,9 +102,8 @@ for (this_station in station_set)
   dist.plot <- ggplot(data = HistObs, aes(Tavg)) + 
     ggtitle(
       paste0(
-        "Distribution of daily average temperatures\nover ",
-        this_station[["record_start"]], "–",  this_station[["record_end"]], " for ",
-        format(current.date_time, format="%d %B"))) +
+        "Distribution of daily average temperatures\nsince ",
+        this_station[["record_start"]], " for this time of year",)) +
     geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
     theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
     theme(panel.background = element_rect(fill = "transparent", colour = NA),
@@ -153,8 +152,8 @@ for (this_station in station_set)
   TS.plot <- ggplot(data = HistObs, aes(x = Date, y = Tavg)) +
     ggtitle(
       paste0(
-        "Daily average temperatures\nover ",
-        this_station[["record_start"]], "–",  this_station[["record_end"]], " for ",
+        "Daily average temperatures\nsince ",
+        this_station[["record_start"]], " for ",
         format(current.date_time, format="%d %B"))) +
     xlab(NULL) + 
     ylab('Daily average temperature (°C)') + 
