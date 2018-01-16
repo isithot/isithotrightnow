@@ -9,10 +9,12 @@ $(function()
 {
   var default_station = "066062";
   var base_path = "output/"
+  var location_menu_innerpad = 10;
+  var location_request_timeout = 5000;
 
-  // request_station: hide the details section, download stats and plots
-  // for a new station and then display them *when they're ready*
-  // put up an error message if they don't load quickly enough
+  /* request_station: hide the details section, download stats and plots
+     for a new station and then display them _when they're ready_
+     put up an error message if they don't load quickly enough */
   function request_station(station_id)
   {
   
@@ -38,6 +40,9 @@ $(function()
         return true;
       }
     }
+
+    // hide the details section while we update stuff!
+    $("#detail").attr("style", "display: none;");
     
     // dl stats as json and insert on success.
     // (nb: no error callback available! need to use a timeout below)
@@ -100,10 +105,38 @@ $(function()
       if (!resources_loaded())
       {
         console.log('Isithot: Resources did not load within timeout D:');
-        $("#digdeeper h3").text("We're having some trouble downloading the data...");
+        $("#digdeeper h3").text(
+          "We're having some trouble downloading the data...");
       }  
-    }, 5000);
+    }, location_request_timeout);
   }
 
+  /* resize_location_menu: resize the location menu according to the
+     current selection */
+  function resize_location_menu(new_text)
+  {
+    // resize the dropdown
+    $("#current_location_temp_dummyopt").html(new_text);
+    $("#current_location").width(
+      $("#current_location_temp").width() + location_menu_innerpad);
+  }
+
+
+  // - on page load -----------------------------------------------------------
+
+  // on page load, resize the location menu and request a default station
+  resize_location_menu($("#current_location option:selected").text());
   request_station(default_station);
+
+  // - callbacks --------------------------------------------------------------
+
+  /* on new location selected:
+       - update the dropdown menu
+       - request new location data */
+  $("#current_location").change(function() {
+    console.log(this.value);
+    resize_location_menu($("option:selected", this).text());
+    request_station(this.value);
+  });
+  
 });
