@@ -41,17 +41,17 @@ for (this_station in station_set)
   # sits in.
   # --
 
-  dir.create(paste0("www/output/", this_station["id"]), showWarnings = FALSE)
+  dir.create(paste0("www/output/", this_station[["id"]]), showWarnings = FALSE)
 
   # Get current half hourly data for the past 3 days
-  CurrObs.df <- getCurrentObs(this_station["id"])
+  CurrObs.df <- getCurrentObs(this_station[["id"]])
   current.date_time <-
     Sys.time() %>%
-    with_tz(paste0("Australia/", this_station["tz"]))
+    with_tz(paste0("Australia/", this_station[["tz"]]))
   current.date <- current.date_time %>% as.Date()
 
   # Calculate percentiles of historical data
-  HistObs <- getHistoricalObs(this_station["id"], window = 7)
+  HistObs <- getHistoricalObs(this_station[["id"]], window = 7)
   histPercentiles <- calcHistPercentiles(Obs = HistObs)
 
   # Now let's get the air_temp max and min over the past
@@ -103,7 +103,7 @@ for (this_station in station_set)
     ggtitle(
       paste0(
         "Distribution of daily average temperatures\nover ",
-        this_station["record_start"], "–",  this_station["record_end"], " for ",
+        this_station[["record_start"]], "–",  this_station[["record_end"]], " for ",
         format(current.date_time, format="%d %B"))) +
     geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
     theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
@@ -154,7 +154,7 @@ for (this_station in station_set)
     ggtitle(
       paste0(
         "Daily average temperatures\nover ",
-        this_station["record_start"], "–",  this_station["record_end"], " for ",
+        this_station[["record_start"]], "–",  this_station[["record_end"]], " for ",
         format(current.date_time, format="%d %B"))) +
     xlab(NULL) + 
     ylab('Daily average temperature (°C)') + 
@@ -210,26 +210,30 @@ for (this_station in station_set)
                                       size = 16))
 
   # Save plots in www/output/<station ID>/
-  ggsave(filename = paste0(fullpath,"www/output/", this_station["id"], "/ts_plot.png"), 
+  ggsave(filename = paste0(fullpath,"www/output/", this_station[["id"]], "/ts_plot.png"), 
         plot = TS.plot, bg = "transparent", 
         height = 4.5, width = 8, units = "in", device = "png")
 
-  ggsave(filename = paste0(fullpath,"www/output/", this_station["id"], "/density_plot.png"), 
+  ggsave(filename = paste0(fullpath,"www/output/", this_station[["id"]], "/density_plot.png"), 
         plot = dist.plot, bg = "transparent", 
         height = 4.5, width = 8, units = "in", device = "png")
 
   # Save JSON file
-  statsList <- vector(mode = "list", length = 6)
-    names(statsList) <- c("isit_answer","isit_comment","isit_maximum","isit_minimum","isit_current","isit_average")
+  statsList <- vector(mode = "list", length = 9)
+    names(statsList) <- c("isit_answer","isit_comment","isit_maximum","isit_minimum","isit_current","isit_average", "isit_name", "isit_label", "isit_span")
     statsList[[1]] <- isit_answer
     statsList[[2]] <- isit_comment
     statsList[[3]] <- Tmax.now
     statsList[[4]] <- Tmin.now
     statsList[[5]] <- Tavg.now
     statsList[[6]] <- average.percent
+    statsList[[7]] <- this_station[["name"]]
+    statsList[[8]] <- this_station[["label"]]
+    statsList[[9]] <- paste0(
+      this_station[["record_start"]], "–", this_station[["record_end"]])
 
   exportJSON <- toJSON(statsList)
   write(
     exportJSON,
-    file = paste0(fullpath, "www/output/", this_station["id"], "/stats.json"))
+    file = paste0(fullpath, "www/output/", this_station[["id"]], "/stats.json"))
 }
