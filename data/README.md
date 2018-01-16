@@ -1,38 +1,59 @@
+
+Historical data
+===============
+
+Historical data for each site is based on the Bureau of Meteorology's [ACORN-SAT](http://www.bom.gov.au/climate/change/acorn-sat/) high quality dataset. Some sites do not have current or historical sites available in the centre of the city. In those cases the town airport is used, as listed below.
+
 Sites
-=====
+-----
 
 | BOM ID | Site                  | Location                | State | Start | End  | Live? |
 |--------|-----------------------|-------------------------|-------|-------|------|-------|
 | 066062 | Observatory Hill      | Sydney - City           | NSW   | 1910  | 2017 | Y     |
-| 067105 | Richmond RAAF         | Sydney - West           | NSW   | 1939  | 2017 | N     |
-| 087031 | Laverton RAAF         | Melbourne  - West       | VIC   | 1943  | 2017 | N     |
-| 070351 | Canberra Airport      | Canberra - Airport      | ACT   | 1939  | 2017 | N     |
-| 094029 | Hobart (Ellerslie Rd) | Hobart - Ellerslie Rd   | TAS   | 1918  | 2017 | N     |
-| 040842 | Brisbane Aero         | Brisbane - Airport      | QLD   | 1949  | 2017 | N     |
-| 023090 | Kent Town             | Adelaide - Kent Town    | SA    | 1910  | 2017 | N     |
-| 015590 | Alice Springs Airport | Alice Springs - Airport | NT    | 1910  | 2017 | N     |
-| 014015 | Darwin Airport        | Darwin - Airport        | NT    | 1910  | 2017 | N     |
-| 009021 | Perth Airport         | Perth - Airport         | WA    | 1910  | 2017 | N     |
+| 067105 | Richmond RAAF         | Sydney - West           | NSW   | 1939  | 2017 | Y     |
+| 087031 | Laverton RAAF         | Melbourne  - West       | VIC   | 1943  | 2017 | Y     |
+| 070351 | Canberra Airport      | Canberra - Airport      | ACT   | 1939  | 2017 | Y     |
+| 094029 | Hobart (Ellerslie Rd) | Hobart - Ellerslie Rd   | TAS   | 1918  | 2017 | Y     |
+| 040842 | Brisbane Aero         | Brisbane - Airport      | QLD   | 1949  | 2017 | Y     |
+| 023090 | Kent Town             | Adelaide - Kent Town    | SA    | 1910  | 2017 | Y     |
+| 015590 | Alice Springs Airport | Alice Springs - Airport | NT    | 1910  | 2017 | Y     |
+| 014015 | Darwin Airport        | Darwin - Airport        | NT    | 1910  | 2017 | Y     |
+| 009021 | Perth Airport         | Perth - Airport         | WA    | 1910  | 2017 | Y     |
 
-Readme for observation data
-===========================
+For more sites, check out the whole [ACORN-SAT network](http://www.bom.gov.au/climate/change/acorn-sat/#tabs=Data-and-networks).
+For site descriptions, check out the [BOM Station Catalogue](http://www.bom.gov.au/climate/change/acorn-sat/documents/ACORN-SAT-Station-Catalogue-2012-WEB.pdf).
 
-There are a few relevant codes used by the BOM and WMO:
-* WMO station ID code: a five digit code (eg. 94768 for Sydney Obs Hill)
-  - Australian stations are all in the 94100–94998 range
-* BOM station ID code: a six digit code (eg. 066062 for Sydney Obs Hill):
-  - Digit 1: type of station (0 = land-based)
-  - Digits 2–3: region (regions can be used to infer states: see repo README)
-* A BoM _product_ code. Some products are for a single station, but the product code is distinct from station codes (some include a WMO station code, though):
-  - "ID"
-  - State letter (see repo README): eg. N for NSW, Q for QLD, V for VIC, etc)
-  - 60901 = product number
-  - 94768 = WMO station number (used in current obs)
-
-We will stick with IDN60901.94768 for now as those files are downloaded every half hour.
-
-Current Observations
+Current observations
 ====================
+
+Current observations are based on XML [data feeds](http://www.bom.gov.au/catalogue/data-feeds.shtml) from the Bureau.
+
+* [New South Wales & Canberra](ftp://ftp.bom.gov.au/anon/gen/fwo/IDN60920.xml)
+* [Northern Territory](ftp://ftp.bom.gov.au/anon/gen/fwo/IDD60920.xml)
+* [Queensland](ftp://ftp.bom.gov.au/anon/gen/fwo/IDQ60920.xml)
+* [South Australia](ftp://ftp.bom.gov.au/anon/gen/fwo/IDS60920.xml)
+* [Victoria](ftp://ftp.bom.gov.au/anon/gen/fwo/IDV60920.xml)
+* [Western Australia](ftp://ftp.bom.gov.au/anon/gen/fwo/IDW60920.xml)
+* [Tasmania and ... Antarctica (coming soon???)](ftp://ftp.bom.gov.au/anon/gen/fwo/IDT60920.xml)
+
+BoM product info
+================
+
+Each state is associated with a letter, used in product codes (`IDx`, where `x` is the state letter), and a range of regions, [used in station IDs](http://www.bom.gov.au/climate/cdo/about/site-num.shtml#tabulated) (`XYYnnn`, where `YY` is the region number).
+
+State     | Product letter | Regions
+----------|----------------|-------
+WA        | W              | 1–13
+NT        | D              | 14–15
+SA        | S              | 16–26
+Qld       | Q              | 27–45
+NSW & ACT | N              | 46–75
+Vic       | V              | 76–90
+Tas & Ant | T              | 91–99
+
+
+Other Current Observations Formats
+==================================
 
 * IDN60901: product code
 * 94768: ? ID (different to station ID)
