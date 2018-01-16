@@ -43,15 +43,15 @@ for (this_station in station_set)
 
   dir.create(paste0("www/output/", this_station[["id"]]), showWarnings = FALSE)
 
-  # Get current half hourly data for the past 3 days
+  # Get current max and min temperatures for this_station
   CurrObs.df <- getCurrentObs(this_station[["id"]])
   current.date_time <-
     Sys.time() %>%
-    with_tz(paste0("Australia/", this_station[["tz"]]))
+    with_tz(this_station[["tz"]])
   current.date <- current.date_time %>% as.Date()
 
   # Calculate percentiles of historical data
-  HistObs <- getHistoricalObs(this_station[["id"]], window = 7)
+  HistObs <- getHistoricalObs(this_station[["id"]], date = current.date, window = 7)
   histPercentiles <- calcHistPercentiles(Obs = HistObs)
 
   # Now let's get the air_temp max and min over the past
@@ -102,8 +102,8 @@ for (this_station in station_set)
   dist.plot <- ggplot(data = HistObs, aes(Tavg)) + 
     ggtitle(
       paste0(
-        "Distribution of daily average temperatures\nsince ",
-        this_station[["record_start"]], " for this time of year")) +
+        "Distribution of daily average temperatures\nfor this time of year since ",
+        this_station[["record_start"]])) +
     geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
     theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
     theme(panel.background = element_rect(fill = "transparent", colour = NA),
@@ -152,9 +152,9 @@ for (this_station in station_set)
   TS.plot <- ggplot(data = HistObs, aes(x = Date, y = Tavg)) +
     ggtitle(
       paste0(
-        "Daily average temperatures\nsince ",
-        this_station[["record_start"]], " for ",
-        format(current.date_time, format="%d %B"))) +
+        "Daily average temperatures\nfor ",
+        format(current.date_time, format="%d %B")," since ",
+        this_station[["record_start"]])) +
     xlab(NULL) + 
     ylab('Daily average temperature (°C)') + 
     geom_line(size = 0.2, colour = '#CCCCCC') + 

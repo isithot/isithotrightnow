@@ -60,6 +60,7 @@ getCurrentObs <- function(station_id) {
     between(region_code, 46, 75) ~ "nsw",
     between(region_code, 76, 90) ~ "vic",
     between(region_code, 91, 99) ~ "tas",
+    # region_code == 0 ~ "tas",
     TRUE ~ "err")
   if (state == "err" | state == "")
     stop ("Invalid station ID")
@@ -69,6 +70,11 @@ getCurrentObs <- function(station_id) {
   obs_data <-
     read_xml(paste0(fullpath, "data/latest/latest-", state, ".xml")) %>%
     xml_find_first(paste0("//station[@bom-id='", station_id, "']"))
+
+  # ###########
+  #   obs_xml <- xmlParse(paste0(fullpath, "data/latest/latest-", state, ".xml"))
+  #   station_data <- obs_xml[[paste0("//station[@bom-id='",station_id, "']")]]
+  # ##########
 
   # note: there's code here tte also include max/min timestamps
   # (if we need them later)
@@ -87,6 +93,9 @@ getCurrentObs <- function(station_id) {
       tmin = obs_data %>%
         xml_find_first("//element[@type='minimum_air_temperature']") %>%
         xml_text() %>%
-        as.numeric())
+        as.numeric()
+      # tmax = xmlValue(station_data[[1]][[1]][[19]]) %>% as.numeric(),
+      # tmin = xmlValue(station_data[[1]][[1]][[20]]) %>% as.numeric()
+        )
   )
 }

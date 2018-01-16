@@ -3,7 +3,7 @@
     "id": "066062",
     "name": "Observatory Hill",
     "label": "Sydney City",
-    "tz": "Sydney",
+    "tz": "Australia/Sydney",
     "record_start": "1910",
     "record_end": "2017"
   },
@@ -11,7 +11,7 @@
     "id": "067105",
     "name": "Richmond RAAF",
     "label": "Sydney West",
-    "tz": "Sydney",
+    "tz": "Australia/Sydney",
     "record_start": "1939",
     "record_end": "2017"
   },
@@ -19,7 +19,7 @@
     "id": "087031",
     "name": "Laverton RAAF",
     "label": "Melbourne West",
-    "tz": "Melbourne",
+    "tz": "Australia/Melbourne",
     "record_start": "1943",
     "record_end": "2017"
   },
@@ -27,7 +27,7 @@
     "id": "070351",
     "name": "Canberra Airport",
     "label": "Canberra",
-    "tz": "Canberra",
+    "tz": "Australia/Canberra",
     "record_start": "1939",
     "record_end": "2017"
   },
@@ -35,7 +35,7 @@
     "id": "094029",
     "name": "Hobart (Ellerslie Rd)",
     "label": "Hobart",
-    "tz": "Hobart",
+    "tz": "Australia/Hobart",
     "record_start": "1918",
     "record_end": "2017"
   },
@@ -43,7 +43,7 @@
     "id": "040842",
     "name": "Brisbane Aero",
     "label": "Brisbane",
-    "tz": "Brisbane",
+    "tz": "Australia/Brisbane",
     "record_start": "1949",
     "record_end": "2017"
   },
@@ -51,7 +51,7 @@
     "id": "023090",
     "name": "Kent Town",
     "label": "Adelaide",
-    "tz": "Adelaide",
+    "tz": "Australia/Adelaide",
     "record_start": "1910",
     "record_end": "2017"
   },
@@ -59,7 +59,7 @@
     "id": "015590",
     "name": "Alice Springs Airport",
     "label": "Alice Springs",
-    "tz": "Darwin",
+    "tz": "Australia/Darwin",
     "record_start": "1910",
     "record_end": "2017"
   },
@@ -67,7 +67,7 @@
     "id": "014015",
     "name": "Darwin Airport",
     "label": "Darwin",
-    "tz": "Darwin",
+    "tz": "Australia/Darwin",
     "record_start": "1910",
     "record_end": "2017"
   },
@@ -75,16 +75,8 @@
     "id": "009021",
     "name": "Perth Airport",
     "label": "Perth",
-    "tz": "Perth",
+    "tz": "Australia/Perth",
     "record_start": "1910",
     "record_end": "2017"
-  }
-  {
-    "id": "300001",
-    "name": "Mawson",
-    "label": "Antarctica",
-    "tz": "Perth",
-    "record_start": "1958",
-    "record_end": "2016"
   }
 ]
