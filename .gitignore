@@ -1,3 +1,4 @@
 data/latest/
 databackup/
 www/output
+!www/output/locations.json
