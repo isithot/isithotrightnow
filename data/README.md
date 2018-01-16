@@ -53,8 +53,29 @@ Anonymous: http://www.bom.gov.au/catalogue/anon-ftp.shtml
 Index: ftp://ftp.bom.gov.au/anon/gen/fwo/
 NSW: ftp://ftp.bom.gov.au/anon/gen/fwo/IDN60920.xml
 
+
+Sites
+=====
+
+| Site                  | Location      | State | BOM ID | Start | End  | Live? |
+|-----------------------|---------------|-------|--------|-------|------|-------|
+| Richmond RAAF         | Sydney        | NSW   | 067105 | 1939  | 2017 | N     |
+| Observatory Hill      | Sydney        | NSW   | 066062 | 1910  | 2017 | Y     |
+| Laverton RAAF         | Melbourne     | VIC   | 087031 | 1943  | 2017 | N     |
+| Canberra Airport      | Canberra      | ACT   | 070351 | 1939  | 2017 | N     |
+| Hobart (Ellerslie Rd) | Hobart        | TAS   | 094029 | 1918  | 2017 | N     |
+| Brisbane Aero         | Brisbane      | QLD   | 040842 | 1949  | 2017 | N     |
+| Kent Town             | Adelaide      | SA    | 023090 | 1910  | 2017 | N     |
+| Alice Springs Airport | Alice Springs | NT    | 015590 | 1910  | 2017 | N     |
+| Darwin Airport        | Darwin        | NT    | 014015 | 1910  | 2017 | N     |
+| Perth Airport         | Perth         | WA    | 009021 | 1910  | 2017 | N     |
+
+
+OLD
+===
+
 Monthly Max/Min temperatures per station
-========================================
+----------------------------------------
 
 Source: [http://www.bom.gov.au/climate/data/stations/](http://www.bom.gov.au/climate/data/stations/)
 currently need to go through GUI
