@@ -23,7 +23,7 @@ if (Sys.info()["user"] == "ubuntu")
 source(paste0(fullpath, "app_functions_static.R"))
 
 # get list of station ids to process from locations.json
-station_set <- fromJSON("www/locations.json")
+station_set <-
   fromJSON("www/locations.json") %>%
   map(~ pluck(., "id")) %>%
   unlist()
