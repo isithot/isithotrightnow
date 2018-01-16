@@ -43,6 +43,10 @@ $(function()
 
     // hide the details section while we update stuff!
     $("#detail").attr("style", "display: none;");
+    $("#digdeeper").attr("style", "color: #eee;");
+    $("#digdeeper h3").text("Loading...");
+    $("#isit_answer").text(". . .");
+    $("#isit_comment").text("");
     
     // dl stats as json and insert on success.
     // (nb: no error callback available! need to use a timeout below)
@@ -60,7 +64,6 @@ $(function()
 
       // enable page if all resources are loaded
       if (resources_loaded())
-      // if ($.each(loaded_resources, function(index, value) { return value; }))
       {
         console.log('Isithot: All resources loaded :D');
         $("#detail").attr("style", "display: flex;");
@@ -121,14 +124,23 @@ $(function()
       $("#current_location_temp").width() + location_menu_innerpad);
   }
 
+  // = on page load ===========================================================
 
-  // - on page load -----------------------------------------------------------
+  // on page load, populate the location menu, resize it
+  // and request a default station
+  $.getJSON("locations.json", function(data)
+  {
+    $.each(data, function(index, station) {
+      $("#current_location").append(
+        '<option value="' + station.id + '">' +station.label + '</option>');
+    });
 
-  // on page load, resize the location menu and request a default station
-  resize_location_menu($("#current_location option:selected").text());
-  request_station(default_station);
+    resize_location_menu($("#current_location option:selected").text());
+    request_station($("#current_location option:selected").val());
 
-  // - callbacks --------------------------------------------------------------
+  });
+
+  // = callbacks ==============================================================
 
   /* on new location selected:
        - update the dropdown menu
