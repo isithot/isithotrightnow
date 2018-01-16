@@ -103,7 +103,7 @@ for (this_station in station_set)
     ggtitle(
       paste0(
         "Distribution of daily average temperatures\nsince ",
-        this_station[["record_start"]], " for this time of year",)) +
+        this_station[["record_start"]], " for this time of year")) +
     geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
     theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
     theme(panel.background = element_rect(fill = "transparent", colour = NA),
