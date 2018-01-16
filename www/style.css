@@ -10,7 +10,7 @@ body
   min-width: 320px;
 }
 
-h1, h2, h3, h4
+h1, h2, h3, h4, select
 {
   font-family: "Roboto Condensed", "Helvetica Neue Condensed", "Arial", sans-serif;
   font-weight: 700;
@@ -91,6 +91,24 @@ button
 {
   margin: auto;
 }
+
+#summary select
+{
+  display: inline-block;
+  /* uncomment this to turn the dropdown arrow off */
+  /* -webkit-appearance: none; */
+  color: #b22222;
+  background: none;
+  border: none;
+  font-size: inherit;
+
+}
+
+/* dummy element used to resize #current_location dynamically */
+#summary select#current_location_temp {
+  display: none;
+}
+
 
 #digdeeper
 {

@@ -4,75 +4,63 @@
 
 /* on page load: choose a location (for now, Sydney Obs Hill), download
     assets and insert */
-
-console.log('Isithot: JS file loaded');
     
 $(function()
 {
-  default_location = "066062";
-  default_path =
-    "output/" + default_location + "/";
-  
-  // fn and obj to track downloaded resources. should probably write a
-  // self-contained object for this...
-  var loaded_resources = 
-  {
-    isit_stats: false,
-    isit_ts_plot: false,
-    isit_density_plot: false
-  }
-  function resources_loaded()
-  {
-    if (
-      loaded_resources.isit_stats == false |
-      loaded_resources.isit_ts_plot == false |
-      loaded_resources.isit_density_plot == false)
-    {
-      return false;
-    }
-    else
-    {
-      return true;
-    }
-  }
-  
-  // dl stats as json and insert on success.
-  // (nb: no error callback available! need to use a timeout below)
-  $.getJSON(default_path + "stats.json", function(data)
-  {
-    $("#isit_answer").text(data.isit_answer);
-    $("#isit_comment").text(data.isit_comment);
+  var default_station = "066062";
+  var base_path = "output/"
+  var location_menu_innerpad = 10;
+  var location_request_timeout = 5000;
 
-    $("#isit_maximum").text(data.isit_maximum);
-    $("#isit_minimum").text(data.isit_minimum);
-    $("#isit_current").text(data.isit_current);
-    $("#isit_average").text(data.isit_average);
-
-    loaded_resources.isit_stats = true;
-
-    // enable page if all resources are loaded
-    if (resources_loaded())
-    // if ($.each(loaded_resources, function(index, value) { return value; }))
-    {
-      console.log('Isithot: All resources loaded :D');
-      $("#detail").attr("style", "display: flex;");
-      $("#digdeeper").attr("style", "color: #b22222;");
-      $("#digdeeper h3").text("Dig deeper");
-    }
-  });
-  
-  // dl *each* image and insert on success
-  plots = ["ts_plot", "density_plot"]
-  plots.map(function(content)
+  /* request_station: hide the details section, download stats and plots
+     for a new station and then display them _when they're ready_
+     put up an error message if they don't load quickly enough */
+  function request_station(station_id)
   {
-    var plot_target = $("#isit_" + content + " img");
-    console.log('Isithot: Creating callback to load ' + content);
-    var plot_building = $("<img>");
-    plot_building.on('load', function()
+  
+    // fn and obj to track downloaded resources. should probably write a
+    // self-contained object for this...
+    var loaded_resources = 
     {
-      console.log('Isithot: Inside onload callback for dummy ' + content);
-      // when loading img is ready, set it to the target img
-      plot_target.attr("src", $(this).attr("src"));
+      isit_stats: false,
+      isit_ts_plot: false,
+      isit_density_plot: false
+    }
+    function resources_loaded()
+    {
+      if (
+        loaded_resources.isit_stats == false |
+        loaded_resources.isit_ts_plot == false |
+        loaded_resources.isit_density_plot == false)
+      {
+        return false;
+      }
+      else
+      {
+        return true;
+      }
+    }
+
+    // hide the details section while we update stuff!
+    $("#detail").attr("style", "display: none;");
+    $("#digdeeper").attr("style", "color: #eee;");
+    $("#digdeeper h3").text("Loading...");
+    $("#isit_answer").text(". . .");
+    $("#isit_comment").text("");
+    
+    // dl stats as json and insert on success.
+    // (nb: no error callback available! need to use a timeout below)
+    $.getJSON(base_path + station_id + "/stats.json", function(data)
+    {
+      $("#isit_answer").text(data.isit_answer);
+      $("#isit_comment").text(data.isit_comment);
+
+      $("#isit_maximum").text(data.isit_maximum);
+      $("#isit_minimum").text(data.isit_minimum);
+      $("#isit_current").text(data.isit_current);
+      $("#isit_average").text(data.isit_average);
+
+      loaded_resources.isit_stats = true;
 
       // enable page if all resources are loaded
       if (resources_loaded())
@@ -83,21 +71,84 @@ $(function()
         $("#digdeeper h3").text("Dig deeper");
       }
     });
-    // set loading img src to trigger the download
-    plot_building.attr("src", default_path + content + ".png");
-    console.log('Isithot: Set src attribute for ' + content + '; image ought to be loading now');
+    
+    // dl *each* image and insert on success
+    plots = ["ts_plot", "density_plot"]
+    plots.map(function(content)
+    {
+      var plot_target = $("#isit_" + content + " img");
+      console.log('Isithot: Creating callback to load ' + content);
+      var plot_building = $("<img>");
+      plot_building.on('load', function()
+      {
+        console.log('Isithot: Inside onload callback for dummy ' + content);
+        // when loading img is ready, set it to the target img
+        plot_target.attr("src", $(this).attr("src"));
 
-    loaded_resources["isit_" + content] = true;
+        // enable page if all resources are loaded
+        if (resources_loaded())
+        {
+          console.log('Isithot: All resources loaded :D');
+          $("#detail").attr("style", "display: flex;");
+          $("#digdeeper").attr("style", "color: #b22222;");
+          $("#digdeeper h3").text("Dig deeper");
+        }
+      });
+      // set loading img src to trigger the download
+      plot_building.attr(
+        "src", base_path + station_id + "/" + content + ".png");
+      console.log('Isithot: Set src attribute for ' + content + '; image ought to be loading now');
+
+      loaded_resources["isit_" + content] = true;
+    });
+
+    // apologise if resources aren't all loaded after 10 secs
+    setTimeout(function()
+    {
+      if (!resources_loaded())
+      {
+        console.log('Isithot: Resources did not load within timeout D:');
+        $("#digdeeper h3").text(
+          "We're having some trouble downloading the data...");
+      }  
+    }, location_request_timeout);
+  }
+
+  /* resize_location_menu: resize the location menu according to the
+     current selection */
+  function resize_location_menu(new_text)
+  {
+    // resize the dropdown
+    $("#current_location_temp_dummyopt").html(new_text);
+    $("#current_location").width(
+      $("#current_location_temp").width() + location_menu_innerpad);
+  }
+
+  // = on page load ===========================================================
+
+  // on page load, populate the location menu, resize it
+  // and request a default station
+  $.getJSON("locations.json", function(data)
+  {
+    $.each(data, function(index, station) {
+      $("#current_location").append(
+        '<option value="' + station.id + '">' +station.label + '</option>');
+    });
+
+    resize_location_menu($("#current_location option:selected").text());
+    request_station($("#current_location option:selected").val());
+
   });
 
-  // apologise if resources aren't all loaded after 10 secs
-  setTimeout(function()
-  {
-    if (!resources_loaded())
-    {
-      console.log('Isithot: Resources did not load within timeout D:');
-      $("#digdeeper h3").text("We're having some trouble downloading the data... 😅");
-    }  
-  }, 5000);
+  // = callbacks ==============================================================
 
+  /* on new location selected:
+       - update the dropdown menu
+       - request new location data */
+  $("#current_location").change(function() {
+    console.log(this.value);
+    resize_location_menu($("option:selected", this).text());
+    request_station(this.value);
+  });
+  
 });

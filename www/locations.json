@@ -1,0 +1,82 @@
+[
+  {
+    "id": "066062",
+    "name": "Observatory Hill",
+    "label": "Sydney",
+    "tz": "Sydney",
+    "record_start": "1910",
+    "record_end": "2017"
+  },
+  {
+    "id": "067105",
+    "name": "Richmond RAAF",
+    "label": "Western Sydney",
+    "tz": "Sydney",
+    "record_start": "1939",
+    "record_end": "2017"
+  },
+  {
+    "id": "087031",
+    "name": "Laverton RAAF",
+    "label": "Melbourne",
+    "tz": "Melbourne",
+    "record_start": "1943",
+    "record_end": "2017"
+  },
+  {
+    "id": "070351",
+    "name": "Canberra Airport",
+    "label": "Canberra",
+    "tz": "Canberra",
+    "record_start": "1939",
+    "record_end": "2017"
+  },
+  {
+    "id": "094029",
+    "name": "Hobart (Ellerslie Rd)",
+    "label": "Hobart",
+    "tz": "Hobart",
+    "record_start": "1918",
+    "record_end": "2017"
+  },
+  {
+    "id": "040842",
+    "name": "Brisbane Aero",
+    "label": "Brisbane",
+    "tz": "Brisbane",
+    "record_start": "1949",
+    "record_end": "2017"
+  },
+  {
+    "id": "023090",
+    "name": "Kent Town",
+    "label": "Adelaide",
+    "tz": "Adelaide",
+    "record_start": "1910",
+    "record_end": "2017"
+  },
+  {
+    "id": "015590",
+    "name": "Alice Springs Airport",
+    "label": "Alice Springs",
+    "tz": "Darwin",
+    "record_start": "1910",
+    "record_end": "2017"
+  },
+  {
+    "id": "014015",
+    "name": "Darwin Airport",
+    "label": "Darwin",
+    "tz": "Darwin",
+    "record_start": "1910",
+    "record_end": "2017"
+  },
+  {
+    "id": "009021",
+    "name": "Perth Airport",
+    "label": "Perth",
+    "tz": "Perth",
+    "record_start": "1910",
+    "record_end": "2017"
+  }
+]

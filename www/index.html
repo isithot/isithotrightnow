@@ -52,13 +52,18 @@
   
   <body>
     <section id="summary">
-      <h2>Is it hot in Sydney right now?</h2>
+      <h2>Is it hot in
+        <select name="current_location" id="current_location"></select>
+        <select id="current_location_temp">
+            <option id="current_location_temp_dummyopt"></option>
+        </select>
+        right now?</h2>
       <h1 id="isit_answer" class="shiny-text-output">. . .</h1>
       <h2 id="isit_comment" class="shiny-text-output"></h2>
       <div>
         <a id="digdeeper" href="#detail">
           <i class="fa fa-5x fa-arrow-circle-down" aria-hidden="true"></i>
-          <h3>Dig deeper</h3>
+          <h3>Loading...</h3>
           
         </a>
       </div>
