@@ -1,3 +1,19 @@
+Sites
+=====
+
+| BOM ID | Site                  | Location                | State | Start | End  | Live? |
+|--------|-----------------------|-------------------------|-------|-------|------|-------|
+| 066062 | Observatory Hill      | Sydney - City           | NSW   | 1910  | 2017 | Y     |
+| 067105 | Richmond RAAF         | Sydney - West           | NSW   | 1939  | 2017 | N     |
+| 087031 | Laverton RAAF         | Melbourne  - West       | VIC   | 1943  | 2017 | N     |
+| 070351 | Canberra Airport      | Canberra - Airport      | ACT   | 1939  | 2017 | N     |
+| 094029 | Hobart (Ellerslie Rd) | Hobart - Ellerslie Rd   | TAS   | 1918  | 2017 | N     |
+| 040842 | Brisbane Aero         | Brisbane - Airport      | QLD   | 1949  | 2017 | N     |
+| 023090 | Kent Town             | Adelaide - Kent Town    | SA    | 1910  | 2017 | N     |
+| 015590 | Alice Springs Airport | Alice Springs - Airport | NT    | 1910  | 2017 | N     |
+| 014015 | Darwin Airport        | Darwin - Airport        | NT    | 1910  | 2017 | N     |
+| 009021 | Perth Airport         | Perth - Airport         | WA    | 1910  | 2017 | N     |
+
 Readme for observation data
 ===========================
 
@@ -48,13 +64,18 @@ http://www.bom.gov.au/climate/change/acorn-sat/documents/ACORN-SAT-Station-Catal
 
 XML Feeds
 =========
-General: http://www.bom.gov.au/catalogue/data-feeds.shtml
-Anonymous: http://www.bom.gov.au/catalogue/anon-ftp.shtml
-Index: ftp://ftp.bom.gov.au/anon/gen/fwo/
-NSW: ftp://ftp.bom.gov.au/anon/gen/fwo/IDN60920.xml
+
+* General: http://www.bom.gov.au/catalogue/data-feeds.shtml
+* Anonymous: http://www.bom.gov.au/catalogue/anon-ftp.shtml
+* Index: ftp://ftp.bom.gov.au/anon/gen/fwo/
+* NSW: ftp://ftp.bom.gov.au/anon/gen/fwo/IDN60920.xml
+
+
+OLD
+===
 
 Monthly Max/Min temperatures per station
-========================================
+----------------------------------------
 
 Source: [http://www.bom.gov.au/climate/data/stations/](http://www.bom.gov.au/climate/data/stations/)
 currently need to go through GUI
