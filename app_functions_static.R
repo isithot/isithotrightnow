@@ -65,37 +65,28 @@ getCurrentObs <- function(station_id) {
   if (state == "err" | state == "")
     stop ("Invalid station ID")
 
-  # get the current max and min from the xml file
-  # TODO - is there an edge case that requires us to look at the las ttwo days?
+  # Read correct xml file (by state) and correct data (by station id)
   obs_data <-
     read_xml(paste0(fullpath, "data/latest/latest-", state, ".xml")) %>%
     xml_find_first(paste0("//station[@bom-id='", station_id, "']"))
-
-  # ###########
-  #   obs_xml <- xmlParse(paste0(fullpath, "data/latest/latest-", state, ".xml"))
-  #   station_data <- obs_xml[[paste0("//station[@bom-id='",station_id, "']")]]
-  # ##########
-
-  # note: there's code here tte also include max/min timestamps
-  # (if we need them later)
+  # return dataframe of xml text for tmax and tmin
   return(
     data.frame(
-      # tmax_time = obs_data %>%
-      #   xml_find_first("//element[@type='maximum_air_temperature']") %>%
-      #   xml_attr("time-local"),
       tmax = obs_data %>%
-        xml_find_first("//element[@type='maximum_air_temperature']") %>%
+        xml_find_first(".//element[@type='maximum_air_temperature']") %>%
         xml_text() %>%
         as.numeric(),
-      # tmin_time = obs_data %>%
-      #   xml_find_first("//element[@type='minimum_air_temperature']") %>%
-      #   xml_attr("time-local"),
       tmin = obs_data %>%
-        xml_find_first("//element[@type='minimum_air_temperature']") %>%
+        xml_find_first(".//element[@type='minimum_air_temperature']") %>%
         xml_text() %>%
         as.numeric()
-      # tmax = xmlValue(station_data[[1]][[1]][[19]]) %>% as.numeric(),
-      # tmin = xmlValue(station_data[[1]][[1]][[20]]) %>% as.numeric()
+      ## note: there's code here to also include max/min timestamps (for later)
+      # tmax_time = obs_data %>%
+      #   xml_find_first(".//element[@type='maximum_air_temperature']") %>%
+      #   xml_attr("time-local"),
+      # tmin_time = obs_data %>%
+      #   xml_find_first(".//element[@type='minimum_air_temperature']") %>%
+      #   xml_attr("time-local"),
         )
   )
 }

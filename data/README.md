@@ -19,7 +19,6 @@ Sites
 | 015590 | Alice Springs Airport | Alice Springs - Airport | NT    | 1910  | 2017 | Y     |
 | 014015 | Darwin Airport        | Darwin - Airport        | NT    | 1910  | 2017 | Y     |
 | 009021 | Perth Airport         | Perth - Airport         | WA    | 1910  | 2017 | Y     |
-| 300001 | Mawson 				 | Antarctica			   | ANT   | 1958  | 2016 | Y     |
 
 For more sites, check out the whole [ACORN-SAT network](http://www.bom.gov.au/climate/change/acorn-sat/#tabs=Data-and-networks).
 
