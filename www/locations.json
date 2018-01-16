@@ -1,0 +1,52 @@
+[
+  {
+    "id": "066062",
+    "name": "Observatory Hill",
+    "label": "Sydney"
+  },
+  {
+    "id": "067105",
+    "name": "Richmond RAAF",
+    "label": "Western Sydney"
+  },
+  {
+    "id": "087031",
+    "name": "Laverton RAAF",
+    "label": "Melbourne"
+  },
+  {
+    "id": "070351",
+    "name": "Canberra Airport",
+    "label": "Canberra"
+  },
+  {
+    "id": "094029",
+    "name": "Hobart (Ellerslie Rd)",
+    "label": "Hobart"
+  },
+  {
+    "id": "040842",
+    "name": "Brisbane Aero",
+    "label": "Brisbane"
+  },
+  {
+    "id": "023090",
+    "name": "Kent Town",
+    "label": "Adelaide"
+  },
+  {
+    "id": "015590",
+    "name": "Alice Springs Airport",
+    "label": "Alice Springs"
+  },
+  {
+    "id": "014015",
+    "name": "Darwin Airport",
+    "label": "Darwin"
+  },
+  {
+    "id": "009021",
+    "name": "Perth Airport",
+    "label": "Perth"
+  }
+]
