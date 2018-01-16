@@ -54,11 +54,12 @@ $(function()
     {
       $("#isit_answer").text(data.isit_answer);
       $("#isit_comment").text(data.isit_comment);
-
       $("#isit_maximum").text(data.isit_maximum);
       $("#isit_minimum").text(data.isit_minimum);
       $("#isit_current").text(data.isit_current);
       $("#isit_average").text(data.isit_average);
+      $("#isit_name").text(data.isit_name);
+      $("#isit_span").text(data.isit_span);
 
       loaded_resources.isit_stats = true;
 

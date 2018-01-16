@@ -16,25 +16,25 @@ getHistoricalObs <- function(station_id, date = Sys.Date(), window = 7) {
   if(missing(station_id)) stop("Error: Station ID missing")
   if(missing(date)) warning("Warning: Date missing. Calculating percentiles for today's date")
   if(missing(window)) warning("Warning: Window missing. Getting historical obs over +/- 7 day window")
-  SydObs.Tmax <- read.table(paste0(fullpath,"data/acorn.sat.maxT.", station_id, ".daily.txt"),
+  # Read historical obs
+  HistObs.Tmax <- read.table(paste0(fullpath,"data/acorn.sat.maxT.", station_id, ".daily.txt"),
                             header = FALSE, skip = 1,
                             col.names = c("Date","Tmax"),
                             na.strings = "99999.9")
-  SydObs.Tmin <- read.table(paste0(fullpath,"data/acorn.sat.minT.", station_id, ".daily.txt"),
+  HistObs.Tmin <- read.table(paste0(fullpath,"data/acorn.sat.minT.", station_id, ".daily.txt"),
                             header = FALSE, skip = 1,
                             col.names = c("Date","Tmin"),
                             na.strings = "99999.9")
-  SydObs <- merge(SydObs.Tmax, SydObs.Tmin, all = TRUE)
-  SydObs$Year <- as.integer(substr(SydObs$Date,1,4))
-  SydObs$Month <- as.integer(substr(SydObs$Date,5,6))
-  SydObs$Day <- as.integer(substr(SydObs$Date,7,8))
-  # SydObs = mutate(SydObs, Tavg = (Tmax + Tmin)/2)
-  SydObs = SydObs %>% mutate(Tavg = (Tmax + Tmin)/2, 
+  HistObs <- merge(HistObs.Tmax, HistObs.Tmin, all = TRUE)
+  HistObs$Year <- as.integer(substr(HistObs$Date,1,4))
+  HistObs$Month <- as.integer(substr(HistObs$Date,5,6))
+  HistObs$Day <- as.integer(substr(HistObs$Date,7,8))
+  # Calculate averages
+  HistObs = HistObs %>% mutate(Tavg = (Tmax + Tmin)/2, 
                            monthDay = monthDay(ymd(paste(Year, Month, Day))))
   window_dates <- seq(date - window, date + window, by = 1)
-
   return(
-    SydObs %>%
+    HistObs %>%
     dplyr::filter(monthDay %in% monthDay(window_dates)) %>%
     select(-monthDay))
 }

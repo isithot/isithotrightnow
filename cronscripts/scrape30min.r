@@ -1,4 +1,4 @@
-#!/usr/bin/R
+#!/usr/bin/Rscript
 
 # File: scrape30min.r
 # stefan contractor, mat lipson and james goldie

@@ -1,5 +1,5 @@
-# is it hot right now
-# stefan, mat and james
+# By Mat Lipson, Steefan Contractor and James Goldie.
+# © 2018 under the MIT licence. Data from the Bureau of Meteorology.
 
 library(ggplot2)
 library(jsonlite)
@@ -23,12 +23,12 @@ if (Sys.info()["user"] == "ubuntu")
 source(paste0(fullpath, "app_functions_static.R"))
 
 # get list of station ids to process from locations.json
-station_set <-
+station_set <- fromJSON("www/locations.json")
   fromJSON("www/locations.json") %>%
   map(~ pluck(., "id")) %>%
   unlist()
 
-for (station_id in station_set)
+for (this_station in station_set)
 {
   # The algorithm
   # --
@@ -41,21 +41,23 @@ for (station_id in station_set)
   # sits in.
   # --
 
-  dir.create(paste0("www/output/", station_id), showWarnings = FALSE)
+  dir.create(paste0("www/output/", this_station[["id"]]), showWarnings = FALSE)
 
   # Get current half hourly data for the past 3 days
-  SydObs.df <- getCurrentObs(station_id)
-  current.date_time <- Sys.time()
-  current.date <- Sys.Date()
+  CurrObs.df <- getCurrentObs(this_station[["id"]])
+  current.date_time <-
+    Sys.time() %>%
+    with_tz(paste0("Australia/", this_station[["tz"]]))
+  current.date <- current.date_time %>% as.Date()
 
   # Calculate percentiles of historical data
-  SydHistObs <- getHistoricalObs(station_id, window = 7)
-  histPercentiles <- calcHistPercentiles(Obs = SydHistObs)
+  HistObs <- getHistoricalObs(this_station[["id"]], window = 7)
+  histPercentiles <- calcHistPercentiles(Obs = HistObs)
 
   # Now let's get the air_temp max and min over the past
   # 24h and average them
-  Tmax.now <- SydObs.df$tmax
-  Tmin.now <- SydObs.df$tmin
+  Tmax.now <- CurrObs.df$tmax
+  Tmin.now <- CurrObs.df$tmin
 
   # Note this is not a true average, just a simple average of the 
   # max and min values (which is the way daily avg. temp is usually done)
@@ -87,20 +89,21 @@ for (station_id in station_set)
                         rh = "It's really hot!",
                         bh = "It's bloody hot!")
 
-  average.percent <- 100*round(ecdf(SydHistObs$Tavg)(Tavg.now),digits=2)
+  average.percent <- 100*round(ecdf(HistObs$Tavg)(Tavg.now),digits=2)
 
   ################################################################################################
 
-  SydHistObs <- SydHistObs %>% 
-    mutate(Date = ymd(paste(SydHistObs$Year, SydHistObs$Month, SydHistObs$Day, sep = '-'))) %>%
+  HistObs <- HistObs %>% 
+    mutate(Date = ymd(paste(HistObs$Year, HistObs$Month, HistObs$Day, sep = '-'))) %>%
     rbind(data.frame(Year = year(current.date), Month = month(current.date), Day = day(current.date),
                     Tmax = Tmax.now, Tmin = Tmin.now, Tavg = Tavg.now, Date = current.date))
 
   # first the distribution plot because it uses all historical data
-  dist.plot <- ggplot(data = SydHistObs, aes(Tavg)) + 
+  dist.plot <- ggplot(data = HistObs, aes(Tavg)) + 
     ggtitle(
-      paste(
-        'Distribution of daily average temperatures\nsince 1850 for',
+      paste0(
+        "Distribution of daily average temperatures\nover ",
+        this_station[["record_start"]], "–",  this_station[["record_end"]], " for ",
         format(current.date_time, format="%d %B"))) +
     geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
     theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
@@ -117,21 +120,21 @@ for (station_id in station_set)
           axis.text.y = element_blank(),
           axis.ticks.y = element_blank()) +
     geom_vline(xintercept = Tavg.now, colour = 'firebrick', size = rel(1.5)) +
-    geom_vline(xintercept = median(SydHistObs$Tavg, na.rm = T), linetype = 2, alpha = 0.5) + 
+    geom_vline(xintercept = median(HistObs$Tavg, na.rm = T), linetype = 2, alpha = 0.5) + 
     geom_vline(
       xintercept = histPercentiles[,"Tavg"][1], linetype = 2, alpha = 0.5) +
     geom_vline(
       xintercept = histPercentiles[,"Tavg"][6], linetype = 2, alpha = 0.5) + 
     scale_y_continuous(expand = c(0,0)) +
     xlab("Daily average temperature (°C)") + 
-    # annotate("text", x = median(SydHistObs$Tavg), y = Inf, vjust = -0.75,
+    # annotate("text", x = median(HistObs$Tavg), y = Inf, vjust = -0.75,
     #   hjust=1.1,label = "50TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
     #   family = 'Roboto Condensed', fontface = "bold") +
     annotate("text", x = histPercentiles[,"Tavg"][1], y = 0, vjust = -0.75,
             hjust=-0.05,label = paste0("5th percentile:  ",round(histPercentiles[,"Tavg"][1],1),'°C'), 
             size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = median(SydHistObs$Tavg, na.rm = T), y = 0, vjust = -0.75,
-            hjust=-0.05,label = paste0("50th percentile:  ",round(median(SydHistObs$Tavg, na.rm = T),1),'°C'), 
+    annotate("text", x = median(HistObs$Tavg, na.rm = T), y = 0, vjust = -0.75,
+            hjust=-0.05,label = paste0("50th percentile:  ",round(median(HistObs$Tavg, na.rm = T),1),'°C'), 
             size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
     annotate("text", x = histPercentiles[,"Tavg"][6], y = 0, vjust = -0.75,
             hjust=-0.05,label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
@@ -141,16 +144,17 @@ for (station_id in station_set)
             family = 'Roboto Condensed', fontface = "bold")
 
   # Now for the time series the historical data must only include days with the same monthDay
-  SydHistObs <- SydHistObs %>%
+  HistObs <- HistObs %>%
                 dplyr::filter(
                   month(Date) == month(current.date),
                   day(Date) == day(current.date))
     
 
-  TS.plot <- ggplot(data = SydHistObs, aes(x = Date, y = Tavg)) +
+  TS.plot <- ggplot(data = HistObs, aes(x = Date, y = Tavg)) +
     ggtitle(
       paste0(
-        'Daily average temperatures\nsince 1850 for ',
+        "Daily average temperatures\nover ",
+        this_station[["record_start"]], "–",  this_station[["record_end"]], " for ",
         format(current.date_time, format="%d %B"))) +
     xlab(NULL) + 
     ylab('Daily average temperature (°C)') + 
@@ -162,7 +166,7 @@ for (station_id in station_set)
               alpha = 0.5) +
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2,
               alpha = 0.5) +
-    geom_hline(aes(yintercept = median(SydHistObs$Tavg, na.rm = T)), linetype = 2,
+    geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2,
               alpha = 0.5) +
     annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
             label = "TODAY", colour = 'firebrick', size = 4,
@@ -170,26 +174,26 @@ for (station_id in station_set)
     annotate("text", x = current.date, y = Tavg.now, vjust = 2.5,
             label = paste0(Tavg.now,'°C'), colour = 'firebrick', size = 4,
             family = 'Roboto Condensed', fontface = "bold") + 
-    annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
+    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
             y = histPercentiles[, "Tavg"][6], label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
             alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") + 
-    annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-            y = median(SydHistObs$Tavg, na.rm = T), label = paste0("50th percentile:  ",round(median(SydHistObs$Tavg, na.rm = T),1),'°C'),
+    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
+            y = median(HistObs$Tavg, na.rm = T), label = paste0("50th percentile:  ",round(median(HistObs$Tavg, na.rm = T),1),'°C'),
             alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") + 
-    annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
+    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
             y = histPercentiles[, "Tavg"][1], label = paste0("5th percentile:  ",round(histPercentiles[,"Tavg"][1],1),'°C'),
             alpha = 0.9, size = 4, hjust = 0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") +
-    # annotate("text", x = ymd(paste0(round(min(SydHistObs$Year)/10)*10,"0101")),
-    #   y = median(SydHistObs$Tavg), label = paste0("50TH PERCENTILE:  ",round(median(SydHistObs$Tavg)),'°C'),
+    # annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
+    #   y = median(HistObs$Tavg), label = paste0("50TH PERCENTILE:  ",round(median(HistObs$Tavg)),'°C'),
     #   alpha = 0.5, size = 4, hjust = 0, vjust = -0.5,
     #   family = 'Roboto Condensed', fontface = "bold") +
     scale_x_date(
       breaks = ymd(paste0(
-        seq(round(min(SydHistObs$Year)/10)*10,
-            round(max(SydHistObs$Year)/10)*10, 20),
+        seq(round(min(HistObs$Year)/10)*10,
+            round(max(HistObs$Year)/10)*10, 20),
         "0101")),
       date_labels = '%Y') +
     theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
@@ -206,26 +210,30 @@ for (station_id in station_set)
                                       size = 16))
 
   # Save plots in www/output/<station ID>/
-  ggsave(filename = paste0(fullpath,"www/output/", station_id, "/ts_plot.png"), 
+  ggsave(filename = paste0(fullpath,"www/output/", this_station[["id"]], "/ts_plot.png"), 
         plot = TS.plot, bg = "transparent", 
         height = 4.5, width = 8, units = "in", device = "png")
 
-  ggsave(filename = paste0(fullpath,"www/output/", station_id, "/density_plot.png"), 
+  ggsave(filename = paste0(fullpath,"www/output/", this_station[["id"]], "/density_plot.png"), 
         plot = dist.plot, bg = "transparent", 
         height = 4.5, width = 8, units = "in", device = "png")
 
   # Save JSON file
-  statsList <- vector(mode = "list", length = 6)
-    names(statsList) <- c("isit_answer","isit_comment","isit_maximum","isit_minimum","isit_current","isit_average")
+  statsList <- vector(mode = "list", length = 9)
+    names(statsList) <- c("isit_answer","isit_comment","isit_maximum","isit_minimum","isit_current","isit_average", "isit_name", "isit_label", "isit_span")
     statsList[[1]] <- isit_answer
     statsList[[2]] <- isit_comment
     statsList[[3]] <- Tmax.now
     statsList[[4]] <- Tmin.now
     statsList[[5]] <- Tavg.now
     statsList[[6]] <- average.percent
+    statsList[[7]] <- this_station[["name"]]
+    statsList[[8]] <- this_station[["label"]]
+    statsList[[9]] <- paste0(
+      this_station[["record_start"]], "–", this_station[["record_end"]])
 
   exportJSON <- toJSON(statsList)
   write(
     exportJSON,
-    file = paste0(fullpath, "www/output/", station_id, "/stats.json"))
+    file = paste0(fullpath, "www/output/", this_station[["id"]], "/stats.json"))
 }
