@@ -41,10 +41,10 @@ getHistoricalObs <- function(station_id, date = Sys.Date(), window = 7) {
 
 calcHistPercentiles <- function(Obs) {
   # returns a dataframe with columns Tmax, Tmin and Tavg, each row refering to the 6 percentiles:
-  # 5, 10, 40, 60, 90, 95
+  # 5, 10, 40, 50, 60, 90, 95
   if(missing(Obs)) stop("Error: Missing historical observations")
   return(sapply(Obs %>% select(-c(Year, Month, Day)), 
-                FUN = quantile, probs = c(0.05,0.1,0.4,0.6,0.9,0.95), na.rm = T))
+                FUN = quantile, probs = c(0.05,0.1,0.4,0.5,0.6,0.9,0.95), na.rm = T))
 }
 
 getCurrentObs <- function(req_station_id) {

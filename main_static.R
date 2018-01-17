@@ -64,9 +64,14 @@ for (this_station in station_set)
   message(paste('Updating answer based on: Tavg.now ', Tavg.now,
     ', histPercentiles ', histPercentiles[,"Tavg"], '\n'))
 
-  category.now <- as.character(cut(Tavg.now, breaks = c(-100,histPercentiles[,"Tavg"],100), 
-                                  labels = c("bc","rc","c","a","h","rh","bh"),
-                                  include.lowest = T, right = F))
+  # don't include the median when binning obs against the climate!
+  category.now <- as.character(cut(Tavg.now,
+    breaks =
+      c(-100,
+      histPercentiles[!rownames(histPercentiles) %in% "50%", "Tavg"],
+      100), 
+    labels = c("bc","rc","c","a","h","rh","bh"),
+    include.lowest = T, right = F))
   # The -100 and 100 allow us to have the lowest and highest bins
 
   isit_answer = switch(category.now, 
@@ -119,22 +124,22 @@ for (this_station in station_set)
     geom_vline(xintercept = Tavg.now, colour = 'firebrick', size = rel(1.5)) +
     geom_vline(xintercept = median(HistObs$Tavg, na.rm = T), linetype = 2, alpha = 0.5) + 
     geom_vline(
-      xintercept = histPercentiles[,"Tavg"][1], linetype = 2, alpha = 0.5) +
+      xintercept = histPercentiles["5%", "Tavg"], linetype = 2, alpha = 0.5) +
     geom_vline(
-      xintercept = histPercentiles[,"Tavg"][6], linetype = 2, alpha = 0.5) + 
+      xintercept = histPercentiles["95%", "Tavg"], linetype = 2, alpha = 0.5) + 
     scale_y_continuous(expand = c(0,0)) +
     xlab("Daily average temperature (°C)") + 
     # annotate("text", x = median(HistObs$Tavg), y = Inf, vjust = -0.75,
     #   hjust=1.1,label = "50TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
     #   family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = histPercentiles[,"Tavg"][1], y = 0, vjust = -0.75,
-            hjust=-0.05,label = paste0("5th percentile:  ",round(histPercentiles[,"Tavg"][1],1),'°C'), 
+    annotate("text", x = histPercentiles["5%", "Tavg"], y = 0, vjust = -0.75,
+            hjust=-0.05,label = paste0("5th percentile:  ",round(histPercentiles["5%", "Tavg"],1),'°C'), 
             size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = median(HistObs$Tavg, na.rm = T), y = 0, vjust = -0.75,
-            hjust=-0.05,label = paste0("50th percentile:  ",round(median(HistObs$Tavg, na.rm = T),1),'°C'), 
+    annotate("text", x = histPercentiles["50%", "Tavg"], y = 0, vjust = -0.75,
+            hjust=-0.05,label = paste0("50th percentile:  ",round(histPercentiles["50%", "Tavg"],1),'°C'), 
             size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = histPercentiles[,"Tavg"][6], y = 0, vjust = -0.75,
-            hjust=-0.05,label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
+    annotate("text", x = histPercentiles["95%", "Tavg"], y = 0, vjust = -0.75,
+            hjust=-0.05,label = paste0("95th percentile:  ",round(histPercentiles["95%", "Tavg"],1),'°C'),
             size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
     annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust = 1.1,
             label = paste0("TODAY:  ",Tavg.now,'°C'), colour = 'firebrick', size = 4, angle = 90, alpha = 1,
@@ -159,9 +164,9 @@ for (this_station in station_set)
     geom_point(size = rel(2), colour = '#999999') +
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick",
               size = rel(5)) +
-    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][6]), linetype = 2,
+    geom_hline(aes(yintercept = histPercentiles["95%", "Tavg"]), linetype = 2,
               alpha = 0.5) +
-    geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2,
+    geom_hline(aes(yintercept = histPercentiles["5%", "Tavg"]), linetype = 2,
               alpha = 0.5) +
     geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2,
               alpha = 0.5) +
@@ -172,15 +177,15 @@ for (this_station in station_set)
             label = paste0(Tavg.now,'°C'), colour = 'firebrick', size = 4,
             family = 'Roboto Condensed', fontface = "bold") + 
     annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
-            y = histPercentiles[, "Tavg"][6], label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
+            y = histPercentiles["95%", "Tavg"], label = paste0("95th percentile:  ",round(histPercentiles["95%", "Tavg"],1),'°C'),
             alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") + 
     annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
-            y = median(HistObs$Tavg, na.rm = T), label = paste0("50th percentile:  ",round(median(HistObs$Tavg, na.rm = T),1),'°C'),
+            y = median(HistObs$Tavg, na.rm = T), label = paste0("50th percentile:  ",round(histPercentiles["50%", "Tavg"],1),'°C'),
             alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") + 
     annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
-            y = histPercentiles[, "Tavg"][1], label = paste0("5th percentile:  ",round(histPercentiles[,"Tavg"][1],1),'°C'),
+            y = histPercentiles["5%", "Tavg"], label = paste0("5th percentile:  ",round(histPercentiles["5%", "Tavg"],1),'°C'),
             alpha = 0.9, size = 4, hjust = 0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") +
     # annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
