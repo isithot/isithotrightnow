@@ -141,13 +141,13 @@ for (this_station in station_set)
             family = 'Roboto Condensed', fontface = "bold")
 
   # Now for the time series the historical data must only include days with the same monthDay
-  HistObs <- HistObs %>%
+  CurrentMonthDayHistObs <- HistObs %>%
                 dplyr::filter(
                   month(Date) == month(current.date),
                   day(Date) == day(current.date))
     
 
-  TS.plot <- ggplot(data = HistObs, aes(x = Date, y = Tavg)) +
+  TS.plot <- ggplot(data = CurrentMonthDayHistObs, aes(x = Date, y = Tavg)) +
     ggtitle(
       paste0(
         "Daily average temperatures\nfor ",
@@ -163,7 +163,7 @@ for (this_station in station_set)
               alpha = 0.5) +
     geom_hline(aes(yintercept = histPercentiles[,"Tavg"][1]), linetype = 2,
               alpha = 0.5) +
-    geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2,
+    geom_hline(aes(yintercept = median(CurrentMonthDayHistObs$Tavg, na.rm = T)), linetype = 2,
               alpha = 0.5) +
     annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
             label = "TODAY", colour = 'firebrick', size = 4,
@@ -171,26 +171,26 @@ for (this_station in station_set)
     annotate("text", x = current.date, y = Tavg.now, vjust = 2.5,
             label = paste0(Tavg.now,'°C'), colour = 'firebrick', size = 4,
             family = 'Roboto Condensed', fontface = "bold") + 
-    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
+    annotate("text", x = ymd(paste0(round(min(CurrentMonthDayHistObs$Year)/10)*10,"0101")),
             y = histPercentiles[, "Tavg"][6], label = paste0("95th percentile:  ",round(histPercentiles[,"Tavg"][6],1),'°C'),
             alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") + 
-    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
-            y = median(HistObs$Tavg, na.rm = T), label = paste0("50th percentile:  ",round(median(HistObs$Tavg, na.rm = T),1),'°C'),
+    annotate("text", x = ymd(paste0(round(min(CurrentMonthDayHistObs$Year)/10)*10,"0101")),
+            y = median(CurrentMonthDayHistObs$Tavg, na.rm = T), label = paste0("50th percentile:  ",round(median(CurrentMonthDayHistObs$Tavg, na.rm = T),1),'°C'),
             alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") + 
-    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
+    annotate("text", x = ymd(paste0(round(min(CurrentMonthDayHistObs$Year)/10)*10,"0101")),
             y = histPercentiles[, "Tavg"][1], label = paste0("5th percentile:  ",round(histPercentiles[,"Tavg"][1],1),'°C'),
             alpha = 0.9, size = 4, hjust = 0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") +
-    # annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
-    #   y = median(HistObs$Tavg), label = paste0("50TH PERCENTILE:  ",round(median(HistObs$Tavg)),'°C'),
+    # annotate("text", x = ymd(paste0(round(min(CurrentMonthDayHistObs$Year)/10)*10,"0101")),
+    #   y = median(CurrentMonthDayHistObs$Tavg), label = paste0("50TH PERCENTILE:  ",round(median(CurrentMonthDayHistObs$Tavg)),'°C'),
     #   alpha = 0.5, size = 4, hjust = 0, vjust = -0.5,
     #   family = 'Roboto Condensed', fontface = "bold") +
     scale_x_date(
       breaks = ymd(paste0(
-        seq(round(min(HistObs$Year)/10)*10,
-            round(max(HistObs$Year)/10)*10, 20),
+        seq(round(min(CurrentMonthDayHistObs$Year)/10)*10,
+            round(max(CurrentMonthDayHistObs$Year)/10)*10, 20),
         "0101")),
       date_labels = '%Y') +
     theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
