@@ -56,9 +56,7 @@ getCurrentObs <- function(req_station_id) {
         tmax = col_double(),
         tmin = col_double(),
         .default = col_character())) %>%
-    print() %>%
     dplyr::filter(station_id == req_station_id) %>%
-    print() %>%
     select(tmax, tmin) %>%
     print()
   )
