@@ -20,7 +20,7 @@ else:
 today = time.strftime("%y%m%d")
 
 # create directory if not existing
-if not os.path.exists("%s/databackup"):
+if not os.path.exists("%s/databackup" %(fullpath)):
 	os.makedirs("%s/databackup" %(fullpath))
 
 # make backup with todays date
