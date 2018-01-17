@@ -106,16 +106,16 @@ if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
   inner_join(obs_new, obs_old) %>%
   mutate(
     tmax_selected = if_else(
-      tmax > tmax_old | tmax_old_dt %--% Sys.time() %/% hours(1) >= 24,
+      tmax >= tmax_old | tmax_old_dt %--% Sys.time() %/% hours(1) >= 24,
         true = tmax, false = tmax_old),
     tmax_selected_dt = if_else(
-      tmax > tmax_old | tmax_old_dt %--% Sys.time() %/% hours(1) >= 24,
+      tmax >= tmax_old | tmax_old_dt %--% Sys.time() %/% hours(1) >= 24,
         true = tmax_dt, false = tmax_old_dt),
     tmin_selected = if_else(
-      tmin > tmin_old | tmin_old_dt %--% Sys.time() %/% hours(1) >= 24,
+      tmin <= tmin_old | tmin_old_dt %--% Sys.time() %/% hours(1) >= 24,
         true = tmin, false = tmin_old),
     tmin_selected_dt = if_else(
-      tmin > tmin_old | tmin_old_dt %--% Sys.time() %/% hours(1) >= 24,
+      tmin <= tmin_old | tmin_old_dt %--% Sys.time() %/% hours(1) >= 24,
         true = tmin_dt, false = tmin_old_dt)) %>%
   print() %>% # for debugging!
   select(
