@@ -53,13 +53,15 @@ obs_new <-
       lon = xml_attr(., "lon"),
       tmax =
         xml_find_first(., ".//element[@type='maximum_air_temperature']") %>%
-        xml_text(),
+        xml_text() %>%
+        as.numeric(),
       tmax_dt =
         xml_find_first(., ".//element[@type='maximum_air_temperature']") %>%
         xml_attr("time-local"),
       tmin =
         xml_find_first(., ".//element[@type='minimum_air_temperature']") %>%
-        xml_text(),
+        xml_text() %>%
+        as.numeric(),
       tmin_dt =
         xml_find_first(., ".//element[@type='minimum_air_temperature']") %>%
         xml_attr("time-local")) %>%
@@ -87,7 +89,10 @@ if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
   obs_old <-
     read_csv(
       paste0(fullpath, "data/latest/latest-all.csv"),
-      col_types = cols(.default = col_character())) %>%
+      col_types = cols(
+        tmax = col_double(),
+        tmin = col_double(),
+        .default = col_character())) %>%
     rowwise() %>%
     # note that datetimes are written out in utc. we can leave them this way
     # for the time checking maths :)
@@ -122,6 +127,7 @@ if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
     station_id, tz, lat, lon,
     tmax = tmax_selected, tmax_dt = tmax_selected_dt,
     tmin = tmin_selected, tmin_dt = tmin_selected_dt) %>%
+  print() %>%
   write_csv(paste0(fullpath, "data/latest/latest-all.csv"))
 
   message(Sys.time(), " Wrote out new station observations")
