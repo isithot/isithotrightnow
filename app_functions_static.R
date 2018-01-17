@@ -47,46 +47,19 @@ calcHistPercentiles <- function(Obs) {
                 FUN = quantile, probs = c(0.05,0.1,0.4,0.6,0.9,0.95), na.rm = T))
 }
 
-getCurrentObs <- function(station_id) {
+getCurrentObs <- function(req_station_id) {
   # Returns a data frame with the max and min temps reported by the station
-
-  # infer the state from the station id
-  region_code <- as.integer(substr(station_id, 2, 3))
-  state <- case_when(
-    between(region_code, 1, 13) ~ "wa",
-    between(region_code, 14, 15) ~ "nt",
-    between(region_code, 16, 26) ~ "sa",
-    between(region_code, 27, 45) ~ "qld",
-    between(region_code, 46, 75) ~ "nsw",
-    between(region_code, 76, 90) ~ "vic",
-    between(region_code, 91, 99) ~ "tas",
-    # region_code == 0 ~ "tas",
-    TRUE ~ "err")
-  if (state == "err" | state == "")
-    stop ("Invalid station ID")
-
-  # Read correct xml file (by state) and correct data (by station id)
-  obs_data <-
-    read_xml(paste0(fullpath, "data/latest/latest-", state, ".xml")) %>%
-    xml_find_first(paste0("//station[@bom-id='", station_id, "']"))
-  # return dataframe of xml text for tmax and tmin
   return(
-    data.frame(
-      tmax = obs_data %>%
-        xml_find_first(".//element[@type='maximum_air_temperature']") %>%
-        xml_text() %>%
-        as.numeric(),
-      tmin = obs_data %>%
-        xml_find_first(".//element[@type='minimum_air_temperature']") %>%
-        xml_text() %>%
-        as.numeric()
-      ## note: there's code here to also include max/min timestamps (for later)
-      # tmax_time = obs_data %>%
-      #   xml_find_first(".//element[@type='maximum_air_temperature']") %>%
-      #   xml_attr("time-local"),
-      # tmin_time = obs_data %>%
-      #   xml_find_first(".//element[@type='minimum_air_temperature']") %>%
-      #   xml_attr("time-local"),
-        )
+    read_csv(
+      paste0(fullpath, "data/latest/latest-all.csv"),
+      col_types = cols(
+        tmax = col_double(),
+        tmin = col_double(),
+        .default = col_character())) %>%
+    print() %>%
+    dplyr::filter(station_id == req_station_id) %>%
+    print() %>%
+    select(tmax, tmin) %>%
+    print()
   )
 }

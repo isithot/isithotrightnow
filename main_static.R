@@ -23,10 +23,7 @@ if (Sys.info()["user"] == "ubuntu")
 source(paste0(fullpath, "app_functions_static.R"))
 
 # get list of station ids to process from locations.json
-station_set <-
-  fromJSON("www/locations.json") %>%
-  map(~ pluck(., "id")) %>%
-  unlist()
+station_set <- fromJSON(paste0(fullpath, "www/locations.json"))
 
 for (this_station in station_set)
 {
@@ -41,7 +38,8 @@ for (this_station in station_set)
   # sits in.
   # --
 
-  dir.create(paste0("www/output/", this_station[["id"]]), showWarnings = FALSE)
+  dir.create(paste0(fullpath, "www/output/", this_station[["id"]]),
+    showWarnings = FALSE)
 
   # Get current max and min temperatures for this_station
   CurrObs.df <- getCurrentObs(this_station[["id"]])
