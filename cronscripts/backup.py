@@ -8,11 +8,20 @@
 # 	crontab -e
 
 import os
+import time
 
-path = '/srv/isithotrightnow'
-path = '/Users/mjl/git/isithotrightnow'
-# stations: [Sydney Obs, Melbourne, Brisbane] 
-stations = ['IDN60901.94768','IDV60901.95936','IDQ60901.94576']
+# set path for local or server
+if (os.getenv('HOME') == '/home/ubuntu'):
+	fullpath = '/srv/isithotrightnow'
+else:
+	fullpath = '.'
 
-for statname in stations:
-	os.system('cp %s/data/hist_%s.csv %s/databackup/hist_%s.backup'  %(path,statname,path,statname))
+# set day
+today = time.strftime("%y%m%d")
+
+# create directory if not existing
+if not os.path.exists("%s/databackup" %(fullpath)):
+	os.makedirs("%s/databackup" %(fullpath))
+
+# make backup with todays date
+os.system('cp %s/data/latest/latest-all.csv %s/databackup/%s-all.csv' %(fullpath,fullpath,today))
