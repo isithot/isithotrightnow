@@ -109,19 +109,26 @@ if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
   # join the old and new obs together, select the better obs,
   # drop the others and write it out
   inner_join(obs_new, obs_old) %>%
+  # get today's local midnight in utc so that we can drop old obs from yesterday
+  rowwise() %>%
+  mutate(
+    today_start_utc =
+      Sys.time() %>%
+      with_tz(tz) %>%
+      date() %>%
+      paste("00:00:00") %>%
+      ymd_hms(tz = tz) %>%
+      with_tz('UTC')) %>%
+  ungroup() %>%
   mutate(
     tmax_selected = if_else(
-      tmax >= tmax_old | tmax_old_dt %--% Sys.time() %/% hours(1) >= 24,
-        true = tmax, false = tmax_old),
+      tmax >= tmax_old | tmax_old_dt < today_start_utc, tmax, tmax_old),
     tmax_selected_dt = if_else(
-      tmax >= tmax_old | tmax_old_dt %--% Sys.time() %/% hours(1) >= 24,
-        true = tmax_dt, false = tmax_old_dt),
+      tmax >= tmax_old | tmax_old_dt < today_start_utc, tmax_dt, tmax_old_dt),
     tmin_selected = if_else(
-      tmin <= tmin_old | tmin_old_dt %--% Sys.time() %/% hours(1) >= 24,
-        true = tmin, false = tmin_old),
+      tmin <= tmin_old | tmin_old_dt < today_start_utc, tmin, tmin_old),
     tmin_selected_dt = if_else(
-      tmin <= tmin_old | tmin_old_dt %--% Sys.time() %/% hours(1) >= 24,
-        true = tmin_dt, false = tmin_old_dt)) %>%
+      tmin <= tmin_old | tmin_old_dt < today_start_utc, tmin_dt, tmin_old_dt)) %>%
   print() %>% # for debugging!
   select(
     station_id, tz, lat, lon,
