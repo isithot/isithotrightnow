@@ -2,6 +2,19 @@
    Code for loading in local weather stats (on page load and on location update)
    James Goldie, Steefan Contractor & Mat Lipson 2017 */
 
+//Geolocation
+$.get("http://ipinfo.io", function (response) {
+    var state = response.region;
+    if (state == "New South Wales") {console.log(state);}
+    else if (state == "Victoria") {console.log(state);}
+    else if (state == "Queensland") {console.log(state);}
+    else if (state == "Western Australia") {console.log(state);}
+    else if (state == "Northern Territory") {console.log(state);}
+    else if (state == "South Austrlia") {console.log(state);}
+    else if (state == "Tasmania") {console.log(state);}
+    else {console.log("No region")}
+    // $("#state").html(response.region);
+}, "jsonp");
 /* on page load: choose a location (for now, Sydney Obs Hill), download
     assets and insert */
     
