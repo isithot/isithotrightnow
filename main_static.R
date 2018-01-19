@@ -76,9 +76,9 @@ for (this_station in station_set)
 
   isit_answer = switch(category.now, 
                       bc = 'Hell no!',
-                      rc = 'Nope!',
-                      c = 'No!',
-                      a = 'No',
+                      rc = 'No!',
+                      c = 'Nope',
+                      a = 'Not really',
                       h = 'Yup',
                       rh = 'Yeah!',
                       bh = 'Hell yeah!')
@@ -107,7 +107,7 @@ for (this_station in station_set)
       paste0(
         "Distribution of daily average temperatures\nfor this time of year since ",
         this_station[["record_start"]])) +
-    geom_density(adjust = 0.4, colour = '#999999', fill = '#999999') + 
+    geom_density(adjust = 0.7, colour = '#999999', fill = '#999999') + 
     theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
     theme(panel.background = element_rect(fill = "transparent", colour = NA),
           panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
@@ -160,7 +160,7 @@ for (this_station in station_set)
         this_station[["record_start"]])) +
     xlab(NULL) + 
     ylab('Daily average temperature (°C)') + 
-    geom_line(size = 0.2, colour = '#CCCCCC') + 
+    geom_line(size = 0.5, colour = '#CCCCCC') + 
     geom_point(size = rel(2), colour = '#999999') +
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick",
               size = rel(5)) +
