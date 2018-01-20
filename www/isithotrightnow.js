@@ -187,7 +187,7 @@ $(function()
   $.getJSON("locations.json", function(data)
   {
     $("#current_location").append(
-      '<option value="no_station_selected">-</option>');
+      '<option value="no_station_selected">----------</option>');
     $.each(data, function(index, station) {
       $("#current_location").append(
         '<option value="' + station.id + '">' + station.label + '</option>');
