@@ -29,13 +29,13 @@ Current observations
 
 Current observations are based on XML [data feeds](http://www.bom.gov.au/catalogue/data-feeds.shtml) from the Bureau.
 
-* [New South Wales & Canberra](ftp.bom.gov.au/anon/gen/fwo/IDN60920.xml)
-* [Northern Territory](ftp.bom.gov.au/anon/gen/fwo/IDD60920.xml)
-* [Queensland](ftp.bom.gov.au/anon/gen/fwo/IDQ60920.xml)
-* [South Australia](ftp.bom.gov.au/anon/gen/fwo/IDS60920.xml)
-* [Victoria](ftp.bom.gov.au/anon/gen/fwo/IDV60920.xml)
-* [Western Australia](ftp.bom.gov.au/anon/gen/fwo/IDW60920.xml)
-* [Tasmania and ... Antarctica (coming soon???)](ftp.bom.gov.au/anon/gen/fwo/IDT60920.xml)
+* <a href="ftp://ftp.bom.gov.au/anon/gen/fwo/IDN60920.xml">New South Wales & Canberra</a>
+* <a href="ftp://ftp.bom.gov.au/anon/gen/fwo/IDD60920.xml">Northern Territory</a>
+* <a href="ftp://ftp.bom.gov.au/anon/gen/fwo/IDQ60920.xml">Queensland</a>
+* <a href="ftp://ftp.bom.gov.au/anon/gen/fwo/IDS60920.xml">South Australia</a>
+* <a href="ftp://ftp.bom.gov.au/anon/gen/fwo/IDV60920.xml">Victoria</a>
+* <a href="ftp://ftp.bom.gov.au/anon/gen/fwo/IDW60920.xml">Western Australia</a>
+* <a href="ftp://ftp.bom.gov.au/anon/gen/fwo/IDT60920.xml">Tasmania and ... Antarctica (coming soon???)</a>
 
 BoM product info
 ================
@@ -50,7 +50,7 @@ SA        | S              | 16–26
 Qld       | Q              | 27–45
 NSW & ACT | N              | 46–75
 Vic       | V              | 76–90
-Tas & Ant | T              | 91–99
+Tas       | T              | 91–99
 
 
 Other Current Observations Formats
