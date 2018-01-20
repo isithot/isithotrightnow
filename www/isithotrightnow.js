@@ -2,19 +2,6 @@
    Code for loading in local weather stats (on page load and on location update)
    James Goldie, Steefan Contractor & Mat Lipson 2017 */
 
-//Geolocation
-$.get("http://ipinfo.io", function (response) {
-    var state = response.region;
-    if (state == "New South Wales") {console.log(state);}
-    else if (state == "Victoria") {console.log(state);}
-    else if (state == "Queensland") {console.log(state);}
-    else if (state == "Western Australia") {console.log(state);}
-    else if (state == "Northern Territory") {console.log(state);}
-    else if (state == "South Austrlia") {console.log(state);}
-    else if (state == "Tasmania") {console.log(state);}
-    else {console.log("No region")}
-    // $("#state").html(response.region);
-}, "jsonp");
 /* on page load: choose a location (for now, Sydney Obs Hill), download
     assets and insert */
     
@@ -24,6 +11,8 @@ $(function()
   var base_path = "output/"
   var location_menu_innerpad = 10;
   var location_request_timeout = 5000;
+  var geolocation_timeout = 3000;
+  var geolocation_done = false;
 
   /* request_station: hide the details section, download stats and plots
      for a new station and then display them _when they're ready_
@@ -138,20 +127,91 @@ $(function()
       $("#current_location_temp").width() + location_menu_innerpad);
   }
 
+  /* geo_failure: requests the nearest station id */
+  function geo_success(pos_data)
+  {
+    if (pos_data.country_code != "AU")
+    {
+      console.warn("User outside Australia; defaulting to Sydney Obs Hill!");
+      $("#current_location").val(default_station).trigger("change");
+      geolocation_done = true;
+    }
+    else {
+      switch (pos_data.region_code) {
+        case 'ACT':
+          $("#current_location").val("070351").trigger("change");
+          break;
+        case 'NSW':
+          $("#current_location").val("066062").trigger("change");
+          break;
+        case 'VIC':
+          $("#current_location").val("087031").trigger("change");
+          break;
+        case 'TAS':
+          $("#current_location").val("094029").trigger("change");
+          break;
+        case 'QLD':
+          $("#current_location").val("040842").trigger("change");
+          break;
+        case 'SA':
+          $("#current_location").val("023090").trigger("change");
+          break;
+        case 'NT':
+          $("#current_location").val("014015").trigger("change");
+          break;
+        case 'WA':
+          $("#current_location").val("009021").trigger("change");
+          break;
+        default:
+          console.warn(
+            "User region not recognised; " + 
+            "defaulting to Sydney Obs Hill!");
+          $("#current_location").val(default_station).trigger("change");
+      }
+      console.log("Geolocation done!");
+      geolocation_done = true;
+    }
+  }
+
+  /* geo_failure: requests the sydney obs hill station id */
+  function geo_failure()
+  {
+    console.warn("Geolocation failed; defaulting to Sydney Obs Hill!");
+    $("current_location").val(default_station).trigger("change");
+  }
+
   // = on page load ===========================================================
 
-  // on page load, populate the location menu, resize it
-  // and request a default station
+  // on page load, populate the location menu, then determine default (local)
+  // station and request it
   $.getJSON("locations.json", function(data)
   {
+    $("#current_location").append(
+      '<option value="no_station_selected">-</option>');
     $.each(data, function(index, station) {
       $("#current_location").append(
-        '<option value="' + station.id + '">' +station.label + '</option>');
+        '<option value="' + station.id + '">' + station.label + '</option>');
     });
 
-    resize_location_menu($("#current_location option:selected").text());
-    request_station($("#current_location option:selected").val());
+    // now get user location from ip and use to determine a default station
+    // (geo_success and geo_failure will update and request the first time)
+    if (navigator.geolocation)
+    {
+      $.get("https://freegeoip.net/json/", geo_success);
+    } 
+    else
+    {
+      console.warn("No geolocation available!");
+    }
 
+    // default to sydney if geolocation hasn't returned
+    setTimeout(function()
+    {
+      if (!geolocation_done)
+      {
+        geo_failure();
+      }  
+    }, geolocation_timeout);
   });
 
   // = callbacks ==============================================================
@@ -161,8 +221,11 @@ $(function()
        - request new location data */
   $("#current_location").change(function() {
     console.log(this.value);
-    resize_location_menu($("option:selected", this).text());
-    request_station(this.value);
+    if (this.value != "no_station_selected")
+    {
+      resize_location_menu($("option:selected", this).text());
+      request_station(this.value);
+    }
   });
   
 });
