@@ -186,8 +186,6 @@ $(function()
   // station and request it
   $.getJSON("locations.json", function(data)
   {
-    $("#current_location").append(
-      '<option value="no_station_selected">----------</option>');
     $.each(data, function(index, station) {
       $("#current_location").append(
         '<option value="' + station.id + '">' + station.label + '</option>');
@@ -221,11 +219,8 @@ $(function()
        - request new location data */
   $("#current_location").change(function() {
     console.log(this.value);
-    if (this.value != "no_station_selected")
-    {
-      resize_location_menu($("option:selected", this).text());
-      request_station(this.value);
-    }
+    resize_location_menu($("option:selected", this).text());
+    request_station(this.value);
   });
   
 });
