@@ -36,7 +36,7 @@ for (i in 1:length(station_set)) {
 # Run this loop to calculate historical percentiles since the start of the year
 # In the future this loop will be replaced by calculation only for the previous
 # day and the data will be saved in an R dataframe
-for (d in 95:length(dates)) {
+for (d in 1:length(dates)) {
   date <- dates[d]
   file <- paste0(substr(year(date), 3, 4), sprintf("%02d", month(date)), sprintf("%02d", day(date)), "-all.csv")
   print(file)
