@@ -11,7 +11,7 @@ $(function()
   var base_path = "output/"
   var location_menu_innerpad = 10;
   var location_request_timeout = 5000;
-  var geolocation_timeout = 3000;
+  var geolocation_timeout = 1500;
   var geolocation_done = false;
 
   /* request_station: hide the details section, download stats and plots
@@ -177,7 +177,7 @@ $(function()
   function geo_failure()
   {
     console.warn("Geolocation failed; defaulting to Sydney Obs Hill!");
-    $("current_location").val(default_station).trigger("change");
+    $("#current_location").val(default_station).trigger("change");
   }
 
   // = on page load ===========================================================
