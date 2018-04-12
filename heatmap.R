@@ -9,6 +9,7 @@ library(readr)
 library(RJSONIO)
 library(xml2)
 library(purrr)
+library(plot3D)
 
 if (Sys.info()["user"] == "ubuntu")
 {
@@ -32,7 +33,10 @@ for (i in 1:length(station_set)) {
   station_set[[i]]$categoryHeatmap_array <- array(dim = c(31,12))
 }
 
-for (d in 1:length(dates)) {
+# Run this loop to calculate historical percentiles since the start of the year
+# In the future this loop will be replaced by calculation only for the previous
+# day and the data will be saved in an R dataframe
+for (d in 95:length(dates)) {
   date <- dates[d]
   file <- paste0(substr(year(date), 3, 4), sprintf("%02d", month(date)), sprintf("%02d", day(date)), "-all.csv")
   print(file)
@@ -65,25 +69,29 @@ for (d in 1:length(dates)) {
 }
 
 for (i in 1:length(station_set)) {
-  par(mar = c(0,3,5,0.5) + 0.1)
+  png(paste0("www/output/",station_set[[i]]$id,"/heatmap.png"), width = 1200, height = 530)
+  par(mar = c(0,3,5,0.5) + 0.1, bg = NA, family = "Roboto Condensed")
+  layout(mat = matrix(c(1,2), byrow = T, ncol = 2), widths = c(1, 0.075))
   cols <- rev(c('#b2182b','#ef8a62','#fddbc7','#f7f7f7','#d1e5f0','#67a9cf','#2166ac'))
   breaks <- c(0,0.05,0.2,0.4,0.6,0.8,0.95,1)
   month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
   na.df <- array(data = 1, dim = dim(station_set[[i]]$percentileHeatmap_array))
-  image(seq(1, 31), seq(1, 12), na.df, xaxt = "n", yaxt ="n", 
-        xlab = "", ylab = "", col = 'gray')
-  title(station_set[[i]]$label, cex.main = 2, line = 3.5)
+  #image(seq(1, 31), seq(1, 12), na.df, xaxt = "n", yaxt ="n", 
+        #xlab = "", ylab = "", col = 'white')
   image(seq(1, 31), seq(1, 12), 
         station_set[[i]]$percentileHeatmap_array[,ncol(station_set[[i]]$percentileHeatmap_array):1]/100, 
-        xaxt = "n", yaxt ="n", add = T,
+        xaxt = "n", yaxt ="n",
         xlab = "", ylab = "", breaks = breaks, col = cols)
+  title(paste(station_set[[i]]$label, "percentiles for 2018"), 
+        cex.main = 2, line = 3.5, col = "#333333")
   axis(side = 3, at = seq(1, 31),lwd.ticks = 0, )
   axis(side = 2, at = seq(12, 1), labels = month.names, las = 2, lwd.ticks = 0)
   text(expand.grid(1:31, 12:1), labels = station_set[[i]]$percentileHeatmap_array)
+  par(mar = c(3,0,5,30) + 0.1, bg = NA)
+  colbar <- c(cols[1], rep(cols[2], 3), rep(cols[3], 4),rep(cols[4], 4), rep(cols[5], 4), rep(cols[6], 3), cols[7])
+  colkey(col = colbar, clim = c(0, 1), at = breaks, side = 4, width = 6,
+         labels = paste(breaks*100))
+  dev.off()
 }
 
 
-dummy.data <- rnorm(30, mean = 0.60, sd = 0.4)
-dummy.data[which(dummy.data > 1.0)] <- 1.0
-
-image(matrix(dummy.data, ncol = 1), xaxt = "n", yaxt = "n")
