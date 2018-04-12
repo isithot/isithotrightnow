@@ -5,7 +5,8 @@
       src="https://code.jquery.com/jquery-3.2.1.min.js"
       integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
       crossorigin="anonymous"></script>
-    <script src="https://use.fontawesome.com/bf57bcfa12.js"></script>
+    <!-- <script src="https://use.fontawesome.com/bf57bcfa12.js"></script> -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.10/js/all.js" integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+" crossorigin="anonymous"></script>
     <script src="isithotrightnow.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:700|Roboto:300,300i" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="style.css"/>
@@ -59,12 +60,14 @@
             <option id="current_location_temp_dummyopt"></option>
         </select>
         right now?</h2>
-      <h1 id="isit_answer" class="shiny-text-output">. . .</h1>
-      <h2 id="isit_comment" class="shiny-text-output"></h2>
+      <h1 id="isit_answer"></h1>
+      <h2 id="isit_comment"></h2>
       <div>
         <a id="digdeeper" href="#detail">
-          <i class="fa fa-5x fa-arrow-circle-down" aria-hidden="true"></i>
-          <h3>Loading...</h3>
+          <i class="fa fa-5x fa-arrow-circle-down" id="digdeeper_ok" title="Dig deeper"></i>
+          <i class="fas fa-5x fa-cog fa-spin" id="digdeeper_loading" style="display: inline-block;" title="Loading"></i>
+          <i class="fas fa-5x fa-exclamation-circle" id="digdeeper_error" title="Error retrieving results"></i>
+          <h3 class="msg_loading">Looking for a nearby station...</h3>
         </a>
       </div>
       <div></div>

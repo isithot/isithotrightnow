@@ -109,16 +109,39 @@ button
   display: none;
 }
 
+/* status icons and messages */
 
-#digdeeper
-{
-  color: #eee;
+#digdeeper i {
+  display: none;
 }
 
-#digdeeper h4
-{
-  font-style: italic;
+#digdeeper_loading {
+  color: #ddd;
+  display: inline-block;
 }
+
+#digdeeper .msg_loading {
+  color: #ddd;
+}
+
+#digdeeper_error {
+  color: #2265b2;
+  display: none;
+}
+
+#digdeeper .msg_error {
+  color: #2265b2;
+}
+
+#digdeeper_ok {
+  color: #b22222;
+  display: none;
+}
+
+#digdeeper .msg_ok {
+  color: #b22222;
+}
+
 /* detail section */
 
 #detail
