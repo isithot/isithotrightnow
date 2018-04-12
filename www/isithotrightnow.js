@@ -76,7 +76,7 @@ $(function()
         if($.grep(
           [$("#isit_maximum").text(), $("#isit_minimum").text(),
             $("#isit_current").text(), $("#isit_average").text() ],
-          function(el) { return el == "" || el == "NaN"; }).length == 0)
+          function(el) { return el == "" || el == "NaN" || el == "NA"; }).length == 0)
         {
           // problem with the data: display an error
           console.log('Isithot: Uh oh, these stats look weird');
@@ -123,7 +123,7 @@ $(function()
           if($.grep(
             [$("#isit_maximum").text(), $("#isit_minimum").text(),
               $("#isit_current").text(), $("#isit_average").text() ],
-            function(el) { return el == "" || el == "NaN"; }).length > 0)
+            function(el) { return el == "" || el == "NaN" || el == "NA"; }).length > 0)
           {
             // problem with the data: display an error
             console.log('Isithot: Uh oh, these stats look weird');
