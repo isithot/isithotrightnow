@@ -6,7 +6,10 @@
       integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
       crossorigin="anonymous"></script>
     <!-- <script src="https://use.fontawesome.com/bf57bcfa12.js"></script> -->
-    <script defer src="https://use.fontawesome.com/releases/v5.0.10/js/all.js" integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+" crossorigin="anonymous"></script>
+    <script defer
+      src="https://use.fontawesome.com/releases/v5.0.10/js/all.js"
+      integrity="sha384-slN8GvtUJGnv6ca26v8EzVaR9DC58QEwsIk9q1QXdCU8Yu8ck/tL/5szYlBbqmS+"
+      crossorigin="anonymous"></script>
     <script src="isithotrightnow.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:700|Roboto:300,300i" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="style.css"/>
@@ -73,17 +76,17 @@
       <div></div>
     </section>
 
-    <section id="detail">
+    <section id="detail" class="content_section">
       <div id="detail_normal" class="detail_element">
-        <h2>Here's how today compares</h2>
+        <h2>Here's how today compares...</h2>
         <div class="detail_element_content">
           <p class="plot_caption" id="detail_ts_caption">
             Today's maximum temperature so far is <span id="isit_maximum">[max]</span>&deg;C, 
             and the minimum overnight was <span id="isit_minimum">[min]</span>&deg;C. 
             The average of the two is <span id="isit_current" class="shiny-text-output"></span><span class="firebrick"> &deg;C</span>
             , which is hotter than <span id="isit_average" class="shiny-text-output"></span><span class="firebrick">% </span>
-            of daily average temperatures at <span id="isit_name" class="shiny-text-output"></span> for this time of year over the period <span id="isit_span"></span>. The <em>really </em> hot and cold days (top and bottom 5%, respectively) are outside the dotted lines.
-            </p>
+            of daily average temperatures at <span id="isit_name_detail" class="shiny-text-output isit_name"></span> for this time of year over the period <span id="isit_span"></span>. The <em>really </em> hot and cold days (top and bottom 5%, respectively) are outside the dotted lines.
+          </p>
           <div class="shiny-plot-output plot" id="isit_ts_plot">
             <img src="assets/clear.gif">
           </div>
@@ -92,10 +95,25 @@
 
       <div id="detail_cc" class="detail_element">
         <div class="detail_element_content">
-          <p class="plot_caption" id="detail_dist_caption">This is the distribution of temperatures typical for this time of year, which we've defined as a seven day window either side of today. Just like a bell curve, the plot is higher at more common temperatures and lower at rare temperatures. 
+          <p class="plot_caption" id="detail_dist_caption">This is the distribution of temperatures typical for this time of year, which we've defined as a seven day window either side of today. Just like a bell curve, the plot is higher at more common temperatures and lower at rare temperatures.</p>
           <div class="shiny-plot-output plot" id="isit_density_plot">
             <img src="assets/clear.gif">
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="heatmap" class="content_section">
+      <div id="detail_normal" class="detail_element">
+        <h2>... and the rest of the year.</h2>
+        <div class="detail_element_content">
+          <p class="plot_caption" id="heatmap_caption">
+            We've compared every day this year at <span id="isit_name_heatmap" class="shiny-text-output isit_name"></span> to similar times of year in the past. Red days were hot compared to records; blue days were cold.
+          </p>
+          <div class="shiny-plot-output plot" id="isit_heatmap">
+            <img src="assets/clear.gif">
+          </div>
+
         </div>
       </div>
     </section>

@@ -26,14 +26,16 @@ $(function()
     {
       isit_stats: false,
       isit_ts_plot: false,
-      isit_density_plot: false
+      isit_density_plot: false,
+      isit_heatmap: false,
     }
     function resources_loaded()
     {
       if (
         loaded_resources.isit_stats == false |
         loaded_resources.isit_ts_plot == false |
-        loaded_resources.isit_density_plot == false)
+        loaded_resources.isit_density_plot == false |
+        loaded_resources.isit_heatmap == false)
       {
         return false;
       }
@@ -45,6 +47,8 @@ $(function()
 
     // hide the details section while we update stuff!
     $("#detail").css("display", "none");
+    $("#heatmap").css("display", "none");
+    // update the status message
     $("#digdeeper_loading").css("display", "inline-block");
     $("#digdeeper_ok").css("display", "none");
     $("#digdeeper_error").css("display", "none");
@@ -65,7 +69,8 @@ $(function()
       $("#isit_minimum").text(data.isit_minimum);
       $("#isit_current").text(data.isit_current);
       $("#isit_average").text(data.isit_average);
-      $("#isit_name").text(data.isit_name);
+      $("#isit_name_detail").text(data.isit_name);
+      $("#isit_name_heatmap").text(data.isit_name);
       $("#isit_span").text(data.isit_span);
 
       loaded_resources.isit_stats = true;
@@ -90,22 +95,26 @@ $(function()
             .addClass("msg_error");
 
         } else {
-          // all good! bring it up
+          // all good! update the status message...
           console.log('Isithot: All resources loaded :D');
           $("#digdeeper_loading").css("display", "none");
-          $("#digdeeper_ok").css("display", "inline-block");
           $("#digdeeper_error").css("display", "none");
+          $("#digdeeper_ok").css("display", "inline-block");
           $("#digdeeper h3")
             .text("Dig deeper")
             .removeClass("msg_loading msg_error")
             .addClass("msg_ok");
+          // ... and bring it up
           $("#detail").css("display", "flex");
+          $("#heatmap").css("display", "flex");
         }
       }
     });
     
     // dl *each* image and insert on success
-    plots = ["ts_plot", "density_plot"]
+    // NB: strings in this array are directed appended to "isit_" to find
+    // target dom ids!
+    plots = ["ts_plot", "density_plot", "heatmap"]
     plots.map(function(content)
     {
       var plot_target = $("#isit_" + content + " img");
@@ -137,16 +146,18 @@ $(function()
               .addClass("msg_error");
   
           } else {
-            // all good! bring it up
-            console.log('Isithot: All resources loaded :D');
-            $("#digdeeper_loading").css("display", "none");
-            $("#digdeeper_ok").css("display", "inline-block");
-            $("#digdeeper_error").css("display", "none");
-            $("#digdeeper h3")
-              .text("Dig deeper")
-              .removeClass("msg_loading msg_error")
-              .addClass("msg_ok");
-            $("#detail").css("display", "flex");
+            // all good! update the status message...
+          console.log('Isithot: All resources loaded :D');
+          $("#digdeeper_loading").css("display", "none");
+          $("#digdeeper_error").css("display", "none");
+          $("#digdeeper_ok").css("display", "inline-block");
+          $("#digdeeper h3")
+            .text("Dig deeper")
+            .removeClass("msg_loading msg_error")
+            .addClass("msg_ok");
+          // ... and bring it up
+          $("#detail").css("display", "flex");
+          $("#heatmap").css("display", "flex");
           }
         }
       });

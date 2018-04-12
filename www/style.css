@@ -125,12 +125,12 @@ button
 }
 
 #digdeeper_error {
-  color: #2265b2;
+  color: #ee520a;
   display: none;
 }
 
 #digdeeper .msg_error {
-  color: #2265b2;
+  color: #ee520a;
 }
 
 #digdeeper_ok {
@@ -142,12 +142,10 @@ button
   color: #b22222;
 }
 
-/* detail section */
+/* content sectiona */
 
-#detail
+.content_section
 {
-  /* background-color: #bbff00; */
-  background-color: #eee;
   padding: 0 40px;
 
   /* display: flex enabled by js event! */
@@ -157,12 +155,20 @@ button
   align-items: center;
 }
 
-#detail .shiny-text-output, #detail .firebrick
+#detail {
+  background-color: #eee;
+}
+
+#heatmap {
+  background-color: #ddd;
+}
+
+.content_section .shiny-text-output, .content_section .firebrick
 {
   color: #b22222;
 }
 
-#detail .detail_element
+.content_section .detail_element
 {
   width: 100%;
   max-width: 1200px;
@@ -173,14 +179,15 @@ button
   padding-bottom: 40px;
 }
 
-#detail .detail_element h2
+.content_section .detail_element h2
 {
   text-align: center;
   width: 100%;
 }
 
-/* plot-and-caption group: horizontal for desktop, vertical for mobile */
-#detail .detail_element_content
+/* plot-and-caption group: horizontal for desktop, vertical for mobile.
+  for the heatmap section, make it vertical for both! */
+.content_section .detail_element_content
 {
   width: 100%;
   display: flex;
@@ -189,14 +196,14 @@ button
   align-items: flex-start;
 }
 
-#detail .plot
+.content_section .plot
 {
   flex: 1 67%;
   width: 67%;
   margin: 0 0 0 10px;
 }
 
-#detail .plot_caption 
+.content_section .plot_caption 
 {
   flex: 1 33%;
   width: 33%;
@@ -207,7 +214,7 @@ button
 
 @media (max-width: 760px), (-webkit-min-device-pixel-ratio: 2) and (max-width: 1024px)
 {
-  #detail .detail_element_content
+  .content_section .detail_element_content
   {
     display: flex;
     flex-direction: column;
@@ -215,14 +222,14 @@ button
     align-items: flex-start;
   }
 
-  #detail .plot
+  .content_section .plot
   {
     width: 100%;
     flex: 1;
     margin: 0;
   }
 
-  #detail .plot_caption
+  .content_section .plot_caption
   {
     flex: 1;
     width: 100%;
@@ -231,9 +238,32 @@ button
   }
 }
 
-#detail .plot img
+.content_section .plot img
 {
   width: 100%;
+}
+
+#heatmap .detail_element_content
+{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+#heatmap .plot
+{
+  width: 100%;
+  flex: 1;
+  margin: 0;
+}
+
+#heatmap .plot_caption
+{
+  flex: 1;
+  width: 100%;
+  height: auto;
+  margin: 0 0 40px 0;
 }
 
 /* footer section */
@@ -258,14 +288,14 @@ button
 
 /* plots */
 
-#detail_normal_plot
+.content_section_normal_plot
 {
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
 }
 
-#detail_dist_plot
+.content_section_dist_plot
 {
   background-size: contain;
   background-repeat: no-repeat;
