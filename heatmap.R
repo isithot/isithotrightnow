@@ -38,7 +38,7 @@ for (i in 1:length(station_set)) {
 # day and the data will be saved in an R dataframe
 for (d in 1:length(dates)) {
   date <- dates[d]
-  file <- paste0(substr(year(date), 3, 4), sprintf("%02d", month(date)), sprintf("%02d", day(date)), "-all.csv")
+  file <- paste0(fullpath,substr(year(date), 3, 4), sprintf("%02d", month(date)), sprintf("%02d", day(date)), "-all.csv")
   print(file)
   daydata <- read_csv(paste0("databackup/", file))
   daydata <- daydata %>% mutate(tavg = (tmax + tmin) / 2)
@@ -69,7 +69,7 @@ for (d in 1:length(dates)) {
 }
 
 for (i in 1:length(station_set)) {
-  png(paste0("www/output/",station_set[[i]]$id,"/heatmap.png"), width = 2400, height = 1060)
+  png(paste0(fullpath,"www/output/",station_set[[i]]$id,"/heatmap.png"), width = 2400, height = 1060)
   par(mar = c(0.8,5,8,0.5) + 0.1, bg = NA, family = "Roboto Condensed")
   layout(mat = matrix(c(1,2), byrow = T, ncol = 2), widths = c(1, 0.075))
   cols <- rev(c('#b2182b','#ef8a62','#fddbc7','#f7f7f7','#d1e5f0','#67a9cf','#2166ac'))
