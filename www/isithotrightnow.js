@@ -78,23 +78,23 @@ $(function()
       // enable page if all resources are loaded
       if (resources_loaded())
       {
-        if($.grep(
-          [$("#isit_maximum").text(), $("#isit_minimum").text(),
-            $("#isit_current").text(), $("#isit_average").text() ],
-          function(el) { return el == "" || el == "NaN" || el == "NA"; }).length == 0)
-        {
-          // problem with the data: display an error
-          console.log('Isithot: Uh oh, these stats look weird');
-          $("#digdeeper_loading").css("display", "none");
-          $("#digdeeper_ok").css("display", "none");
-          $("#digdeeper_error").css("display", "inline-block");
-          $("#digdeeper h3")
-            .text("The data we're getting looks a little weird! " +
-              "That's probably something on our end, sorry.")
-            .removeClass("msg_loading msg_ok")
-            .addClass("msg_error");
+        // if($.grep(
+        //   [$("#isit_maximum").text(), $("#isit_minimum").text(),
+        //     $("#isit_current").text(), $("#isit_average").text() ],
+        //   function(el) { return el == "" || el == "NaN" || el == "NA"; }).length == 0)
+        // {
+        //   // problem with the data: display an error
+        //   console.log('Isithot: Uh oh, these stats look weird');
+        //   $("#digdeeper_loading").css("display", "none");
+        //   $("#digdeeper_ok").css("display", "none");
+        //   $("#digdeeper_error").css("display", "inline-block");
+        //   $("#digdeeper h3")
+        //     .text("The data we're getting looks a little weird! " +
+        //       "That's probably something on our end, sorry.")
+        //     .removeClass("msg_loading msg_ok")
+        //     .addClass("msg_error");
 
-        } else {
+        // } else {
           // all good! update the status message...
           console.log('Isithot: All resources loaded :D');
           $("#digdeeper_loading").css("display", "none");
@@ -107,7 +107,7 @@ $(function()
           // ... and bring it up
           $("#detail").css("display", "flex");
           $("#heatmap").css("display", "flex");
-        }
+        // }
       }
     });
     
@@ -129,11 +129,11 @@ $(function()
         // enable page if all resources are loaded
         if (resources_loaded())
         {
-          if($.grep(
-            [$("#isit_maximum").text(), $("#isit_minimum").text(),
-              $("#isit_current").text(), $("#isit_average").text() ],
-            function(el) { return el == "" || el == "NaN" || el == "NA"; }).length > 0)
-          {
+          // if($.grep(
+          //   [$("#isit_maximum").text(), $("#isit_minimum").text(),
+          //     $("#isit_current").text(), $("#isit_average").text() ],
+          //   function(el) { return el == "" || el == "NaN" || el == "NA"; }).length > 0)
+          // {
             // problem with the data: display an error
             console.log('Isithot: Uh oh, these stats look weird');
             $("#digdeeper_loading").css("display", "none");
@@ -145,7 +145,7 @@ $(function()
               .removeClass("msg_loading msg_ok")
               .addClass("msg_error");
   
-          } else {
+          // } else {
             // all good! update the status message...
           console.log('Isithot: All resources loaded :D');
           $("#digdeeper_loading").css("display", "none");
@@ -158,7 +158,7 @@ $(function()
           // ... and bring it up
           $("#detail").css("display", "flex");
           $("#heatmap").css("display", "flex");
-          }
+          // }
         }
       });
       // set loading img src to trigger the download
