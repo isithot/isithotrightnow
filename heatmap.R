@@ -38,9 +38,9 @@ for (i in 1:length(station_set)) {
 # day and the data will be saved in an R dataframe
 for (d in 1:length(dates)) {
   date <- dates[d]
-  file <- paste0(fullpath,substr(year(date), 3, 4), sprintf("%02d", month(date)), sprintf("%02d", day(date)), "-all.csv")
+  file <- paste0(substr(year(date), 3, 4), sprintf("%02d", month(date)), sprintf("%02d", day(date)), "-all.csv")
   print(file)
-  daydata <- read_csv(paste0("databackup/", file))
+  daydata <- read_csv(paste0(fullpath,"databackup/", file))
   daydata <- daydata %>% mutate(tavg = (tmax + tmin) / 2)
   
   for (i in 1:length(station_set))
