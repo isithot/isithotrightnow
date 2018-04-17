@@ -15,16 +15,16 @@ if (Sys.info()["user"] == "ubuntu")
 {
   # running on the server
   fullpath = "/srv/isithotrightnow/"
+  dates <- seq(ymd("20180101"), Sys.Date(), 1)
 } else {
   # testing locally
   fullpath = "./"
+  dates <- seq(ymd("20180101"), Sys.Date() - 1, 1)
 }
 
 
 # load functions from app_functions.R
 source(paste0(fullpath, "app_functions_static.R"))
-
-dates <- seq(ymd("20180101"), Sys.Date() - 1, 1)
 
 # get list of station ids to process from locations.json
 station_set <- fromJSON(paste0(fullpath, "www/locations.json"))
