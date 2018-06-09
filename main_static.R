@@ -9,6 +9,7 @@ library(readr)
 library(RJSONIO)
 library(xml2)
 library(purrr)
+library(plot3D)
 
 if (Sys.info()["user"] == "ubuntu")
 {
