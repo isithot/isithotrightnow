@@ -247,7 +247,7 @@ for (this_station in station_set)
   station_year_data <- read_csv(paste0(fullpath, "databackup/", year_percentiles_file))
   # create an empty array to store the daily percentiles for this year
   percentileHeatmap_array <- array(dim = c(31,12))
-  for (m in 1:month(todays_date)) {
+  for (m in 1:month(current.date)) {
     month_data <- station_year_data %>% dplyr::filter(month(date) == m) %>% dplyr::pull(percentile)
     percentileHeatmap_array[,m][1:length(month_data)] <- month_data
   }
