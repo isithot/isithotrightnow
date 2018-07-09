@@ -1,6 +1,4 @@
 # A heatmap of thresholds over the past 30 days
-
-
 library(ggplot2)
 library(jsonlite)
 library(lubridate)
@@ -11,6 +9,8 @@ library(xml2)
 library(purrr)
 library(plot3D)
 
+# nb: this shouldn't be run on the server at all!
+# code has been migrated to main_static.r
 if (Sys.info()["user"] == "ubuntu")
 {
   # running on the server
