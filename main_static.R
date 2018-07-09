@@ -44,10 +44,8 @@ for (this_station in station_set)
 
   # Get current max and min temperatures for this_station
   CurrObs.df <- getCurrentObs(this_station[["id"]])
-  current.date_time <-
-    Sys.time() %>%
-    with_tz(this_station[["tz"]])
-  current.date <- current.date_time %>% as.Date()
+  current.date_time <- Sys.time()
+  current.date <- current.date_time %>% as.Date(tz = this_station[["tz"]])
 
   # Calculate percentiles of historical data
   HistObs <- getHistoricalObs(this_station[["id"]], date = current.date, window = 7)
@@ -157,7 +155,7 @@ for (this_station in station_set)
     ggtitle(
       paste0(
         "Daily average temperatures\nfor ",
-        format(current.date_time, format="%d %B")," since ",
+        format(current.date_time, format="%d %B", tz = this_station[["tz"]])," since ",
         this_station[["record_start"]])) +
     xlab(NULL) + 
     ylab('Daily average temperature (°C)') + 
@@ -246,15 +244,18 @@ for (this_station in station_set)
   year <- year(current.date)
   year_percentiles_file <- paste0(this_station["id"], "-", year, ".csv")
   station_year_data <- read_csv(paste0(fullpath, "databackup/", year_percentiles_file))
+  
   # create an empty array to store the daily percentiles for this year
   percentileHeatmap_array <- array(dim = c(31,12))
   for (m in 1:month(current.date)) {
     month_data <- station_year_data %>% dplyr::filter(month(date) == m) %>% dplyr::pull(percentile)
     percentileHeatmap_array[,m][1:length(month_data)] <- month_data
   }
+  
   # add today's data to the percentileHeatmap_array object
   percentileHeatmap_array[day(current.date), month(current.date)] <- average.percent
-  # Write out todays percentile as the last row if a row does not already exist
+  
+  # Write out today's percentile as the last row if a row does not already exist
   # and if average.percent is not NA
   current.row <- which(station_year_data$date == current.date)
   if (!is.na(average.percent)) {
