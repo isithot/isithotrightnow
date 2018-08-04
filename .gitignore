@@ -1,4 +1,5 @@
 data/latest/
-databackup/
-databackup2/
+databackup/*.csv
+databackup2/*.csv
 www/output
+.Rhistory
