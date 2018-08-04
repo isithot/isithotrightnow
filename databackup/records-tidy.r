@@ -2,6 +2,7 @@
 library(ggplot2)
 library(jsonlite)
 library(lubridate)
+library(tibble)
 library(dplyr)
 library(tidyr)
 library(readr)
@@ -65,6 +66,8 @@ for (d in 1:length(dates)) {
   }
 }
 
+message("Percentiles calculated; tidying up")
+
 # get the nested list structure into a nested data frame
 # (previously in heatmap-tidy.r)
 tidy_data =
@@ -92,6 +95,8 @@ tidy_data =
   select(id, date, percentile) %>%
   nest(-id)
 
+message("And finally, writing out!")
+
 # write 'em out to disk  
 walk2(tidy_data$data, tidy_data$id,
-  ~ write_csv(.x, paste0('databackup/', .y, '-2018.csv')))
+  ~ write_csv(.x, paste0(fullpath, "databackup/", .y, '-2018.csv')))
