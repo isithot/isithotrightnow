@@ -43,29 +43,27 @@ obs_new <-
     ~ read_xml(paste0(bom_xml_path, "ID", ., "60920.xml")) %>%
     xml_find_all(paste0("//station[", xpath_filter, "]")) %>%
     # build a data frame with the info we want...
-    data_frame(
-      # TODO - not sure why this also returns a column with the nodeset!
-      # if . is used in a pipe, the piped-in thing shouldn't automatically be
-      # the first argument. ahh well, i'll just drop it for now...
-      station_id = xml_attr(., "bom-id"),
-      tz = xml_attr(., "tz"),
-      lat = xml_attr(., "lat"),
-      lon = xml_attr(., "lon"),
-      tmax =
-        xml_find_first(., ".//element[@type='maximum_air_temperature']") %>%
-        xml_text() %>%
-        as.numeric(),
-      tmax_dt =
-        xml_find_first(., ".//element[@type='maximum_air_temperature']") %>%
-        xml_attr("time-local"),
-      tmin =
-        xml_find_first(., ".//element[@type='minimum_air_temperature']") %>%
-        xml_text() %>%
-        as.numeric(),
-      tmin_dt =
-        xml_find_first(., ".//element[@type='minimum_air_temperature']") %>%
-        xml_attr("time-local")) %>%
-    select(-1) %>%
+    {
+      data_frame(
+        station_id = xml_attr(., "bom-id"),
+        tz = xml_attr(., "tz"),
+        lat = xml_attr(., "lat"),
+        lon = xml_attr(., "lon"),
+        tmax =
+          xml_find_first(., ".//element[@type='maximum_air_temperature']") %>%
+          xml_text() %>%
+          as.numeric(),
+        tmax_dt =
+          xml_find_first(., ".//element[@type='maximum_air_temperature']") %>%
+          xml_attr("time-local"),
+        tmin =
+          xml_find_first(., ".//element[@type='minimum_air_temperature']") %>%
+          xml_text() %>%
+          as.numeric(),
+        tmin_dt =
+          xml_find_first(., ".//element[@type='minimum_air_temperature']") %>%
+          xml_attr("time-local"))
+    }  %>%
     # convert the date-time strings
     rowwise() %>%
     mutate(
@@ -108,7 +106,7 @@ if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
   
   # join the old and new obs together, select the better obs,
   # drop the others and write it out
-  inner_join(obs_new, obs_old) %>%
+  full_join(obs_new, obs_old) %>%
   # get today's local midnight in utc so that we can drop old obs from yesterday
   rowwise() %>%
   mutate(
@@ -116,11 +114,13 @@ if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
       Sys.time() %>%
       with_tz(tz) %>%
       date() %>%
-      paste("00:00:00") %>%
+      paste("00:00:00") %>%aq
       ymd_hms(tz = tz) %>%
       with_tz('UTC')) %>%
   ungroup() %>%
   mutate(
+    # first, select new obs if they're more extreme than the previous ones
+    # *and* within the 24 hour window....
     tmax_selected = if_else(
       tmax >= tmax_old | tmax_old_dt < today_start_utc, tmax, tmax_old),
     tmax_selected_dt = if_else(
@@ -128,7 +128,12 @@ if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
     tmin_selected = if_else(
       tmin <= tmin_old | tmin_old_dt < today_start_utc, tmin, tmin_old),
     tmin_selected_dt = if_else(
-      tmin <= tmin_old | tmin_old_dt < today_start_utc, tmin_dt, tmin_old_dt)) %>%
+      tmin <= tmin_old | tmin_old_dt < today_start_utc, tmin_dt, tmin_old_dt),
+    # then, backfill any nas 
+    tmax_selected = coalesce(tmax_selected, tmax, tmax_old),
+    tmax_selected_dt = coalesce(tmax_selected_dt, tmax_dt, tmax_old_dt),
+    tmin_selected = coalesce(tmin_selected, tmin, tmin_old),
+    tmin_selected_dt = coalesce(tmin_selected_dt, tmin_dt, tmin_old_dt)) %>%
   print() %>% # for debugging!
   select(
     station_id, tz, lat, lon,
