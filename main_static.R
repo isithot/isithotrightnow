@@ -233,6 +233,19 @@ for (this_station in station_set)
     statsList[[9]] <- paste0(
       this_station[["record_start"]], "–", this_station[["record_end"]])
 
+  # send everyone an email if there are problems with the output!
+  if (any(is.na(statsList)) | any(is.null(statsList))) {
+    report = paste0(
+      "Problems with Isithot output:\n\n",
+      paste(statsList, collapse = '\n'))
+    
+    system(paste(
+      'echo', report, '| mail -s "Isithot: error in station',
+      statsList[[7]], statsList[[8]],
+      '" me@rensa.co m.lipson@unsw.edu.au stefan.contractor@gmail.com'))
+  }
+
+
   exportJSON <- toJSON(statsList)
   write(
     exportJSON,
