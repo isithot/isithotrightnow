@@ -9,6 +9,7 @@ library(readr)
 library(RJSONIO)
 library(xml2)
 library(purrr)
+library(plot3D)
 
 if (Sys.info()["user"] == "ubuntu")
 {
@@ -43,10 +44,8 @@ for (this_station in station_set)
 
   # Get current max and min temperatures for this_station
   CurrObs.df <- getCurrentObs(this_station[["id"]])
-  current.date_time <-
-    Sys.time() %>%
-    with_tz(this_station[["tz"]])
-  current.date <- current.date_time %>% as.Date()
+  current.date_time <- Sys.time()
+  current.date <- current.date_time %>% as.Date(tz = this_station[["tz"]])
 
   # Calculate percentiles of historical data
   HistObs <- getHistoricalObs(this_station[["id"]], date = current.date, window = 7)
@@ -156,7 +155,7 @@ for (this_station in station_set)
     ggtitle(
       paste0(
         "Daily average temperatures\nfor ",
-        format(current.date_time, format="%d %B")," since ",
+        format(current.date_time, format="%d %B", tz = this_station[["tz"]])," since ",
         this_station[["record_start"]])) +
     xlab(NULL) + 
     ylab('Daily average temperature (°C)') + 
@@ -238,4 +237,61 @@ for (this_station in station_set)
   write(
     exportJSON,
     file = paste0(fullpath, "www/output/", this_station[["id"]], "/stats.json"))
+  
+  ######################################################################################################################
+  # HEATMAP
+  
+  year <- year(current.date)
+  year_percentiles_file <- paste0(this_station["id"], "-", year, ".csv")
+  station_year_data <- read_csv(paste0(fullpath, "databackup/", year_percentiles_file))
+  
+  # create an empty array to store the daily percentiles for this year
+  percentileHeatmap_array <- array(dim = c(31,12))
+  for (m in 1:month(current.date)) {
+    month_data <- station_year_data %>% dplyr::filter(month(date) == m) %>% dplyr::pull(percentile)
+    percentileHeatmap_array[,m][1:length(month_data)] <- month_data
+  }
+  
+  # add today's data to the percentileHeatmap_array object
+  percentileHeatmap_array[day(current.date), month(current.date)] <- average.percent
+  
+  # Write out today's percentile as the last row if a row does not already exist
+  # and if average.percent is not NA
+  current.row <- which(station_year_data$date == current.date)
+  if (!is.na(average.percent)) {
+    if (!is.na(current.row)) {
+      station_year_data$date[current.row] <- current.date
+      station_year_data$percentile[current.row] <- average.percent
+    } else {
+      station_year_data <- station_year_data %>% bind_rows %>% 
+        data_frame(date = current.date, percentile = average.percent)
+    }
+  }
+  write_csv(station_year_data, path = paste0(fullpath, "databackup/", year_percentiles_file))
+  
+  # Now plot the heatmap
+  # Create the plots
+  png(paste0(fullpath,"www/output/",this_station["id"], "/heatmap.png"), width = 2400, height = 1060)
+  par(mar = c(0.8,5,8,0.5) + 0.1, bg = NA, family = "Roboto Condensed")
+  layout(mat = matrix(c(1,2), byrow = T, ncol = 2), widths = c(1, 0.075))
+  cols <- rev(c('#b2182b','#ef8a62','#fddbc7','#f7f7f7','#d1e5f0','#67a9cf','#2166ac'))
+  breaks <- c(0,0.05,0.2,0.4,0.6,0.8,0.95,1)
+  month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+  na.df <- array(data = 1, dim = dim(percentileHeatmap_array))
+  #image(seq(1, 31), seq(1, 12), na.df, xaxt = "n", yaxt ="n", 
+  #xlab = "", ylab = "", col = 'white')
+  image(seq(1, 31), seq(1, 12), 
+        percentileHeatmap_array[,ncol(percentileHeatmap_array):1]/100, 
+        xaxt = "n", yaxt ="n",
+        xlab = "", ylab = "", breaks = breaks, col = cols)
+  title(paste(this_station["label"], "percentiles for", year), 
+        cex.main = 4, line = 5.5, col = "#333333")
+  axis(side = 3, at = seq(1, 31), lwd.ticks = 0, cex.axis = 2.3)
+  axis(side = 2, at = seq(12, 1), labels = month.names, las = 2, lwd.ticks = 0, cex.axis = 2.3)
+  text(expand.grid(1:31, 12:1), labels = percentileHeatmap_array, cex = 2.3)
+  par(mar = c(0.8,0,8,30) + 0.1, bg = NA)
+  colbar <- c(cols[1], rep(cols[2], 3), rep(cols[3], 4),rep(cols[4], 4), rep(cols[5], 4), rep(cols[6], 3), cols[7])
+  colkey(col = colbar, clim = c(0, 1), at = breaks, side = 4, width = 6,
+         labels = paste(breaks*100), cex.axis = 2.3)
+  dev.off()
 }
