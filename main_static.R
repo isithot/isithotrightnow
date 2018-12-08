@@ -102,18 +102,9 @@ for (this_station in station_set)
 
   message(paste('Appending today to hist obs:',
     paste(this_station[["label"]], collapse = " ")))
-  message("Hist obs row components and lengths:")
-  message(paste("Year: ", year(current.date), "- length",
-    length(year(current.date))))
-  message(paste("Month:", month(current.date), "- length",
-    length(month(current.date))))
-  message(paste("Day:", day(current.date), "- length",
-    length(day(current.date))))
-  message(paste("Tmax:", Tmax.now, "- length", length(Tmax.now)))
-  message(paste("Tmin:", Tmin.now, "- length", length(Tmin.now)))
-  message(paste("Tavg:", Tavg.now, "- length", length(Tavg.now)))
-  message(paste("Date:", current.date, "- length", length(current.date)))
-  
+
+  # i'm using a default value of NA (that's what the %||% operator is for)
+  # to cover NULL values; they'd otherwise cause the script to crash - james
   HistObs <-
     HistObs %>% 
     mutate(Date =
@@ -123,9 +114,9 @@ for (this_station in station_set)
         Year = year(current.date),
         Month = month(current.date),
         Day = day(current.date),
-        Tmax = Tmax.now,
-        Tmin = Tmin.now,
-        Tavg = Tavg.now,
+        Tmax = Tmax.now %||% NA_real_,
+        Tmin = Tmin.now %||% NA_real_,
+        Tavg = Tavg.now %||% NA_real_,
         Date = current.date))
 
   message(paste('Rendering distribution plot:',
