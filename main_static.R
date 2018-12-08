@@ -56,8 +56,10 @@ for (this_station in station_set)
 
   # Now let's get the air_temp max and min over the past
   # 24h and average them
-  Tmax.now <- CurrObs.df$tmax
-  Tmin.now <- CurrObs.df$tmin
+  # james: %||% operator replaces NULLs with a default value (here, NA) to stop
+  # them from killing the script entirely
+  Tmax.now <- CurrObs.df$tmax %||% NA_real_
+  Tmin.now <- CurrObs.df$tmin %||% NA_real_
 
   # Note this is not a true average, just a simple average of the 
   # max and min values (which is the way daily avg. temp is usually done)
@@ -102,9 +104,7 @@ for (this_station in station_set)
 
   message(paste('Appending today to hist obs:',
     paste(this_station[["label"]], collapse = " ")))
-
-  # i'm using a default value of NA (that's what the %||% operator is for)
-  # to cover NULL values; they'd otherwise cause the script to crash - james
+    
   HistObs <-
     HistObs %>% 
     mutate(Date =
@@ -114,9 +114,9 @@ for (this_station in station_set)
         Year = year(current.date),
         Month = month(current.date),
         Day = day(current.date),
-        Tmax = Tmax.now %||% NA_real_,
-        Tmin = Tmin.now %||% NA_real_,
-        Tavg = Tavg.now %||% NA_real_,
+        Tmax = Tmax.now,
+        Tmin = Tmin.now,
+        Tavg = Tavg.now,
         Date = current.date))
 
   message(paste('Rendering distribution plot:',
