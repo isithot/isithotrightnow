@@ -28,7 +28,7 @@ station_set <- fromJSON(paste0(fullpath, "www/locations.json"))
 
 for (this_station in station_set)
 {
-  message(paste('Beginning analysis:',
+  message(paste('\n\nBeginning analysis:',
     paste(this_station[["label"]], collapse = " ")))
 
   # The algorithm
