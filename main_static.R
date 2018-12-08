@@ -110,7 +110,7 @@ for (this_station in station_set)
     mutate(Date =
       ymd(paste(HistObs$Year, HistObs$Month, HistObs$Day, sep = '-'))) %>%
     bind_rows(
-      data.frame(
+      data_frame(
         Year = year(current.date)  %||% NA_integer_,
         Month = month(current.date) %||% NA_integer_,
         Day = day(current.date) %||% NA_integer_,
@@ -251,32 +251,39 @@ for (this_station in station_set)
     paste(this_station[["label"]], collapse = " ")))
 
   # Save JSON file
-  statsList <- vector(mode = "list", length = 9)
-    names(statsList) <- c("isit_answer","isit_comment","isit_maximum","isit_minimum","isit_current","isit_average", "isit_name", "isit_label", "isit_span")
-    statsList[[1]] <- isit_answer
-    statsList[[2]] <- isit_comment
-    statsList[[3]] <- Tmax.now
-    statsList[[4]] <- Tmin.now
-    statsList[[5]] <- Tavg.now
-    statsList[[6]] <- average.percent
-    statsList[[7]] <- this_station[["name"]]
-    statsList[[8]] <- this_station[["label"]]
-    statsList[[9]] <- paste0(
-      this_station[["record_start"]], "–", this_station[["record_end"]])
-
+  statsList <- list()
+  statsList$isit_answer  <- isit_answer %||% NA_character_
+  statsList$isit_comment <- isit_comment %||% NA_character_
+  statsList$isit_maximum <- Tmax.now %||% NA_real_
+  statsList$isit_minimum <- Tmin.now %||% NA_real_
+  statsList$isit_current <- Tavg.now %||% NA_real_
+  statsList$isit_average <- average.percent %||% NA_real_
+  statsList$isit_name    <- this_station[["name"]] %||% NA_character_
+  statsList$isit_label   <- this_station[["label"]] %||% NA_character_
+  statsList$isit_span    <- paste0(
+    this_station[["record_start"]] %||% NA_character_, "–",
+    this_station[["record_end"]]   %||% NA_character_)
+  
   message(paste('Checking for JSON output problems:',
     paste(this_station[["label"]], collapse = " ")))
 
   # send everyone an email if there are problems with the output!
-  if (any(is.na(statsList)) | any(is.null(statsList))) {
+  if (any(is.na(statsList)) | any(is.null(statsList)) | length(statsList) < 9)
+  {
     report = paste0(
       "Problems with Isithot output:\n\n",
       paste(statsList, collapse = '\n'))
+    if (length(statsList) < 9) {
+      report = paste("Station is missing output!\n\n", report)
+    } 
+    email_cmd = paste0(
+      'echo "', report, '" | mail -s "Isithot: error in station ',
+      statsList[["isit_name"]], statsList[["isit_label"]],
+      '" me@rensa.co,m.lipson@unsw.edu.au,stefan.contractor@gmail.com,',
+      'ubuntu@isithotrightnow.com')
+    
     message("Problems found; emailing!")
-    system(paste(
-      'echo', report, '| mail -s "Isithot: error in station',
-      statsList[[7]], statsList[[8]],
-      '" me@rensa.co m.lipson@unsw.edu.au stefan.contractor@gmail.com'))
+    system(email_cmd))
   } else {
     message("No problems found.")
   }
