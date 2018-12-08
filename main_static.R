@@ -344,4 +344,7 @@ for (this_station in station_set)
   colkey(col = colbar, clim = c(0, 1), at = breaks, side = 4, width = 6,
          labels = paste(breaks*100), cex.axis = 2.3)
   dev.off()
+  
+  file.copy(from = paste0(fullpath,"www/output/",this_station["id"], "/heatmap.png"), 
+            to = paste0(fullpath,"www/output/",this_station["id"], "/heatmap_", year, ".png"))
 }

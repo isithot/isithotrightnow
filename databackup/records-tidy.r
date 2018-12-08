@@ -13,13 +13,22 @@ library(plot3D)
 select = dplyr::select
 filter = dplyr::filter
 
+###################################
+# USER INPUT
+# Date from which records-tidy.r 
+# is to be run. 
+# Format: yyyymmdd
+start_date <- ymd("20180701")
+###################################
+
 # set base path depending on whether this is run on the server
 # (the here package would be a better idea for this!)
 fullpath <- if_else(Sys.info()["user"] == "ubuntu",
   "/srv/isithotrightnow/", "./")
 
-dates <- list.files(
-  paste0(fullpath, "databackup/"), pattern = glob2rx("*-all.csv"))
+dates <- paste0(
+  format(seq(start_date, with_tz(Sys.Date(), tzone = "Australia/Sydney") - 1, by = 1), "%y%m%d"),
+  "-all.csv")
 
 # load functions from app_functions.R
 source(paste0(fullpath, "app_functions_static.R"))
@@ -93,6 +102,7 @@ tidy_data =
   unnest() %>%
   mutate(date = as.Date(paste('2018', month, day, sep = '-'))) %>%
   select(id, date, percentile) %>%
+  mutate(percentile = as.integer(percentile)) %>%
   nest(-id)
 
 message("And finally, writing out!")
