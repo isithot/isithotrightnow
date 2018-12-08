@@ -59,7 +59,7 @@ for (this_station in station_set)
   # Note this is not a true average, just a simple average of the 
   # max and min values (which is the way daily avg. temp is usually done)
   Tavg.now <- mean(c(Tmax.now, Tmin.now))
-
+  message(paste('Updating station:', this_station))
   message(paste('Updating answer based on: Tavg.now ', Tavg.now,
     ', histPercentiles ', histPercentiles[,"Tavg"], '\n'))
 
