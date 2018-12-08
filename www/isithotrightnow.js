@@ -31,16 +31,25 @@ $(function()
     }
     function resources_loaded()
     {
+      console.log(
+        'Loading status...' +
+        'Stats:\t\t\t\t' + loaded_resources.isit_stats +
+        'Series\t\t\t\t:' + loaded_resources.isit_ts_plot +
+        'Density:\t\t\t\t'  + loaded_resources.isit_density_plot +
+        'Heatmap:\t\t\t\t' + loaded_resources.isit_heatmap);
+      
       if (
         loaded_resources.isit_stats == false |
         loaded_resources.isit_ts_plot == false |
         loaded_resources.isit_density_plot == false |
         loaded_resources.isit_heatmap == false)
       {
+        console.log('Still going...');
         return false;
       }
       else
       {
+        console.log('Ready to go!')
         return true;
       }
     }
@@ -96,7 +105,7 @@ $(function()
 
         // } else {
           // all good! update the status message...
-          console.log('Isithot: All resources loaded :D');
+          console.log('Revealing the page!');
           $("#digdeeper_loading").css("display", "none");
           $("#digdeeper_error").css("display", "none");
           $("#digdeeper_ok").css("display", "inline-block");
@@ -135,19 +144,18 @@ $(function()
           //   function(el) { return el == "" || el == "NaN" || el == "NA"; }).length > 0)
           // {
             // problem with the data: display an error
-            console.log('Isithot: Uh oh, these stats look weird');
-            $("#digdeeper_loading").css("display", "none");
-            $("#digdeeper_ok").css("display", "none");
-            $("#digdeeper_error").css("display", "inline-block");
-            $("#digdeeper h3")
-              .text("The data we're getting looks a little weird! " +
-                "That's probably something on our end, sorry.")
-              .removeClass("msg_loading msg_ok")
-              .addClass("msg_error");
+            // $("#digdeeper_loading").css("display", "none");
+            // $("#digdeeper_ok").css("display", "none");
+            // $("#digdeeper_error").css("display", "inline-block");
+            // $("#digdeeper h3")
+            //   .text("The data we're getting looks a little weird! " +
+            //     "That's probably something on our end, sorry.")
+            //   .removeClass("msg_loading msg_ok")
+            //   .addClass("msg_error");
   
           // } else {
             // all good! update the status message...
-          console.log('Isithot: All resources loaded :D');
+          console.log('Revealing the page!');
           $("#digdeeper_loading").css("display", "none");
           $("#digdeeper_error").css("display", "none");
           $("#digdeeper_ok").css("display", "inline-block");
@@ -174,7 +182,7 @@ $(function()
     {
       if (!resources_loaded())
       {
-        console.log('Isithot: Resources did not load within timeout D:');
+        console.log('Timeout expired; hiding the page and throwing an error');
         $("#digdeeper_loading").css("display", "none");
         $("#digdeeper_ok").css("display", "none");
         $("#digdeeper_error").css("display", "inline-block");
