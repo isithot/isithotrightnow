@@ -64,8 +64,9 @@ for (this_station in station_set)
   Tavg.now <- mean(c(Tmax.now, Tmin.now))
   message(paste('Updating station:',
     paste(this_station[["label"]], collapse = " ")))
-  message(paste('Updating answer based on: Tavg.now ', Tavg.now,
-    ', histPercentiles ', histPercentiles[,"Tavg"], '\n'))
+  message(paste0('Tavg.now = ', Tavg.now,
+    ' vs. the following percentiles:\n',
+    paste(histPercentiles[,"Tavg"], collapse = " ~ ")))
 
   # don't include the median when binning obs against the climate!
   category.now <- as.character(cut(Tavg.now,
@@ -101,11 +102,31 @@ for (this_station in station_set)
 
   message(paste('Appending today to hist obs:',
     paste(this_station[["label"]], collapse = " ")))
-
-  HistObs <- HistObs %>% 
-    mutate(Date = ymd(paste(HistObs$Year, HistObs$Month, HistObs$Day, sep = '-'))) %>%
-    rbind(data.frame(Year = year(current.date), Month = month(current.date), Day = day(current.date),
-                    Tmax = Tmax.now, Tmin = Tmin.now, Tavg = Tavg.now, Date = current.date))
+  message("Hist obs row components and lengths:")
+  message(paste("Year: ", year(current.date), "- length",
+    length(year(current.date))))
+  message(paste("Month:", month(current.date), "- length",
+    length(month(current.date))))
+  message(paste("Day:", day(current.date), "- length",
+    length(day(current.date))))
+  message(paste("Tmax:", Tmax.now, "- length", length(Tmax.now)))
+  message(paste("Tmin:", Tmin.now, "- length", length(Tmin.now)))
+  message(paste("Tavg:", Tavg.now, "- length", length(Tavg.now)))
+  message(paste("Date:", current.date, "- length", length(current.date)))
+  
+  HistObs <-
+    HistObs %>% 
+    mutate(Date =
+      ymd(paste(HistObs$Year, HistObs$Month, HistObs$Day, sep = '-'))) %>%
+    bind_rows(
+      data.frame(
+        Year = year(current.date),
+        Month = month(current.date),
+        Day = day(current.date),
+        Tmax = Tmax.now,
+        Tmin = Tmin.now,
+        Tavg = Tavg.now,
+        Date = current.date))
 
   message(paste('Rendering distribution plot:',
     paste(this_station[["label"]], collapse = " ")))
