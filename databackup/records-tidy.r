@@ -27,7 +27,7 @@ fullpath <- if_else(Sys.info()["user"] == "ubuntu",
   "/srv/isithotrightnow/", "./")
 
 dates <- paste0(
-  format(seq(start_date, Sys.Date(), by = 1), "%y%m%d"),
+  format(seq(start_date, with_tz(Sys.Date(), tzone = "Australia/Sydney") - 1, by = 1), "%y%m%d"),
   "-all.csv")
 
 # load functions from app_functions.R
