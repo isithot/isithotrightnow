@@ -58,8 +58,8 @@ for (this_station in station_set)
   # 24h and average them
   # james: %||% operator replaces NULLs with a default value (here, NA) to stop
   # them from killing the script entirely
-  Tmax.now <- CurrObs.df$tmax %||% NA_real_
-  Tmin.now <- CurrObs.df$tmin %||% NA_real_
+  Tmax.now <- CurrObs.df$tmax
+  Tmin.now <- CurrObs.df$tmin
 
   # Note this is not a true average, just a simple average of the 
   # max and min values (which is the way daily avg. temp is usually done)
@@ -111,13 +111,13 @@ for (this_station in station_set)
       ymd(paste(HistObs$Year, HistObs$Month, HistObs$Day, sep = '-'))) %>%
     bind_rows(
       data.frame(
-        Year = year(current.date),
-        Month = month(current.date),
-        Day = day(current.date),
-        Tmax = Tmax.now,
-        Tmin = Tmin.now,
-        Tavg = Tavg.now,
-        Date = current.date))
+        Year = year(current.date)  %||% NA_integer_,
+        Month = month(current.date) %||% NA_integer_,
+        Day = day(current.date) %||% NA_integer_,
+        Tmax = Tmax.now %||% NA_real_,
+        Tmin = Tmin.now %||% NA_real_,
+        Tavg = Tavg.now %||% NA_real_,
+        Date = current.date %||% NA_character_))
 
   message(paste('Rendering distribution plot:',
     paste(this_station[["label"]], collapse = " ")))
