@@ -11,7 +11,7 @@ $(function()
   var base_path = "output/"
   var location_menu_innerpad = 10;
   var location_request_timeout = 5000;
-  var geolocation_timeout = 4000;
+  var geolocation_timeout = 1500;
   var geolocation_done = false;
 
   /* request_station: hide the details section, download stats and plots
@@ -264,7 +264,7 @@ $(function()
     // (geo_success and geo_failure will update and request the first time)
     if (navigator.geolocation)
     {
-      $.get("https://freegeoip.net/json/", geo_success);
+      $.get("http://api.ipstack.com/check?access_key=35ea05193a4d09447dce431efb17d196&format=1", geo_success);
     } 
     else
     {
