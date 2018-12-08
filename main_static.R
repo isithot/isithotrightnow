@@ -270,20 +270,26 @@ for (this_station in station_set)
   # send everyone an email if there are problems with the output!
   if (any(is.na(statsList)) | any(is.null(statsList)) | length(statsList) < 9)
   {
-    report = paste0(
-      "Problems with Isithot output:\n\n",
-      paste(statsList, collapse = '\n'))
-    if (length(statsList) < 9) {
-      report = paste("Station is missing output!\n\n", report)
-    } 
+    if (length(statsList) < 1) {
+      report = "All output components are NULL!"
+    } else {
+      report = paste0(
+        "Problems with output:\n\n",
+        paste0(names(statsList), ': ', statsList, collapse = '\n'))
+      if (length(statsList) < 9) {
+        report = paste(
+	  "Station is missing output (ie. some are NULL)!\n\n",
+	  report)
+      } 
+    }
     email_cmd = paste0(
       'echo "', report, '" | mail -s "Isithot: error in station ',
-      statsList[["isit_name"]], statsList[["isit_label"]],
-      '" me@rensa.co,m.lipson@unsw.edu.au,stefan.contractor@gmail.com,',
+      statsList[["isit_name"]], ' (', statsList[["isit_label"]],
+      ')" me@rensa.co,m.lipson@unsw.edu.au,stefan.contractor@gmail.com,',
       'ubuntu@isithotrightnow.com')
     
     message("Problems found; emailing!")
-    system(email_cmd))
+    system(email_cmd)
   } else {
     message("No problems found.")
   }
