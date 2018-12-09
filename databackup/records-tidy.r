@@ -18,7 +18,7 @@ filter = dplyr::filter
 # Date from which records-tidy.r 
 # is to be run. 
 # Format: yyyymmdd
-start_date <- ymd("20180701")
+start_date <- ymd("20180101")
 ###################################
 
 # set base path depending on whether this is run on the server
