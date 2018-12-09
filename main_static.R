@@ -346,7 +346,7 @@ for (this_station in station_set)
   
   # Now plot the heatmap
   # Create the plots
-  png(paste0(fullpath,"www/output/",this_station["id"], "/heatmap_", year, ".png"), width = 2400, height = 1060)
+  png(paste0(fullpath,"www/output/",this_station["id"], "/heatmap.png"), width = 2400, height = 1060)
   par(mar = c(0.8,5,8,0.5) + 0.1, bg = NA, family = "Roboto Condensed")
   layout(mat = matrix(c(1,2), byrow = T, ncol = 2), widths = c(1, 0.075))
   cols <- rev(c('#b2182b','#ef8a62','#fddbc7','#f7f7f7','#d1e5f0','#67a9cf','#2166ac'))
