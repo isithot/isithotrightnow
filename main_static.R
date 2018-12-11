@@ -28,6 +28,9 @@ station_set <- fromJSON(paste0(fullpath, "www/locations.json"))
 
 for (this_station in station_set)
 {
+  message(paste('\n\nBeginning analysis:',
+    paste(this_station[["label"]], collapse = " ")))
+
   # The algorithm
   # --
   # Take the maximum and minimum temperatures reported from the last
@@ -53,15 +56,19 @@ for (this_station in station_set)
 
   # Now let's get the air_temp max and min over the past
   # 24h and average them
+  # james: %||% operator replaces NULLs with a default value (here, NA) to stop
+  # them from killing the script entirely
   Tmax.now <- CurrObs.df$tmax
   Tmin.now <- CurrObs.df$tmin
 
   # Note this is not a true average, just a simple average of the 
   # max and min values (which is the way daily avg. temp is usually done)
   Tavg.now <- mean(c(Tmax.now, Tmin.now))
-
-  message(paste('Updating answer based on: Tavg.now ', Tavg.now,
-    ', histPercentiles ', histPercentiles[,"Tavg"], '\n'))
+  message(paste('Updating station:',
+    paste(this_station[["label"]], collapse = " ")))
+  message(paste0('Tavg.now = ', Tavg.now,
+    ' vs. the following percentiles:\n',
+    paste(histPercentiles[,"Tavg"], collapse = " ~ ")))
 
   # don't include the median when binning obs against the climate!
   category.now <- as.character(cut(Tavg.now,
@@ -95,10 +102,25 @@ for (this_station in station_set)
 
   ################################################################################################
 
-  HistObs <- HistObs %>% 
-    mutate(Date = ymd(paste(HistObs$Year, HistObs$Month, HistObs$Day, sep = '-'))) %>%
-    rbind(data.frame(Year = year(current.date), Month = month(current.date), Day = day(current.date),
-                    Tmax = Tmax.now, Tmin = Tmin.now, Tavg = Tavg.now, Date = current.date))
+  message(paste('Appending today to hist obs:',
+    paste(this_station[["label"]], collapse = " ")))
+    
+  HistObs <-
+    HistObs %>% 
+    mutate(Date =
+      ymd(paste(HistObs$Year, HistObs$Month, HistObs$Day, sep = '-'))) %>%
+    bind_rows(
+      data_frame(
+        Year = year(current.date)  %||% NA_integer_,
+        Month = month(current.date) %||% NA_integer_,
+        Day = day(current.date) %||% NA_integer_,
+        Tmax = Tmax.now %||% NA_real_,
+        Tmin = Tmin.now %||% NA_real_,
+        Tavg = Tavg.now %||% NA_real_,
+        Date = current.date %||% NA_character_))
+
+  message(paste('Rendering distribution plot:',
+    paste(this_station[["label"]], collapse = " ")))
 
   # first the distribution plot because it uses all historical data
   dist.plot <- ggplot(data = HistObs, aes(Tavg)) + 
@@ -150,6 +172,9 @@ for (this_station in station_set)
                   month(Date) == month(current.date),
                   day(Date) == day(current.date))
     
+
+  message(paste('Rendering time series plot:',
+    paste(this_station[["label"]], collapse = " ")))
 
   TS.plot <- ggplot(data = CurrentMonthDayHistObs, aes(x = Date, y = Tavg)) +
     ggtitle(
@@ -210,6 +235,9 @@ for (this_station in station_set)
           axis.title.y = element_text(family = 'Roboto Condensed', face = "bold",
                                       size = 16))
 
+  message(paste('Saving ts + dist plots:',
+    paste(this_station[["label"]], collapse = " ")))
+
   # Save plots in www/output/<station ID>/
   ggsave(filename = paste0(fullpath,"www/output/", this_station[["id"]], "/ts_plot.png"), 
         plot = TS.plot, bg = "transparent", 
@@ -219,30 +247,51 @@ for (this_station in station_set)
         plot = dist.plot, bg = "transparent", 
         height = 4.5, width = 8, units = "in", device = "png")
 
+  message(paste('Saving stats to JSON:',
+    paste(this_station[["label"]], collapse = " ")))
+
   # Save JSON file
-  statsList <- vector(mode = "list", length = 9)
-    names(statsList) <- c("isit_answer","isit_comment","isit_maximum","isit_minimum","isit_current","isit_average", "isit_name", "isit_label", "isit_span")
-    statsList[[1]] <- isit_answer
-    statsList[[2]] <- isit_comment
-    statsList[[3]] <- Tmax.now
-    statsList[[4]] <- Tmin.now
-    statsList[[5]] <- Tavg.now
-    statsList[[6]] <- average.percent
-    statsList[[7]] <- this_station[["name"]]
-    statsList[[8]] <- this_station[["label"]]
-    statsList[[9]] <- paste0(
-      this_station[["record_start"]], "–", this_station[["record_end"]])
+  statsList <- list()
+  statsList$isit_answer  <- isit_answer %||% NA_character_
+  statsList$isit_comment <- isit_comment %||% NA_character_
+  statsList$isit_maximum <- Tmax.now %||% NA_real_
+  statsList$isit_minimum <- Tmin.now %||% NA_real_
+  statsList$isit_current <- Tavg.now %||% NA_real_
+  statsList$isit_average <- average.percent %||% NA_real_
+  statsList$isit_name    <- this_station[["name"]] %||% NA_character_
+  statsList$isit_label   <- this_station[["label"]] %||% NA_character_
+  statsList$isit_span    <- paste0(
+    this_station[["record_start"]] %||% NA_character_, "–",
+    this_station[["record_end"]]   %||% NA_character_)
+  
+  message(paste('Checking for JSON output problems:',
+    paste(this_station[["label"]], collapse = " ")))
 
   # send everyone an email if there are problems with the output!
-  if (any(is.na(statsList)) | any(is.null(statsList))) {
-    report = paste0(
-      "Problems with Isithot output:\n\n",
-      paste(statsList, collapse = '\n'))
+  if (any(is.na(statsList)) | any(is.null(statsList)) | length(statsList) < 9)
+  {
+    if (length(statsList) < 1) {
+      report = "All output components are NULL!"
+    } else {
+      report = paste0(
+        "Problems with output:\n\n",
+        paste0(names(statsList), ': ', statsList, collapse = '\n'))
+      if (length(statsList) < 9) {
+        report = paste(
+	  "Station is missing output (ie. some are NULL)!\n\n",
+	  report)
+      } 
+    }
+    email_cmd = paste0(
+      'echo "', report, '" | mail -s "Isithot: error in station ',
+      statsList[["isit_name"]], ' (', statsList[["isit_label"]],
+      ')" me@rensa.co,m.lipson@unsw.edu.au,stefan.contractor@gmail.com,',
+      'ubuntu@isithotrightnow.com')
     
-    system(paste(
-      'echo', report, '| mail -s "Isithot: error in station',
-      statsList[[7]], statsList[[8]],
-      '" me@rensa.co m.lipson@unsw.edu.au stefan.contractor@gmail.com'))
+    message("Problems found; emailing!")
+    system(email_cmd)
+  } else {
+    message("No problems found.")
   }
 
 
@@ -253,6 +302,9 @@ for (this_station in station_set)
   
   ######################################################################################################################
   # HEATMAP
+
+  message(paste('Retrieving this year\'s percentile for heatmap:',
+    paste(this_station[["label"]], collapse = " ")))
   
   year <- year(current.date)
   year_percentiles_file <- paste0(this_station["id"], "-", year, ".csv")
@@ -273,14 +325,24 @@ for (this_station in station_set)
   current.row <- which(station_year_data$date == current.date)
   if (!is.na(average.percent)) {
     if (!is.na(current.row)) {
+      message("Updating current row")
       station_year_data$date[current.row] <- current.date
       station_year_data$percentile[current.row] <- average.percent
     } else {
+      message("Adding new row")
+      # TODO - where's the second data frame for bind_rows()?
       station_year_data <- station_year_data %>% bind_rows %>% 
         data_frame(date = current.date, percentile = average.percent)
     }
   }
+
+  message(paste('Writing out percentiles:',
+    paste(this_station[["label"]], collapse = " ")))
+
   write_csv(station_year_data, path = paste0(fullpath, "databackup/", year_percentiles_file))
+
+  message(paste('Rendering + saving heatmap:',
+    paste(this_station[["label"]], collapse = " ")))
   
   # Now plot the heatmap
   # Create the plots
