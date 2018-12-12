@@ -33,11 +33,30 @@ dates <- paste0(
 # load functions from app_functions.R
 source(paste0(fullpath, "app_functions_static.R"))
 
+# function for creating an array of categories based on an array of percentiles for a particular year
+get_category_array <- function(heatmap_array) {
+  if (!all.equal(dim(heatmap_array), c(31,12))) {
+    stop("heatmap_array does not have the right dimensions (31,12)")
+  }
+  category_array <- array(dim = dim(heatmap_array))
+  for (i in 1:31) {
+    for (j in 1:12) {
+      category_array[i, j] <- 
+        as.character(cut(heatmap_array[i, j],
+                         breaks = c(-100, 5, 10, 40, 60, 90, 95, 100),
+                         labels = c("bc","rc","c","a","h","rh","bh"),
+                         include.lowest = T, right = F))
+    }
+  }
+  return(category_array)
+}
+
 # get list of station ids to process from locations.json
 station_set <- fromJSON(paste0(fullpath, "www/locations.json"))
 for (i in 1:length(station_set)) {
-  station_set[[i]]$percentileHeatmap_array <- array(dim = c(31,12))
-  station_set[[i]]$categoryHeatmap_array <- array(dim = c(31,12))
+  station_set[[i]]$percentileHeatmap_array <- array(data = read_csv(paste0(fullpath,"databackup/", station_set[[i]]["id"], "-2018.csv"))[["percentile"]],
+                                                    dim = c(31,12))
+  station_set[[i]]$categoryHeatmap_array <- get_category_array(heatmap_array = station_set[[i]]$percentileHeatmap_array)
 }
 
 # run this loop to calculate historical percentiles since the start of the year
@@ -109,4 +128,4 @@ message("And finally, writing out!")
 
 # write 'em out to disk  
 walk2(tidy_data$data, tidy_data$id,
-  ~ write_csv(.x, paste0(fullpath, "databackup/", .y, '-2018.csv')))
+  ~ write_csv(.x, paste0(fullpath, "databackup/", .y, '-2018_test.csv')))
