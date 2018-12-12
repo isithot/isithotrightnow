@@ -267,32 +267,33 @@ for (this_station in station_set)
   message(paste('Checking for JSON output problems:',
     paste(this_station[["label"]], collapse = " ")))
 
-  # send everyone an email if there are problems with the output!
-  if (any(is.na(statsList)) | any(is.null(statsList)) | length(statsList) < 9)
-  {
-    if (length(statsList) < 1) {
-      report = "All output components are NULL!"
-    } else {
-      report = paste0(
-        "Problems with output:\n\n",
-        paste0(names(statsList), ': ', statsList, collapse = '\n'))
-      if (length(statsList) < 9) {
-        report = paste(
-	  "Station is missing output (ie. some are NULL)!\n\n",
-	  report)
-      } 
-    }
-    email_cmd = paste0(
-      'echo "', report, '" | mail -s "Isithot: error in station ',
-      statsList[["isit_name"]], ' (', statsList[["isit_label"]],
-      ')" me@rensa.co,m.lipson@unsw.edu.au,stefan.contractor@gmail.com,',
-      'ubuntu@isithotrightnow.com')
-    
-    message("Problems found; emailing!")
-    system(email_cmd)
-  } else {
-    message("No problems found.")
-  }
+#  # send everyone an email if there are problems with the output!
+#  if (any(is.na(statsList)) | any(is.null(statsList)) | length(statsList) < 9)
+#  {
+#    if (length(statsList) < 1) {
+#      report = "All output components are NULL!"
+#    } else {
+#      report = paste0(
+#	 "Error date/time on server (UTC): ", as.character(Sys.time()), "\n\n",
+#        "Problems with output:\n\n",
+#        paste0(names(statsList), ': ', statsList, collapse = '\n'))
+#      if (length(statsList) < 9) {
+#        report = paste(#
+#	  "Station is missing output (ie. some are NULL)!\n\n",
+#	  report)
+#      } 
+#    }
+#    email_cmd = paste0(
+#      'echo "', report, '" | mail -s "Isithot: error in station ',
+#      statsList[["isit_name"]], ' (', statsList[["isit_label"]],
+#      ')" me@rensa.co,m.lipson@unsw.edu.au,stefan.contractor@gmail.com,',
+#      'ubuntu@isithotrightnow.com')
+#    
+#    message("Problems found; emailing!")
+#    system(email_cmd)
+#  } else {
+#    message("No problems found.")
+#  }
 
 
   exportJSON <- toJSON(statsList)
@@ -370,6 +371,7 @@ for (this_station in station_set)
          labels = paste(breaks*100), cex.axis = 2.3)
   dev.off()
   
+  message(paste('Copying heatmap for year:',paste(year, collapse = " ")))
   file.copy(from = paste0(fullpath,"www/output/",this_station["id"], "/heatmap.png"), 
             to = paste0(fullpath,"www/output/",this_station["id"], "/heatmap_", year, ".png"))
 }
