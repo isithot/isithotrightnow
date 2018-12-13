@@ -18,6 +18,10 @@ filter = dplyr::filter
 # Date from which records-tidy.r 
 # is to be run. 
 # Format: yyyymmdd
+# Note that end date will be either current date -1 
+# or the end of the year. To run the next year, 
+# change start_date to the first of the next year
+# and rerun records-tidy.py
 start_date <- ymd("20180701")
 ###################################
 
@@ -26,8 +30,13 @@ start_date <- ymd("20180701")
 fullpath <- if_else(Sys.info()["user"] == "ubuntu",
   "/srv/isithotrightnow/", "./")
 
+current_date <- with_tz(Sys.Date(), tzone = "Australia/Sydney") - 1
+current_year <- year(start_date)
+end_date <- if_else(year(current_date) != current_year, 
+                   ymd(paste0(current_year,"1231")),
+                   current_date)
 dates <- paste0(
-  format(seq(start_date, with_tz(Sys.Date(), tzone = "Australia/Sydney") - 1, by = 1), "%y%m%d"),
+  format(seq(start_date, end_date, by = 1), "%y%m%d"),
   "-all.csv")
 
 # load functions from app_functions.R
@@ -54,7 +63,8 @@ get_category_array <- function(heatmap_array) {
 # get list of station ids to process from locations.json
 station_set <- fromJSON(paste0(fullpath, "www/locations.json"))
 for (i in 1:length(station_set)) {
-  station_set[[i]]$percentileHeatmap_array <- array(data = read_csv(paste0(fullpath,"databackup/", station_set[[i]]["id"], "-2018.csv"))[["percentile"]],
+  station_set[[i]]$percentileHeatmap_array <- array(data = read_csv(paste0(fullpath,"databackup/", station_set[[i]]["id"], 
+                                                                           "-", current_year, ".csv"))[["percentile"]],
                                                     dim = c(31,12))
   station_set[[i]]$categoryHeatmap_array <- get_category_array(heatmap_array = station_set[[i]]$percentileHeatmap_array)
 }
@@ -128,4 +138,4 @@ message("And finally, writing out!")
 
 # write 'em out to disk  
 walk2(tidy_data$data, tidy_data$id,
-  ~ write_csv(.x, paste0(fullpath, "databackup/", .y, '-2018_test.csv')))
+  ~ write_csv(.x, paste0(fullpath, "databackup/", .y, '-', current_year, '_test.csv')))
