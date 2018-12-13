@@ -138,4 +138,4 @@ message("And finally, writing out!")
 
 # write 'em out to disk  
 walk2(tidy_data$data, tidy_data$id,
-  ~ write_csv(.x, paste0(fullpath, "databackup/", .y, '-', current_year, '_test.csv')))
+  ~ write_csv(.x, paste0(fullpath, "databackup/", .y, '-', current_year, '.csv')))
