@@ -82,7 +82,7 @@ year_avg['009021'].loc[1943,'temp'] = np.nan
 for siteid,sitename in zip(siteids,sitenames):
 
     plt.close('all')
-    fig, ax = plt.subplots(nrows=1,ncols=1,figsize=(7,3))
+    fig, ax = plt.subplots(nrows=1,ncols=1,figsize=(7,4))
     ax.set_title('%s yearly average temperature' %sitename,fontsize=12)
     ax.set_ylabel('Temperature (°C)', fontsize=12)
 
@@ -92,6 +92,7 @@ for siteid,sitename in zip(siteids,sitenames):
     year_avg[siteid][1:].plot(ax=ax,legend=False,color='black', lw=1,alpha=0.5,marker='x',ms=3)
     # 2018 marker
     year_avg[siteid].loc[[2018]].plot(ax=ax,marker='s',ms=7,color='crimson',legend=False)
+    ax.set_ylim(bottom=year_avg[siteid].min().values[0]-0.5,top=year_avg[siteid].max().values[0]+0.5)
 
     thisyr = year_avg[siteid].loc[[2018]].values[0]
     thistxt = ax.text(2018,thisyr-0.15,
@@ -109,5 +110,5 @@ for siteid,sitename in zip(siteids,sitenames):
     print('')
     print(sitename)
     print('2018 ranks %s' %(rank))
-    print(year_sort.head(n=10))
+    print(year_sort.head(n=10).round(2))
 
