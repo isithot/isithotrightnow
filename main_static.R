@@ -1,5 +1,5 @@
 # By Mat Lipson, Steefan Contractor and James Goldie.
-# © 2018 under the MIT licence. Data from the Bureau of Meteorology.
+# © 2019 under the MIT licence. Data from the Bureau of Meteorology.
 
 library(ggplot2)
 library(jsonlite)
@@ -369,7 +369,10 @@ for (this_station in station_set)
   colbar <- c(cols[1], rep(cols[2], 3), rep(cols[3], 4),rep(cols[4], 4), rep(cols[5], 4), rep(cols[6], 3), cols[7])
   colkey(col = colbar, clim = c(0, 1), at = breaks, side = 4, width = 6,
          labels = paste(breaks*100), cex.axis = 2.3)
+  mtext('© isithotrightnow.com', side=3, line=6, at=9, cex=2)
   dev.off()
+  
+
   
   message(paste('Copying heatmap for year:',paste(year, collapse = " ")))
   file.copy(from = paste0(fullpath,"www/output/",this_station["id"], "/heatmap.png"), 
