@@ -373,5 +373,6 @@ for (this_station in station_set)
   
   message(paste('Copying heatmap for year:',paste(year, collapse = " ")))
   file.copy(from = paste0(fullpath,"www/output/",this_station["id"], "/heatmap.png"), 
-            to = paste0(fullpath,"www/output/",this_station["id"], "/heatmap_", year, ".png"))
+            to = paste0(fullpath,"www/output/",this_station["id"], "/heatmap_", year, ".png"),
+            overwrite = TRUE)
 }
