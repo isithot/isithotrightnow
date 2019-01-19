@@ -171,8 +171,7 @@ for (this_station in station_set)
                 dplyr::filter(
                   month(Date) == month(current.date),
                   day(Date) == day(current.date))
-    
-
+  
   message(paste('Rendering time series plot:',
     paste(this_station[["label"]], collapse = " ")))
 
@@ -185,9 +184,10 @@ for (this_station in station_set)
     xlab(NULL) + 
     ylab('Daily average temperature (°C)') + 
     geom_line(size = 0.0, colour = '#CCCCCC') + 
-    geom_point(size = rel(1), colour = '#999999', alpha = 0.75) +
+    geom_point(size = rel(1), colour = '#999999', alpha = 0.5) +
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick",
               size = rel(5)) +
+    geom_smooth(method = lm, se = FALSE, col='gray50', size=0.5) + 
     geom_hline(aes(yintercept = histPercentiles["95%", "Tavg"]), linetype = 2,
               alpha = 0.5) +
     geom_hline(aes(yintercept = histPercentiles["5%", "Tavg"]), linetype = 2,
@@ -234,8 +234,7 @@ for (this_station in station_set)
           axis.text.y = element_text(family = 'Roboto Condensed', face = "bold"),
           axis.title.y = element_text(family = 'Roboto Condensed', face = "bold",
                                       size = 16))
-
-  message(paste('Saving ts + dist plots:',
+    message(paste('Saving ts + dist plots:',
     paste(this_station[["label"]], collapse = " ")))
 
   # Save plots in www/output/<station ID>/
