@@ -194,6 +194,7 @@ for (this_station in station_set)
               alpha = 0.5) +
     geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2,
               alpha = 0.5) +
+    ylim(15,35) + 
     annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
             label = "TODAY", colour = 'firebrick', size = 4,
             family = 'Roboto Condensed', fontface = "bold") +
