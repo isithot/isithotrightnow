@@ -192,7 +192,7 @@ for (this_station in station_set)
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick", size = rel(5)) +
     geom_hline(aes(yintercept = histPercentiles["95%", "Tavg"]), linetype = 2, alpha = 0.5) +
     geom_hline(aes(yintercept = histPercentiles["5%", "Tavg"]), linetype = 2, alpha = 0.5) +
-    geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2, alpha = 0.5) +
+    # geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2, alpha = 0.5) +
     # ylim(10,40) + 
     annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
             label = "TODAY", colour = 'firebrick', size = 4,
