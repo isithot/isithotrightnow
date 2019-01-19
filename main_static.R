@@ -176,16 +176,16 @@ for (this_station in station_set)
   message(paste('Rendering time series plot:',
     paste(this_station[["label"]], collapse = " ")))
 
-  TS.plot <- ggplot(data = CurrentMonthDayHistObs, aes(x = Date, y = Tavg)) +
+  TS.plot <- ggplot(data = HistObs, aes(x = Date, y = Tavg)) +
     ggtitle(
       paste0(
-        "Daily average temperatures\nfor ",
-        format(current.date_time, format="%d %B", tz = this_station[["tz"]])," since ",
-        this_station[["record_start"]])) +
+        "Daily average temperatures\nfor the two weeks around ",
+        format(current.date_time, format="%d %B", tz = this_station[["tz"]])
+        )) +
     xlab(NULL) + 
     ylab('Daily average temperature (°C)') + 
-    geom_line(size = 0.5, colour = '#CCCCCC') + 
-    geom_point(size = rel(2), colour = '#999999') +
+    geom_line(size = 0.0, colour = '#CCCCCC') + 
+    geom_point(size = rel(1), colour = '#999999', alpha = 0.75) +
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick",
               size = rel(5)) +
     geom_hline(aes(yintercept = histPercentiles["95%", "Tavg"]), linetype = 2,
