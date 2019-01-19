@@ -187,16 +187,12 @@ for (this_station in station_set)
     xlab(NULL) + 
     ylab('Daily average temperature (°C)') + 
     geom_line(size = 0.0, colour = '#CCCCCC') + 
-    geom_point(size = rel(1), colour = '#999999', alpha = 0.5) +
+    geom_point(size = rel(1.5), colour = '#999999', alpha = 0.5, stroke=0) +
     geom_smooth(method = lm, se = FALSE, col='gray60', size=0.5) + 
-    geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick",
-              size = rel(5)) +
-    geom_hline(aes(yintercept = histPercentiles["95%", "Tavg"]), linetype = 2,
-              alpha = 0.5) +
-    geom_hline(aes(yintercept = histPercentiles["5%", "Tavg"]), linetype = 2,
-              alpha = 0.5) +
-    geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2,
-              alpha = 0.5) +
+    geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick", size = rel(5)) +
+    geom_hline(aes(yintercept = histPercentiles["95%", "Tavg"]), linetype = 2, alpha = 0.5) +
+    geom_hline(aes(yintercept = histPercentiles["5%", "Tavg"]), linetype = 2, alpha = 0.5) +
+    geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2, alpha = 0.5) +
     # ylim(10,40) + 
     annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
             label = "TODAY", colour = 'firebrick', size = 4,
@@ -355,7 +351,7 @@ for (this_station in station_set)
   # Now plot the heatmap
   # Create the plots
   png(paste0(fullpath,"www/output/",this_station["id"], "/heatmap.png"), width = 2400, height = 1060)
-  par(mar = c(0.8,5,8,0.5) + 0.1, bg = NA, family = "Roboto Condensed")
+  par(mar = c(0.8,5,8,0.5) + 0.1, bg = '#dddddd', family = "Roboto Condensed")
   layout(mat = matrix(c(1,2), byrow = T, ncol = 2), widths = c(1, 0.075))
   cols <- rev(c('#b2182b','#ef8a62','#fddbc7','#f7f7f7','#d1e5f0','#67a9cf','#2166ac'))
   breaks <- c(0,0.05,0.2,0.4,0.6,0.8,0.95,1)
