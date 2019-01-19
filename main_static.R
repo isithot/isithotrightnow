@@ -188,16 +188,16 @@ for (this_station in station_set)
     ylab('Daily average temperature (°C)') + 
     geom_line(size = 0.0, colour = '#CCCCCC') + 
     geom_point(size = rel(1), colour = '#999999', alpha = 0.5) +
+    geom_smooth(method = lm, se = FALSE, col='gray60', size=0.5) + 
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick",
               size = rel(5)) +
-    geom_smooth(method = lm, se = FALSE, col='gray60', size=0.5) + 
     geom_hline(aes(yintercept = histPercentiles["95%", "Tavg"]), linetype = 2,
               alpha = 0.5) +
     geom_hline(aes(yintercept = histPercentiles["5%", "Tavg"]), linetype = 2,
               alpha = 0.5) +
     geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2,
               alpha = 0.5) +
-    ylim(10,40) + 
+    # ylim(10,40) + 
     annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
             label = "TODAY", colour = 'firebrick', size = 4,
             family = 'Roboto Condensed', fontface = "bold") +
@@ -247,11 +247,11 @@ for (this_station in station_set)
 
   # Save plots in www/output/<station ID>/
   ggsave(filename = paste0(fullpath,"www/output/", this_station[["id"]], "/ts_plot.png"), 
-        plot = TS.plot, bg = "transparent", 
+        plot = TS.plot, bg = "#eeeeee", 
         height = 4.5, width = 8, units = "in", device = "png")
 
   ggsave(filename = paste0(fullpath,"www/output/", this_station[["id"]], "/density_plot.png"), 
-        plot = dist.plot, bg = "transparent", 
+        plot = dist.plot, bg = "#eeeeee", 
         height = 4.5, width = 8, units = "in", device = "png")
 
   message(paste('Saving stats to JSON:',
