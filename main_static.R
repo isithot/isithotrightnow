@@ -175,6 +175,9 @@ for (this_station in station_set)
   message(paste('Rendering time series plot:',
     paste(this_station[["label"]], collapse = " ")))
 
+  # find trend of historical data in this period
+  trend <- lm(formula = HistObs$Tavg ~ HistObs$Date)$coeff[2]
+  
   TS.plot <- ggplot(data = HistObs, aes(x = Date, y = Tavg)) +
     ggtitle(
       paste0(
@@ -187,14 +190,14 @@ for (this_station in station_set)
     geom_point(size = rel(1), colour = '#999999', alpha = 0.5) +
     geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick",
               size = rel(5)) +
-    geom_smooth(method = lm, se = FALSE, col='gray50', size=0.5) + 
+    geom_smooth(method = lm, se = FALSE, col='gray60', size=0.5) + 
     geom_hline(aes(yintercept = histPercentiles["95%", "Tavg"]), linetype = 2,
               alpha = 0.5) +
     geom_hline(aes(yintercept = histPercentiles["5%", "Tavg"]), linetype = 2,
               alpha = 0.5) +
     geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2,
               alpha = 0.5) +
-    ylim(15,35) + 
+    ylim(15,40) + 
     annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
             label = "TODAY", colour = 'firebrick', size = 4,
             family = 'Roboto Condensed', fontface = "bold") +
@@ -205,14 +208,18 @@ for (this_station in station_set)
             y = histPercentiles["95%", "Tavg"], label = paste0("95th percentile:  ",round(histPercentiles["95%", "Tavg"],1),'°C'),
             alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") + 
-    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
-            y = median(HistObs$Tavg, na.rm = T), label = paste0("50th percentile:  ",round(histPercentiles["50%", "Tavg"],1),'°C'),
-            alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
-            family = 'Roboto Condensed', fontface = "bold") + 
+    # annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
+    #         y = median(HistObs$Tavg, na.rm = T), label = paste0("50th percentile:  ",round(histPercentiles["50%", "Tavg"],1),'°C'),
+    #         alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
+    #         family = 'Roboto Condensed', fontface = "bold") + 
     annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
             y = histPercentiles["5%", "Tavg"], label = paste0("5th percentile:  ",round(histPercentiles["5%", "Tavg"],1),'°C'),
             alpha = 0.9, size = 4, hjust = 0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") +
+    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
+             y = histPercentiles["50%", "Tavg"], label = paste0("Trend: +", round(trend*365*100,1),'°C/century'),
+             alpha = 0.9, size = 4, hjust = 0, vjust = -0.5,
+             family = 'Roboto Condensed', fontface = "bold") +
     # annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
     #   y = median(HistObs$Tavg), label = paste0("50TH PERCENTILE:  ",round(median(HistObs$Tavg)),'°C'),
     #   alpha = 0.5, size = 4, hjust = 0, vjust = -0.5,
