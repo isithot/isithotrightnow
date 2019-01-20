@@ -30,5 +30,5 @@ os.system('cp %s/data/latest/latest-all.csv %s/databackup/%s-all.csv' %(fullpath
 
 # make backup of timeseries
 for site in ['009021','014015','015590','023090','040842','066062','067105','070351','087031','094029']:
-	os.system('cp %s/www/output/ts_plot.png %s/imgbackup/%s-ts-%s.png' %(fullpath,fullpath,site,today))
+	os.system('cp %s/www/output/%s/ts_plot.png %s/imgbackup/%s-ts-%s.png' %(fullpath,site,fullpath,site,today))
 

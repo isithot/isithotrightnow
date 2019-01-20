@@ -46,7 +46,8 @@ for (this_station in station_set)
     showWarnings = FALSE)
 
   # Get current max and min temperatures for this_station
-  CurrObs.df <- getCurrentObs(this_station[["id"]])
+  fileid <- paste0(fullpath,"data/latest/latest-all.csv")
+  CurrObs.df <- getCurrentObs(this_station[["id"]],fileid)
   current.date_time <- Sys.time()
   current.date <- current.date_time %>% as.Date(tz = this_station[["tz"]])
 
@@ -193,27 +194,27 @@ for (this_station in station_set)
     geom_hline(aes(yintercept = histPercentiles["95%", "Tavg"]), linetype = 2, alpha = 0.5) +
     geom_hline(aes(yintercept = histPercentiles["5%", "Tavg"]), linetype = 2, alpha = 0.5) +
     # geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2, alpha = 0.5) +
-    # ylim(10,40) + 
+    # ylim(max(HistObs$Tavg,na.rm=TRUE) - 25, max(HistObs$Tavg,na.rm=TRUE)) + 
     annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
             label = "TODAY", colour = 'firebrick', size = 4,
             family = 'Roboto Condensed', fontface = "bold") +
     annotate("text", x = current.date, y = Tavg.now, vjust = 2.5,
             label = paste0(Tavg.now,'°C'), colour = 'firebrick', size = 4,
             family = 'Roboto Condensed', fontface = "bold") + 
-    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
-            y = histPercentiles["95%", "Tavg"], label = paste0("95th percentile:  ",round(histPercentiles["95%", "Tavg"],1),'°C'),
+    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),y = histPercentiles["95%", "Tavg"],
+            label = paste0("95th percentile:  ",round(histPercentiles["95%", "Tavg"],1),'°C'),
             alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") + 
     # annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
     #         y = median(HistObs$Tavg, na.rm = T), label = paste0("50th percentile:  ",round(histPercentiles["50%", "Tavg"],1),'°C'),
     #         alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
     #         family = 'Roboto Condensed', fontface = "bold") + 
-    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
-            y = histPercentiles["5%", "Tavg"], label = paste0("5th percentile:  ",round(histPercentiles["5%", "Tavg"],1),'°C'),
+    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),y = histPercentiles["5%", "Tavg"],
+            label = paste0("5th percentile:  ",round(histPercentiles["5%", "Tavg"],1),'°C'),
             alpha = 0.9, size = 4, hjust = 0, vjust = -0.5,
             family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
-             y = histPercentiles["50%", "Tavg"], label = paste0("Trend: +", round(trend*365*100,1),'°C/century'),
+    annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")), y = histPercentiles["50%", "Tavg"],
+             label = paste0("Trend: +", round(trend*365*100,1),'°C/ century'),
              alpha = 0.9, size = 4, hjust = 0, vjust = -0.5,
              family = 'Roboto Condensed', fontface = "bold") +
     # annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),
