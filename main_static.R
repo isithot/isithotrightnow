@@ -195,7 +195,8 @@ for (this_station in station_set)
     geom_hline(aes(yintercept = histPercentiles["5%", "Tavg"]), linetype = 2, alpha = 0.5) +
     # geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2, alpha = 0.5) +
     scale_y_continuous(breaks = seq(0, 100, by=5), 
-            limits=c(histPercentiles["60%", "Tavg"] -10,histPercentiles["60%", "Tavg"] +15)) + 
+            limits=c( min(histPercentiles["60%", "Tavg"] -10, Tavg.now, na.rm=TRUE),
+                      max(histPercentiles["60%", "Tavg"] +15, Tavg.now, na.rm=TRUE) )) + 
     annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
             label = "TODAY", colour = 'firebrick', size = 4,
             family = 'Roboto Condensed', fontface = "bold") +
