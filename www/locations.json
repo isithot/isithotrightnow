@@ -3,6 +3,8 @@
     "id": "067105",
     "name": "Richmond RAAF",
     "label": "Sydney West",
+    "lat": "-33.6004",
+    "lon": "150.7761",
     "tz": "Australia/Sydney",
     "record_start": "1939",
     "record_end": "2017"
@@ -11,6 +13,8 @@
     "id": "066062",
     "name": "Observatory Hill",
     "label": "Sydney City",
+    "lat": "-33.8607",
+    "lon": "151.2050",
     "tz": "Australia/Sydney",
     "record_start": "1910",
     "record_end": "2017"
@@ -19,6 +23,8 @@
     "id": "087031",
     "name": "Laverton RAAF",
     "label": "Melbourne West",
+    "lat": "-37.8565",
+    "lon": "144.7566",
     "tz": "Australia/Melbourne",
     "record_start": "1943",
     "record_end": "2017"
@@ -27,6 +33,8 @@
     "id": "070351",
     "name": "Canberra Airport",
     "label": "Canberra",
+    "lat": "-35.3088",
+    "lon": "149.2004",
     "tz": "Australia/Canberra",
     "record_start": "1939",
     "record_end": "2017"
@@ -35,6 +43,8 @@
     "id": "094029",
     "name": "Hobart (Ellerslie Rd)",
     "label": "Hobart",
+    "lat": "-42.8897",
+    "lon": "147.3278",
     "tz": "Australia/Hobart",
     "record_start": "1918",
     "record_end": "2017"
@@ -43,6 +53,8 @@
     "id": "040842",
     "name": "Brisbane Aero",
     "label": "Brisbane",
+    "lat": "-27.4178",
+    "lon": "153.1142",
     "tz": "Australia/Brisbane",
     "record_start": "1949",
     "record_end": "2017"
@@ -51,6 +63,8 @@
     "id": "023090",
     "name": "Kent Town",
     "label": "Adelaide",
+    "lat": "-34.9211",
+    "lon": "138.6216",
     "tz": "Australia/Adelaide",
     "record_start": "1910",
     "record_end": "2017"
@@ -59,6 +73,8 @@
     "id": "015590",
     "name": "Alice Springs Airport",
     "label": "Alice Springs",
+    "lat": "-23.7951",
+    "lon": "133.8890",
     "tz": "Australia/Darwin",
     "record_start": "1910",
     "record_end": "2017"
@@ -67,6 +83,8 @@
     "id": "014015",
     "name": "Darwin Airport",
     "label": "Darwin",
+    "lat": "-12.4239",
+    "lon": "130.8925",
     "tz": "Australia/Darwin",
     "record_start": "1910",
     "record_end": "2017"
@@ -75,6 +93,8 @@
     "id": "009021",
     "name": "Perth Airport",
     "label": "Perth",
+    "lat": "-31.9356",
+    "lon": "115.9639",
     "tz": "Australia/Perth",
     "record_start": "1910",
     "record_end": "2017"
