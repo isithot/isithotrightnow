@@ -261,32 +261,45 @@ $(function()
 
   // on page load, populate the location menu, then determine default (local)
   // station and request it
-  $.getJSON("locations.json", function(data)
+  $.getJSON("/locations.json", function(data)
   {
     $.each(data, function(index, station) {
       $("#current_location").append(
         '<option value="' + station.id + '">' + station.label + '</option>');
     });
 
-    // now get user location from ip and use to determine a default station
-    // (geo_success and geo_failure will update and request the first time)
-    if (navigator.geolocation)
-    {
-      $.get("http://api.ipstack.com/check?access_key=35ea05193a4d09447dce431efb17d196&format=1", geo_success);
-    } 
-    else
-    {
-      console.warn("No geolocation available!");
-    }
+    //  if this is the home page, try to geolocate and use that to find a place
+    if (window.location.pathname == "/") {
 
-    // default to sydney if geolocation hasn't returned
-    setTimeout(function()
-    {
-      if (!geolocation_done)
-      {
-        geo_failure();
-      }  
-    }, geolocation_timeout);
+      if (navigator.geolocation)
+        {
+          $.get("http://api.ipstack.com/check?access_key=35ea05193a4d09447dce431efb17d196&format=1", geo_success);
+        } 
+        else
+        {
+          console.warn("No geolocation available!");
+        }
+
+        // default to sydney if geolocation hasn't returned
+        setTimeout(function()
+        {
+          if (!geolocation_done)
+          {
+            geo_failure();
+          }  
+        }, geolocation_timeout);
+
+    } else {
+      // for location subpages, match against the json urls to figure out which to load
+      var subpage = window.location.pathname.split("/")[1]
+
+      // cycle through the "url" keys in locations.json to find a match;
+      // on a match, select that location in the menu to load it
+      $.each(data, function(index, station) {
+        if (station.url == subpage) {
+          $("#current_location").val(station.id).trigger("change");
+        }
+    }   
   });
 
   // = callbacks ==============================================================
