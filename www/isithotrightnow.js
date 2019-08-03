@@ -207,36 +207,36 @@ $(function()
   /* geo_failure: requests the nearest station id */
   function geo_success(pos_data)
   {
-    if (pos_data.country_code != "AU")
+    if (pos_data.country_code2 != "AU")
     {
       console.warn("User outside Australia; defaulting to Sydney Obs Hill!");
       $("#current_location").val(default_station).trigger("change");
       geolocation_done = true;
     }
     else {
-      switch (pos_data.region_code) {
-        case 'ACT':
+      switch (pos_data.state_prov) {
+        case 'Australian Capital Territory':
           $("#current_location").val("070351").trigger("change");
           break;
-        case 'NSW':
+        case 'New South Wales':
           $("#current_location").val("066062").trigger("change");
           break;
-        case 'VIC':
+        case 'Victoria':
           $("#current_location").val("087031").trigger("change");
           break;
-        case 'TAS':
+        case 'Tasmania':
           $("#current_location").val("094029").trigger("change");
           break;
-        case 'QLD':
+        case 'Queensland':
           $("#current_location").val("040842").trigger("change");
           break;
-        case 'SA':
+        case 'South Australia':
           $("#current_location").val("023090").trigger("change");
           break;
-        case 'NT':
+        case 'Northern Territory':
           $("#current_location").val("014015").trigger("change");
           break;
-        case 'WA':
+        case 'Western Australia':
           $("#current_location").val("009021").trigger("change");
           break;
         default:
@@ -272,7 +272,9 @@ $(function()
     // (geo_success and geo_failure will update and request the first time)
     if (navigator.geolocation)
     {
-      $.get("http://api.ipstack.com/check?access_key=35ea05193a4d09447dce431efb17d196&format=1", geo_success);
+      // $.get("http://api.ipstack.com/check?access_key=35ea05193a4d09447dce431efb17d196&format=1", geo_success);
+      // use ipgeolocation.io (30,000 free per month, supports https)
+      $.get("https://api.ipgeolocation.io/ipgeo?apiKey=637ffd1cb9094542970a103e731f76d4", geo_success);
     } 
     else
     {
