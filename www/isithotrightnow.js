@@ -11,7 +11,7 @@ $(function()
   var base_path = "output/"
   var location_menu_innerpad = 10;
   var location_request_timeout = 5000;
-  var geolocation_timeout = 10;
+  var geolocation_timeout = 1000;
   var geolocation_done = false;
 
   /* request_station: hide the details section, download stats and plots
