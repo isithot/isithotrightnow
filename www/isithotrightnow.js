@@ -205,10 +205,8 @@ $(function()
   }
 
   /* geo_failure: requests the nearest station id */
-  function geo_success(pos_data)
-  {
-    if (pos_data.country_code2 != "AU")
-    {
+  function geo_success(pos_data) {
+    if (pos_data.country_name != "Australia") {
       console.warn("User outside Australia; defaulting to Sydney Obs Hill!");
       $("#current_location").val(default_station).trigger("change");
       geolocation_done = true;
@@ -274,7 +272,7 @@ $(function()
     {
       // $.get("http://api.ipstack.com/check?access_key=35ea05193a4d09447dce431efb17d196&format=1", geo_success);
       // use ipgeolocation.io (30,000 free per month, supports https)
-      $.get("https://api.ipgeolocation.io/ipgeo?apiKey=637ffd1cb9094542970a103e731f76d4", geo_success);
+      $.get("https://api.ipgeolocation.io/ipgeo?apiKey=637ffd1cb9094542970a103e731f76d4&fields=country_name,state_prov", geo_success);
     } 
     else
     {
