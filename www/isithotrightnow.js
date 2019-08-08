@@ -12,7 +12,7 @@ $(function()
   var base_path = "/output/"
   var location_menu_innerpad = 10;
   var location_request_timeout = 5000;
-  var geolocation_timeout = 1500;
+  var geolocation_timeout = 1000;
   var geolocation_done = false;
 
   /* load_new_location: wrapper function for loading a new location. resizes the
@@ -214,15 +214,14 @@ $(function()
   }
 
   /* geo_failure: requests the nearest station id */
-  function geo_success(pos_data)
-  {
-    if (pos_data.country_code != "AU")
-    {
+  function geo_success(pos_data) {
+    if (pos_data.country_name != "Australia") {
       console.warn("User outside Australia; defaulting to Sydney Obs Hill!");
       load_new_location(default_station);
       $("#current_location").val(default_url);
     }
     else {
+      console.log(pos_data);
       switch (pos_data.region_code) {
         case 'ACT':
           load_new_location("070351");
@@ -255,7 +254,6 @@ $(function()
         case 'WA':
           load_new_location("009021");
           $("#current_location").val("perth");
-          break;
         default:
           console.warn(
             "User region not recognised; " + 

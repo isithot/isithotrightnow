@@ -47,11 +47,11 @@ calcHistPercentiles <- function(Obs) {
                 FUN = quantile, probs = c(0.05,0.1,0.4,0.5,0.6,0.9,0.95), na.rm = T))
 }
 
-getCurrentObs <- function(req_station_id) {
+getCurrentObs <- function(req_station_id,fileid) {
   # Returns a data frame with the max and min temps reported by the station
   return(
     read_csv(
-      paste0(fullpath, "data/latest/latest-all.csv"),
+      fileid,
       col_types = cols(
         tmax = col_double(),
         tmin = col_double(),

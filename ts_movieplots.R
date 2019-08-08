@@ -45,11 +45,26 @@ for (this_station in station_set)
   dir.create(paste0(fullpath, "www/output/", this_station[["id"]]),
     showWarnings = FALSE)
 
+  for (iday in 22:387){
   # Get current max and min temperatures for this_station
   fileid <- paste0(fullpath,"data/latest/latest-all.csv")
   CurrObs.df <- getCurrentObs(this_station[["id"]],fileid)
   current.date_time <- Sys.time()
   current.date <- current.date_time %>% as.Date(tz = this_station[["tz"]])
+  
+  current.date <- current.date-iday
+  message(current.date)
+  
+  # # Get yesterdays obs for this station
+  # yesterday <- format(current.date-1, "%y%m%d")
+  # fileid <- paste0(fullpath,"databackup/",yesterday,"-all.csv")
+  # YesterdayObs <- getCurrentObs(this_station[["id"]],fileid)
+  # YesterdayObs$Tavg <- mean(c(YesterdayObs$tmax, YesterdayObs$tmin))
+  
+  # Get yesterdays obs for this station
+  dateformat <- format(current.date, "%y%m%d")
+  fileid <- paste0(fullpath,"databackup/",dateformat,"-all.csv")
+  CurrObs.df <- getCurrentObs(this_station[["id"]],fileid)
 
   # Calculate percentiles of historical data
   HistObs <- getHistoricalObs(this_station[["id"]], date = current.date, window = 7)
@@ -100,7 +115,23 @@ for (this_station in station_set)
                         bh = "It's bloody hot!")
 
   average.percent <- 100*round(ecdf(HistObs$Tavg)(Tavg.now),digits=2)
+  
+  # if(category.now == 'bh') {colour <- '#b2182b'}
+  # if(category.now == 'rh') {colour <- '#ef8a62'}
+  # if(category.now == 'h') {colour <- '#ef8a62'}
+  # if(category.now == 'a') {colour <- '#f7f7f7'}
+  # if(category.now == 'c') {colour <- '#d1e5f0'}
+  # if(category.now == 'rc') {colour <- '#67a9cf'}
+  # if(category.now == 'bc') {colour <- '#2166ac'}
 
+  if(!is.na(average.percent)) {
+    if(average.percent > 50 & average.percent <= 100) {colour <- '#b2182b'}
+    if(average.percent >= 0 & average.percent <= 50) {colour <- '#2166ac'}
+  }
+  else{colour <- '#b2182b'}
+  
+  # colour <- '#b2182b'
+  
   ################################################################################################
 
   message(paste('Appending today to hist obs:',
@@ -123,49 +154,49 @@ for (this_station in station_set)
   message(paste('Rendering distribution plot:',
     paste(this_station[["label"]], collapse = " ")))
 
-  # first the distribution plot because it uses all historical data
-  dist.plot <- ggplot(data = HistObs, aes(Tavg)) + 
-    ggtitle(
-      paste0(
-        "Distribution of daily average temperatures\nfor this time of year since ",
-        this_station[["record_start"]])) +
-    geom_density(adjust = 0.7, colour = '#999999', fill = '#999999') + 
-    theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
-    theme(panel.background = element_rect(fill = "transparent", colour = NA),
-          panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
-          plot.background = element_rect(fill = "transparent", colour = NA),
-          panel.border = element_blank(),
-          plot.title = element_text(family = 'Roboto Condensed', face = "bold",
-                                    color = '#333333', size = 18, hjust = 0.5),
-          axis.text.x = element_text(family = 'Roboto Condensed', face = "bold"),
-          axis.title.x = element_text(family = 'Roboto Condensed', face = "bold",
-                                      size = 16),
-          axis.title.y = element_blank(),
-          axis.text.y = element_blank(),
-          axis.ticks.y = element_blank()) +
-    geom_vline(xintercept = Tavg.now, colour = 'firebrick', size = rel(1.5)) +
-    geom_vline(xintercept = median(HistObs$Tavg, na.rm = T), linetype = 2, alpha = 0.5) + 
-    geom_vline(
-      xintercept = histPercentiles["5%", "Tavg"], linetype = 2, alpha = 0.5) +
-    geom_vline(
-      xintercept = histPercentiles["95%", "Tavg"], linetype = 2, alpha = 0.5) + 
-    scale_y_continuous(expand = c(0,0)) +
-    xlab("Daily average temperature (°C)") + 
-    # annotate("text", x = median(HistObs$Tavg), y = Inf, vjust = -0.75,
-    #   hjust=1.1,label = "50TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
-    #   family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = histPercentiles["5%", "Tavg"], y = 0, vjust = -0.75,
-            hjust=-0.05,label = paste0("5th percentile:  ",round(histPercentiles["5%", "Tavg"],1),'°C'), 
-            size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = histPercentiles["50%", "Tavg"], y = 0, vjust = -0.75,
-            hjust=-0.05,label = paste0("50th percentile:  ",round(histPercentiles["50%", "Tavg"],1),'°C'), 
-            size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = histPercentiles["95%", "Tavg"], y = 0, vjust = -0.75,
-            hjust=-0.05,label = paste0("95th percentile:  ",round(histPercentiles["95%", "Tavg"],1),'°C'),
-            size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust = 1.1,
-            label = paste0("TODAY:  ",Tavg.now,'°C'), colour = 'firebrick', size = 4, angle = 90, alpha = 1,
-            family = 'Roboto Condensed', fontface = "bold")
+  # # first the distribution plot because it uses all historical data
+  # dist.plot <- ggplot(data = HistObs, aes(Tavg)) + 
+  #   ggtitle(
+  #     paste0(
+  #       "Distribution of daily average temperatures\nfor this time of year since ",
+  #       this_station[["record_start"]])) +
+  #   geom_density(adjust = 0.7, colour = '#999999', fill = '#999999') + 
+  #   theme_bw(base_size = 20, base_family = 'Roboto Condensed') +
+  #   theme(panel.background = element_rect(fill = "transparent", colour = NA),
+  #         panel.grid.minor = element_blank(), panel.grid.major = element_blank(),
+  #         plot.background = element_rect(fill = "transparent", colour = NA),
+  #         panel.border = element_blank(),
+  #         plot.title = element_text(family = 'Roboto Condensed', face = "bold",
+  #                                   color = '#333333', size = 18, hjust = 0.5),
+  #         axis.text.x = element_text(family = 'Roboto Condensed', face = "bold"),
+  #         axis.title.x = element_text(family = 'Roboto Condensed', face = "bold",
+  #                                     size = 16),
+  #         axis.title.y = element_blank(),
+  #         axis.text.y = element_blank(),
+  #         axis.ticks.y = element_blank()) +
+  #   geom_vline(xintercept = Tavg.now, colour = 'firebrick', size = rel(1.5)) +
+  #   geom_vline(xintercept = median(HistObs$Tavg, na.rm = T), linetype = 2, alpha = 0.5) + 
+  #   geom_vline(
+  #     xintercept = histPercentiles["5%", "Tavg"], linetype = 2, alpha = 0.5) +
+  #   geom_vline(
+  #     xintercept = histPercentiles["95%", "Tavg"], linetype = 2, alpha = 0.5) + 
+  #   scale_y_continuous(expand = c(0,0)) +
+  #   xlab("Daily average temperature (°C)") + 
+  #   # annotate("text", x = median(HistObs$Tavg), y = Inf, vjust = -0.75,
+  #   #   hjust=1.1,label = "50TH PERCENTILE", size = 4, angle = 90, alpha = 0.5,
+  #   #   family = 'Roboto Condensed', fontface = "bold") +
+  #   annotate("text", x = histPercentiles["5%", "Tavg"], y = 0, vjust = -0.75,
+  #           hjust=-0.05,label = paste0("5th percentile:  ",round(histPercentiles["5%", "Tavg"],1),'°C'), 
+  #           size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
+  #   annotate("text", x = histPercentiles["50%", "Tavg"], y = 0, vjust = -0.75,
+  #           hjust=-0.05,label = paste0("50th percentile:  ",round(histPercentiles["50%", "Tavg"],1),'°C'), 
+  #           size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
+  #   annotate("text", x = histPercentiles["95%", "Tavg"], y = 0, vjust = -0.75,
+  #           hjust=-0.05,label = paste0("95th percentile:  ",round(histPercentiles["95%", "Tavg"],1),'°C'),
+  #           size = 4, angle = 90, alpha = 0.9, family = 'Roboto Condensed', fontface = "bold") +
+  #   annotate("text", x = Tavg.now, y = Inf, vjust = -0.75, hjust = 1.1,
+  #           label = paste0("TODAY:  ",Tavg.now,'°C'), colour = 'firebrick', size = 4, angle = 90, alpha = 1,
+  #           family = 'Roboto Condensed', fontface = "bold")
 
   # Now for the time series the historical data must only include days with the same monthDay
   CurrentMonthDayHistObs <- HistObs %>%
@@ -181,28 +212,28 @@ for (this_station in station_set)
   
   TS.plot <- ggplot(data = HistObs, aes(x = Date, y = Tavg)) +
     ggtitle(
-      paste0(
-        "Daily average temperatures\nfor the two weeks around ",
-        format(current.date_time, format="%d %B", tz = this_station[["tz"]])
+      paste0(this_station[['label']],
+        " daily average temperatures\nfor the two weeks around ",
+        format(current.date, format="%d %B", tz = this_station[["tz"]])
         )) +
     xlab(NULL) + 
     ylab('Daily average temperature (°C)') + 
     geom_line(size = 0.0, colour = '#CCCCCC') + 
     geom_point(size = rel(1.5), colour = '#999999', alpha = 0.5, stroke=0) +
-    geom_smooth(method = lm, se = FALSE, col='gray60', size=0.5) + 
-    geom_point(aes(x = current.date, y = Tavg.now), colour = "firebrick", size = rel(5)) +
+    geom_smooth(method = lm, se = FALSE, col='gray60', size=0.5) +
+    geom_point(aes(x = current.date, y = Tavg.now), colour = colour, size = rel(5)) +
+    # geom_point(aes(x = current.date, y = YesterdayObs$Tavg), alpha = 0.005, colour = "firebrick", size = rel(4)) +
     geom_hline(aes(yintercept = histPercentiles["95%", "Tavg"]), linetype = 2, alpha = 0.5) +
     geom_hline(aes(yintercept = histPercentiles["5%", "Tavg"]), linetype = 2, alpha = 0.5) +
     # geom_hline(aes(yintercept = median(HistObs$Tavg, na.rm = T)), linetype = 2, alpha = 0.5) +
     scale_y_continuous(breaks = seq(0, 100, by=5), 
-            limits=c( min(histPercentiles["60%", "Tavg"] -10, Tavg.now, na.rm=TRUE),
-                      max(histPercentiles["60%", "Tavg"] +15, Tavg.now, na.rm=TRUE) )) + 
-    annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
-            label = "TODAY", colour = 'firebrick', size = 4,
-            family = 'Roboto Condensed', fontface = "bold") +
-    annotate("text", x = current.date, y = Tavg.now, vjust = 2.5,
-            label = paste0(Tavg.now,'°C'), colour = 'firebrick', size = 4,
-            family = 'Roboto Condensed', fontface = "bold") + 
+            limits=c(histPercentiles["60%", "Tavg"] -10,histPercentiles["60%", "Tavg"] +15)) + 
+    # annotate("text", x = current.date, y = Tavg.now, vjust = -1.5,
+    #         label = "TODAY", colour = colour, size = 4,
+    #         family = 'Roboto Condensed', fontface = "bold") +
+    # annotate("text", x = current.date, y = Tavg.now, vjust = 2.5,
+    #         label = paste0(Tavg.now,'°C'), colour = colour, size = 4,
+    #         family = 'Roboto Condensed', fontface = "bold") + 
     annotate("text", x = ymd(paste0(round(min(HistObs$Year)/10)*10,"0101")),y = histPercentiles["95%", "Tavg"],
             label = paste0("95th percentile:  ",round(histPercentiles["95%", "Tavg"],1),'°C'),
             alpha = 0.9, size = 4, hjust=0, vjust = -0.5,
@@ -245,13 +276,17 @@ for (this_station in station_set)
     paste(this_station[["label"]], collapse = " ")))
 
   # Save plots in www/output/<station ID>/
-  ggsave(filename = paste0(fullpath,"www/output/", this_station[["id"]], "/ts_plot.png"), 
-        plot = TS.plot, bg = "#eeeeee", 
-        height = 4.5, width = 8, units = "in", device = "png")
+  # ggsave(filename = paste0(fullpath,"www/output/", this_station[["id"]], "/ts_plot.png"), 
+  #       plot = TS.plot, bg = "#eeeeee", 
+  #       height = 4.5, width = 8, units = "in", device = "png")
+  
+  ggsave(filename = paste0(fullpath,"imgbackup/", this_station[["id"]], "-ts-",dateformat,".png"), 
+         plot = TS.plot, bg = "#eeeeee", 
+         height = 4.5, width = 8, units = "in", device = "png")
 
-  ggsave(filename = paste0(fullpath,"www/output/", this_station[["id"]], "/density_plot.png"), 
-        plot = dist.plot, bg = "#eeeeee", 
-        height = 4.5, width = 8, units = "in", device = "png")
+  # ggsave(filename = paste0(fullpath,"www/output/", this_station[["id"]], "/density_plot.png"), 
+  #       plot = dist.plot, bg = "#eeeeee", 
+  #       height = 4.5, width = 8, units = "in", device = "png")
 
   message(paste('Saving stats to JSON:',
     paste(this_station[["label"]], collapse = " ")))
@@ -312,21 +347,21 @@ for (this_station in station_set)
 
   message(paste('Retrieving this year\'s percentile for heatmap:',
     paste(this_station[["label"]], collapse = " ")))
-  
+
   year <- year(current.date)
   year_percentiles_file <- paste0(this_station["id"], "-", year, ".csv")
   station_year_data <- read_csv(paste0(fullpath, "databackup/", year_percentiles_file))
-  
+
   # create an empty array to store the daily percentiles for this year
   percentileHeatmap_array <- array(dim = c(31,12))
   for (m in 1:month(current.date)) {
     month_data <- station_year_data %>% dplyr::filter(month(date) == m) %>% dplyr::pull(percentile)
     percentileHeatmap_array[,m][1:length(month_data)] <- month_data
   }
-  
+
   # add today's data to the percentileHeatmap_array object
   percentileHeatmap_array[day(current.date), month(current.date)] <- average.percent
-  
+
   # Write out today's percentile as the last row if a row does not already exist
   # and if average.percent is not NA
   current.row <- which(station_year_data$date == current.date)
@@ -338,7 +373,7 @@ for (this_station in station_set)
     } else {
       message("Adding new row")
       # TODO - where's the second data frame for bind_rows()?
-      station_year_data <- station_year_data %>% bind_rows %>% 
+      station_year_data <- station_year_data %>% bind_rows %>%
         data_frame(date = current.date, percentile = average.percent)
     }
   }
@@ -350,7 +385,7 @@ for (this_station in station_set)
 
   message(paste('Rendering + saving heatmap:',
     paste(this_station[["label"]], collapse = " ")))
-  
+
   # Now plot the heatmap
   # Create the plots
   png(paste0(fullpath,"www/output/",this_station["id"], "/heatmap.png"), width = 2400, height = 1060)
@@ -360,13 +395,13 @@ for (this_station in station_set)
   breaks <- c(0,0.05,0.2,0.4,0.6,0.8,0.95,1)
   month.names = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
   na.df <- array(data = 1, dim = dim(percentileHeatmap_array))
-  #image(seq(1, 31), seq(1, 12), na.df, xaxt = "n", yaxt ="n", 
+  #image(seq(1, 31), seq(1, 12), na.df, xaxt = "n", yaxt ="n",
   #xlab = "", ylab = "", col = 'white')
-  image(seq(1, 31), seq(1, 12), 
-        percentileHeatmap_array[,ncol(percentileHeatmap_array):1]/100, 
+  image(seq(1, 31), seq(1, 12),
+        percentileHeatmap_array[,ncol(percentileHeatmap_array):1]/100,
         xaxt = "n", yaxt ="n",
         xlab = "", ylab = "", breaks = breaks, col = cols)
-  title(paste(this_station["label"], "percentiles for", year), 
+  title(paste(this_station["label"], "percentiles for", year),
         cex.main = 4, line = 5.5, col = "#333333")
   axis(side = 3, at = seq(1, 31), lwd.ticks = 0, cex.axis = 2.3)
   axis(side = 2, at = seq(12, 1), labels = month.names, las = 2, lwd.ticks = 0, cex.axis = 2.3)
@@ -377,11 +412,11 @@ for (this_station in station_set)
          labels = paste(breaks*100), cex.axis = 2.3)
   mtext('© isithotrightnow.com', side=3, line=6, at=9, cex=2)
   dev.off()
-  
 
-  
+
+
   message(paste('Copying heatmap for year:',paste(year, collapse = " ")))
-  file.copy(from = paste0(fullpath,"www/output/",this_station["id"], "/heatmap.png"), 
+  file.copy(from = paste0(fullpath,"www/output/",this_station["id"], "/heatmap.png"),
             to = paste0(fullpath,"www/output/",this_station["id"], "/heatmap_", year, ".png"),
             overwrite = TRUE)
-}
+}}

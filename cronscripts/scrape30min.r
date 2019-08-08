@@ -114,7 +114,7 @@ if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
       Sys.time() %>%
       with_tz(tz) %>%
       date() %>%
-      paste("00:00:00") %>%aq
+      paste("00:00:00") %>%
       ymd_hms(tz = tz) %>%
       with_tz('UTC')) %>%
   ungroup() %>%

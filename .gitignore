@@ -1,6 +1,7 @@
 data/latest/
 databackup/*.csv
 databackup2/*.csv
+imgbackup/
 www/output
 .Rhistory
 *.log
