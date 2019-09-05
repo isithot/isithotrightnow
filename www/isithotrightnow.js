@@ -215,7 +215,7 @@ $(function()
 
   /* geo_failure: requests the nearest station id */
   function geo_success(pos_data) {
-    if (pos_data.country_code2 != "AU") {
+    if (pos_data.country_name != "Australia") {
       console.warn("User outside Australia; defaulting to Sydney Obs Hill!");
       load_new_location(default_station);
       $("#current_location").val(default_url);
