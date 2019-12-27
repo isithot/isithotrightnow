@@ -8,11 +8,19 @@
 $(function()
 {
   var default_station = "066062";
-  var base_path = "output/"
+  var default_url = "sydney";
+  var base_path = "/output/"
   var location_menu_innerpad = 10;
   var location_request_timeout = 5000;
   var geolocation_timeout = 1000;
   var geolocation_done = false;
+
+  /* load_new_location: wrapper function for loading a new location. resizes the
+    dropdown menu and starts requesting new station data. */
+  load_new_location = function(station_id) {
+    console.log(station_id);
+    request_station(station_id);
+  }
 
   /* request_station: hide the details section, download stats and plots
      for a new station and then display them _when they're ready_
@@ -199,6 +207,7 @@ $(function()
   function resize_location_menu(new_text)
   {
     // resize the dropdown
+    console.log('Resizing dropdown menu');
     $("#current_location_temp_dummyopt").html(new_text);
     $("#current_location").width(
       $("#current_location_temp").width() + location_menu_innerpad);
@@ -208,96 +217,124 @@ $(function()
   function geo_success(pos_data) {
     if (pos_data.country_name != "Australia") {
       console.warn("User outside Australia; defaulting to Sydney Obs Hill!");
-      $("#current_location").val(default_station).trigger("change");
-      geolocation_done = true;
+      load_new_location(default_station);
+      $("#current_location").val(default_url);
     }
     else {
       switch (pos_data.state_prov) {
         case 'Australian Capital Territory':
-          $("#current_location").val("070351").trigger("change");
+          load_new_location("070351");
+          $("#current_location").val("canberra");
           break;
         case 'New South Wales':
-          $("#current_location").val("066062").trigger("change");
+          load_new_location("066062");
+          $("#current_location").val("sydney");
           break;
         case 'Victoria':
-          $("#current_location").val("087031").trigger("change");
+          load_new_location("087031");
+          $("#current_location").val("melbourne");
           break;
         case 'Tasmania':
-          $("#current_location").val("094029").trigger("change");
+          load_new_location("094029");
+          $("#current_location").val("hobart");
           break;
         case 'Queensland':
-          $("#current_location").val("040842").trigger("change");
+          load_new_location("040842");
+          $("#current_location").val("brisbane");
           break;
         case 'South Australia':
-          $("#current_location").val("023090").trigger("change");
+          load_new_location("023090");
+          $("#current_location").val("adelaide");
           break;
         case 'Northern Territory':
-          $("#current_location").val("014015").trigger("change");
+          load_new_location("014015");
+          $("#current_location").val("darwin");
           break;
         case 'Western Australia':
-          $("#current_location").val("009021").trigger("change");
+          load_new_location("009021");
+          $("#current_location").val("perth");
           break;
         default:
           console.warn(
             "User region not recognised; " + 
             "defaulting to Sydney Obs Hill!");
-          $("#current_location").val(default_station).trigger("change");
+          load_new_location(default_station);
+          $("#current_location").val(default_url);
       }
-      console.log("Geolocation done!");
-      geolocation_done = true;
     }
+    console.log("Geolocation done!");
+    geolocation_done = true;
+    $("#current_location").change(function() {
+      location = "/" + this.value;
+    });
+    resize_location_menu($("#current_location option:selected").text());
   }
 
   /* geo_failure: requests the sydney obs hill station id */
   function geo_failure()
   {
     console.warn("Geolocation failed; defaulting to Sydney Obs Hill!");
-    $("#current_location").val(default_station).trigger("change");
+    load_new_location(default_station);
+    $("#current_location").val(default_url);
+    $("#current_location").change(function() {
+      location = "/" + this.value;
+    });
+    resize_location_menu($("#current_location option:selected").text());
   }
 
   // = on page load ===========================================================
 
-  // on page load, populate the location menu, then determine default (local)
-  // station and request it
-  $.getJSON("locations.json", function(data)
+  $.getJSON("/locations.json", function(data)
   {
+
+    // 1. populate the location menu
     $.each(data, function(index, station) {
       $("#current_location").append(
-        '<option value="' + station.id + '">' + station.label + '</option>');
+        '<option value="' + station.url + '">' + station.label + '</option>');
     });
 
-    // now get user location from ip and use to determine a default station
-    // (geo_success and geo_failure will update and request the first time)
-    if (navigator.geolocation)
-    {
-      // $.get("http://api.ipstack.com/check?access_key=35ea05193a4d09447dce431efb17d196&format=1", geo_success);
-      // use ipgeolocation.io (30,000 free per month, supports https)
-      $.get("https://api.ipgeolocation.io/ipgeo?apiKey=637ffd1cb9094542970a103e731f76d4&fields=country_name,state_prov", geo_success);
-    } 
-    else
-    {
-      console.warn("No geolocation available!");
+    // 2. if this is the home page, try to geolocate and use that to find a
+    // place; if it isn't, match the url against locations.json
+    if (window.location.pathname == "/") {
+
+      if (navigator.geolocation)
+        {
+          // $.get("http://api.ipstack.com/check?access_key=35ea05193a4d09447dce431efb17d196&format=1", geo_success);
+          $.get("https://api.ipgeolocation.io/ipgeo?apiKey=637ffd1cb9094542970a103e731f76d4&fields=country_name,state_prov", geo_success);
+        } 
+        else
+        {
+          console.warn("No geolocation available!");
+        }
+
+        // default to sydney if geolocation hasn't returned
+        setTimeout(function()
+        {
+          if (!geolocation_done)
+          {
+            geo_failure();
+          }  
+        }, geolocation_timeout);
+
+    } else {
+    
+      var subpage = window.location.pathname.split("/")[1]
+      var match_found = false;
+      $.each(data, function(index, station) {
+        if (station.url == subpage) {
+          match_found = true;
+          load_new_location(station.id);
+          $("#current_location").val(station.url);
+          $("#current_location").change(function() {
+            location = "/" + this.value;
+          });
+          resize_location_menu($("#current_location option:selected").text());
+        }
+      });
+      if (!match_found) {
+        console.warn("The URL \"" + subpage + "\" isn't in /locations.json.")
+      }
     }
-
-    // default to sydney if geolocation hasn't returned
-    setTimeout(function()
-    {
-      if (!geolocation_done)
-      {
-        geo_failure();
-      }  
-    }, geolocation_timeout);
   });
-
-  // = callbacks ==============================================================
-
-  /* on new location selected:
-       - update the dropdown menu
-       - request new location data */
-  $("#current_location").change(function() {
-    console.log(this.value);
-    resize_location_menu($("option:selected", this).text());
-    request_station(this.value);
-  });
-  
 });
+
