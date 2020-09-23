@@ -22,7 +22,7 @@ filter = dplyr::filter
 # or the end of the year. To run the next year, 
 # change start_date to the first of the next year
 # and rerun records-tidy.py
-start_date <- ymd("20180701")
+start_date <- ymd("20200101")
 ###################################
 
 # set base path depending on whether this is run on the server
