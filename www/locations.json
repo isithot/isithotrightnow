@@ -11,17 +11,6 @@
     "record_end": "2017"
   },
   {
-    "id": "087031",
-    "name": "Laverton RAAF",
-    "label": "Melbourne West",
-    "url": "melbourne",
-    "lat": "-37.8565",
-    "lon": "144.7566",
-    "tz": "Australia/Melbourne",
-    "record_start": "1943",
-    "record_end": "2017"
-  },
-  {
     "id": "070351",
     "name": "Canberra Airport",
     "label": "Canberra",
