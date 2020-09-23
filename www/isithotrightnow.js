@@ -7,8 +7,8 @@
     
 $(function()
 {
-  var default_station = "066062";
-  var default_url = "sydney";
+  var default_station = "067105";
+  var default_url = "sydney-west";
   var base_path = "/output/"
   var location_menu_innerpad = 10;
   var location_request_timeout = 5000;
