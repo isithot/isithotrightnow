@@ -2,7 +2,7 @@
    Code for loading in local weather stats (on page load and on location update)
    James Goldie, Steefan Contractor & Mat Lipson 2017 */
 
-/* on page load: choose a location (for now, Sydney Obs Hill), download
+/* on page load: choose a location (for now, Sydney West), download
     assets and insert */
     
 $(function()
@@ -216,7 +216,7 @@ $(function()
   /* geo_failure: requests the nearest station id */
   function geo_success(pos_data) {
     if (pos_data.country_name != "Australia") {
-      console.warn("User outside Australia; defaulting to Sydney Obs Hill!");
+      console.warn("User outside Australia; use default site");
       load_new_location(default_station);
       $("#current_location").val(default_url);
     }
@@ -227,12 +227,12 @@ $(function()
           $("#current_location").val("canberra");
           break;
         case 'New South Wales':
-          load_new_location("066062");
-          $("#current_location").val("sydney");
+          load_new_location("067105");
+          $("#current_location").val("sydney-west");
           break;
         case 'Victoria':
-          load_new_location("087031");
-          $("#current_location").val("melbourne");
+          load_new_location("067105");
+          $("#current_location").val("sydney-west");
           break;
         case 'Tasmania':
           load_new_location("094029");
@@ -243,8 +243,8 @@ $(function()
           $("#current_location").val("brisbane");
           break;
         case 'South Australia':
-          load_new_location("023090");
-          $("#current_location").val("adelaide");
+          load_new_location("067105");
+          $("#current_location").val("sydney-west");
           break;
         case 'Northern Territory':
           load_new_location("014015");
@@ -257,7 +257,7 @@ $(function()
         default:
           console.warn(
             "User region not recognised; " + 
-            "defaulting to Sydney Obs Hill!");
+            "defaulting to Sydney West");
           load_new_location(default_station);
           $("#current_location").val(default_url);
       }
