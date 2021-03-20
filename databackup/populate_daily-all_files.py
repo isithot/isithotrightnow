@@ -9,6 +9,8 @@
 094029,Australia/Hobart,-42.8897,147.3278,18.3,2019-04-10T03:23:00Z,7.1,2019-04-09T20:45:00Z
 087031,Australia/Melbourne,-37.8565,144.7566,17.4,2019-04-10T02:34:00Z,13.9,2019-04-10T09:50:00Z
 009021,Australia/Perth,-31.9275,115.9764,28.2,2019-04-10T07:02:00Z,11.7,2019-04-09T23:01:00Z
+
+only need to change year and month numbers required
 '''
 
 import numpy as np
@@ -18,7 +20,8 @@ import requests
 
 pd.set_option('display.width', 150)
 
-siteinfo = pd.DataFrame([
+siteinfo = pd.DataFrame( columns=('sid','name','url_id','csv_str'),
+    data = [
     ['014015','Darwin Airport',         'IDCJDW8014','Australia/Darwin,-12.4239,130.8925'],
     ['015590','Alice Springs Airport',  'IDCJDW8002','Australia/Darwin,-23.7951,133.8890'],
     ['070351','Canberra Airport',       'IDCJDW2801','Australia/Sydney,-35.3088,149.2004'],
@@ -27,13 +30,15 @@ siteinfo = pd.DataFrame([
     ['094029','Hobart (Ellerslie Rd)',  'IDCJDW7021','Australia/Hobart,-42.8897,147.3278'],
     ['009021','Perth Airport',          'IDCJDW6110','Australia/Perth,-31.9275,115.9764'],
     ['087031','Laverton RAAF',          'IDCJDW3043','Australia/Melbourne,-37.8565,144.7566'],
-    ['066062','Observatory Hill',       'IDCJDW2124','Australia/Sydney,-33.8607,151.2050']],
-    columns=('sid','name','url_id','csv_str'))
+    ['066062','Observatory Hill',       'IDCJDW2124','Australia/Sydney,-33.8607,151.2050'],
+    ])
 
 siteinfo = siteinfo.set_index('sid')
 
+###### CHANGE YEAR AND MONTHS ####
 year = '2021'
 for month in [1,2,3]:
+    ##############################
 
     month_str = str(month).zfill(2)
 
@@ -60,7 +65,7 @@ for month in [1,2,3]:
 
         fname = '%s%s%s-all.csv' %(year[-2:],month_str,day_str)
         with open(fname, 'w') as f:
-            f.write('station_id,tz,lat,lon,tmax,tmax_dt,tmin,tmin_dt')
+            f.write('station_id,tz,lat,lon,tmax,tmax_dt,tmin,tmin_dt\n')
             for key,item in data.items():
                 f.write("%s,%s,%s,%sT06:00:00Z,%s,%sT18:00:00Z\n" %(key,siteinfo.loc[key,'csv_str'],item.loc[date,'tmax'],date.date(),item.loc[date,'tmin'],date.date()))
 
