@@ -22,7 +22,7 @@ filter = dplyr::filter
 # or the end of the year. To run the next year, 
 # change start_date to the first of the next year
 # and rerun records-tidy.py
-start_date <- ymd("20180701")
+start_date <- ymd("20210101")
 ###################################
 
 # set base path depending on whether this is run on the server
@@ -63,10 +63,15 @@ get_category_array <- function(heatmap_array) {
 # get list of station ids to process from locations.json
 station_set <- fromJSON(paste0(fullpath, "www/locations.json"))
 for (i in 1:length(station_set)) {
-  station_set[[i]]$percentileHeatmap_array <- array(data = read_csv(paste0(fullpath,"databackup/", station_set[[i]]["id"], 
+  if (file.exists(paste0(fullpath,"databackup/", station_set[[i]]["id"],"-", current_year, ".csv"))) {
+    station_set[[i]]$percentileHeatmap_array <- array(data = read_csv(paste0(fullpath,"databackup/", station_set[[i]]["id"], 
                                                                            "-", current_year, ".csv"))[["percentile"]],
                                                     dim = c(31,12))
-  station_set[[i]]$categoryHeatmap_array <- get_category_array(heatmap_array = station_set[[i]]$percentileHeatmap_array)
+    station_set[[i]]$categoryHeatmap_array <- get_category_array(heatmap_array = station_set[[i]]$percentileHeatmap_array)
+  } else {
+    station_set[[i]]$percentileHeatmap_array <- array(dim = c(31,12))
+    station_set[[i]]$categoryHeatmap_array <- array(dim = c(31,12))
+  }
 }
 
 # run this loop to calculate historical percentiles since the start of the year
@@ -129,7 +134,7 @@ tidy_data =
   } %>%
   # now unnest, drop the duplicated columns and then nest by station
   unnest() %>%
-  mutate(date = as.Date(paste('2018', month, day, sep = '-'))) %>%
+  mutate(date = as.Date(paste(current_year, month, day, sep = '-'))) %>%
   select(id, date, percentile) %>%
   mutate(percentile = as.integer(percentile)) %>%
   nest(-id)

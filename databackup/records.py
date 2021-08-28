@@ -6,10 +6,10 @@ import pandas as pd
 
 pd.set_option('display.width', 150)
 
-year = '2018'
-month = '12'
+year = '2019'
+month = '01'
 sday = 1
-eday = 7
+eday = 2
 
 # read in csv of site monthtly data from eg. http://www.bom.gov.au/climate/dwo/IDCJDW4020.latest.shtml, then click on 'plain text version'.
 # canberra = pd.read_csv('IDCJDW2801.%s%s.csv' %(year,month),header=None,usecols =[1,2,3],skiprows=8,names=['day','tmin','tmax'])

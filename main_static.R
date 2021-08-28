@@ -181,9 +181,9 @@ for (this_station in station_set)
   
   TS.plot <- ggplot(data = HistObs, aes(x = Date, y = Tavg)) +
     ggtitle(
-      paste0(
-        "Daily average temperatures\nfor the two weeks around ",
-        format(current.date_time, format="%d %B", tz = this_station[["tz"]])
+      paste0(this_station[['label']],
+        " daily average temperatures\nfor the two weeks around ",
+        format(current.date, format="%d %B", tz = this_station[["tz"]])
         )) +
     xlab(NULL) + 
     ylab('Daily average temperature (°C)') + 

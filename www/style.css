@@ -61,6 +61,10 @@ button
   margin-bottom: 20px;
 }
 
+.highlight {
+  color: #b22222;
+}
+
 /* select
 {
   font-size: 100%;

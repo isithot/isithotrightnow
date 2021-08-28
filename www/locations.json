@@ -11,28 +11,6 @@
     "record_end": "2017"
   },
   {
-    "id": "066062",
-    "name": "Observatory Hill",
-    "label": "Sydney City",
-    "url": "sydney",
-    "lat": "-33.8607",
-    "lon": "151.2050",
-    "tz": "Australia/Sydney",
-    "record_start": "1910",
-    "record_end": "2017"
-  },
-  {
-    "id": "087031",
-    "name": "Laverton RAAF",
-    "label": "Melbourne West",
-    "url": "melbourne",
-    "lat": "-37.8565",
-    "lon": "144.7566",
-    "tz": "Australia/Melbourne",
-    "record_start": "1943",
-    "record_end": "2017"
-  },
-  {
     "id": "070351",
     "name": "Canberra Airport",
     "label": "Canberra",
@@ -63,17 +41,6 @@
     "lon": "153.1142",
     "tz": "Australia/Brisbane",
     "record_start": "1949",
-    "record_end": "2017"
-  },
-  {
-    "id": "023090",
-    "name": "Kent Town",
-    "label": "Adelaide",
-    "url": "adelaide",
-    "lat": "-34.9211",
-    "lon": "138.6216",
-    "tz": "Australia/Adelaide",
-    "record_start": "1910",
     "record_end": "2017"
   },
   {

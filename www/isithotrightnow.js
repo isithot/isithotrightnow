@@ -2,13 +2,13 @@
    Code for loading in local weather stats (on page load and on location update)
    James Goldie, Steefan Contractor & Mat Lipson 2017 */
 
-/* on page load: choose a location (for now, Sydney Obs Hill), download
+/* on page load: choose a location (for now, Sydney West), download
     assets and insert */
     
 $(function()
 {
-  var default_station = "066062";
-  var default_url = "sydney";
+  var default_station = "067105";
+  var default_url = "sydney-west";
   var base_path = "/output/"
   var location_menu_innerpad = 10;
   var location_request_timeout = 5000;
@@ -216,40 +216,43 @@ $(function()
   /* geo_failure: requests the nearest station id */
   function geo_success(pos_data) {
     if (pos_data.country_name != "Australia") {
-      console.warn("User outside Australia; defaulting to Sydney Obs Hill!");
+      console.warn("User outside Australia; use default site");
       load_new_location(default_station);
       $("#current_location").val(default_url);
     }
     else {
-      console.log(pos_data);
-      switch (pos_data.region_code) {
-        case 'ACT':
+      switch (pos_data.state_prov) {
+        case 'Australian Capital Territory':
           load_new_location("070351");
           $("#current_location").val("canberra");
           break;
-        case 'NSW':
-          load_new_location("066062");
-          $("#current_location").val("sydney");
+        case 'New South Wales':
+          load_new_location("067105");
+          $("#current_location").val("sydney-west");
           break;
-        case 'VIC':
-          load_new_location("087031");
-          $("#current_location").val("melbourne");
+        case 'Victoria':
+          load_new_location("067105");
+          $("#current_location").val("sydney-west");
           break;
-        case 'TAS':
+        case 'Tasmania':
           load_new_location("094029");
           $("#current_location").val("hobart");
           break;
-        case 'QLD':
+        case 'Queensland':
           load_new_location("040842");
           $("#current_location").val("brisbane");
           break;
-        case 'SA':
-          load_new_location("023090");
-          $("#current_location").val("adelaide");
+        case 'South Australia':
+          load_new_location("067105");
+          $("#current_location").val("sydney-west");
           break;
-        case 'NT':
+        case 'Northern Territory':
           load_new_location("014015");
           $("#current_location").val("darwin");
+          break;
+        case 'Western Australia':
+          load_new_location("009021");
+          $("#current_location").val("perth");
           break;
         case 'WA':
           load_new_location("009021");
@@ -257,7 +260,7 @@ $(function()
         default:
           console.warn(
             "User region not recognised; " + 
-            "defaulting to Sydney Obs Hill!");
+            "defaulting to Sydney West");
           load_new_location(default_station);
           $("#current_location").val(default_url);
       }
@@ -299,7 +302,8 @@ $(function()
 
       if (navigator.geolocation)
         {
-          $.get("http://api.ipstack.com/check?access_key=35ea05193a4d09447dce431efb17d196&format=1", geo_success);
+          // $.get("http://api.ipstack.com/check?access_key=35ea05193a4d09447dce431efb17d196&format=1", geo_success);
+          $.get("https://api.ipgeolocation.io/ipgeo?apiKey=637ffd1cb9094542970a103e731f76d4&fields=country_name,state_prov", geo_success);
         } 
         else
         {
@@ -336,3 +340,4 @@ $(function()
     }
   });
 });
+
