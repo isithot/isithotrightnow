@@ -22,22 +22,27 @@ pd.set_option('display.width', 150)
 
 siteinfo = pd.DataFrame( columns=('sid','name','url_id','csv_str'),
     data = [
-    ['014015','Darwin Airport',         'IDCJDW8014','Australia/Darwin,-12.4239,130.8925'],
-    ['015590','Alice Springs Airport',  'IDCJDW8002','Australia/Darwin,-23.7951,133.8890'],
-    ['070351','Canberra Airport',       'IDCJDW2801','Australia/Sydney,-35.3088,149.2004'],
-    ['067105','Richmond RAAF',          'IDCJDW2119','Australia/Sydney,-33.6004,150.7761'],
-    ['040842','Brisbane Aero',          'IDCJDW4020','Australia/Brisbane,-27.3917,153.1292'],
-    ['094029','Hobart (Ellerslie Rd)',  'IDCJDW7021','Australia/Hobart,-42.8897,147.3278'],
-    ['009021','Perth Airport',          'IDCJDW6110','Australia/Perth,-31.9275,115.9764'],
-    ['087031','Laverton RAAF',          'IDCJDW3043','Australia/Melbourne,-37.8565,144.7566'],
-    ['066062','Observatory Hill',       'IDCJDW2124','Australia/Sydney,-33.8607,151.2050'],
+    ['014015','Darwin Airport',           'IDCJDW8014','Australia/Darwin,-12.4239,130.8925'],
+    ['015590','Alice Springs Airport',    'IDCJDW8002','Australia/Darwin,-23.7951,133.8890'],
+    ['066214','Sydney (Observatory Hill)','IDCJDW2124','Australia/Sydney,-33.8593,149.2004'],
+    ['070351','Canberra Airport',         'IDCJDW2801','Australia/Sydney,-35.3088,149.2004'],
+    ['067105','Richmond RAAF',            'IDCJDW2119','Australia/Sydney,-33.6004,150.7761'],
+    ['048245','Bourke',                   'IDCJDW2016','Australia/Sydney,-30.0362,145.9521'],
+    ['040842','Brisbane Aero',            'IDCJDW4020','Australia/Brisbane,-27.3917,153.1292'],
+    ['031011','Cairns Aero',              'IDCJDW4024','Australia/Brisbane,-16.8736,145.7458'],
+    ['023000','Adelaide',                 'IDCJDW5081','Australia/Adelaide,-34.9257,138.5832'],
+    ['094029','Hobart (Ellerslie Rd)',    'IDCJDW7021','Australia/Hobart,-42.8897,147.3278'],
+    ['086338','Melbourne (Olympic Park)', 'IDCJDW3033','Australia/Melbourne,-37.8255,144.9816'],
+    ['087031','Laverton RAAF',            'IDCJDW3043','Australia/Melbourne,-37.8565,144.7566'],
+    ['009021','Perth Airport',            'IDCJDW6110','Australia/Perth,-31.9275,115.9764'],
     ])
 
 siteinfo = siteinfo.set_index('sid')
 
+
 ###### CHANGE YEAR AND MONTHS ####
-year = '2021'
-for month in [1,2,3]:
+year = '2022'
+for month in [1]:
     ##############################
 
     month_str = str(month).zfill(2)
@@ -46,16 +51,20 @@ for month in [1,2,3]:
     data = {}
     for sid in siteinfo.index:
         print('getting %s: %s csv from BOM' %(sid,siteinfo.loc[sid,"name"]))
-        try:
-            url = 'http://www.bom.gov.au/climate/dwo/%s%s/text/%s.%s%s.csv' %(year,month_str,siteinfo.loc[sid,"url_id"],year,month_str)
-            # get csv
-            s=requests.get(url).text
-            # remove header junk
-            s = s.partition('Date')[1]+s.partition('Date')[2] 
-            # import to dataframe
-            data[sid]=pd.read_csv(io.StringIO(s),header=None,usecols =[1,2,3],skiprows=1,names=['day','tmin','tmax'],parse_dates=[0],index_col=[0])
-        except Exception as e:
-            print(e)
+
+        print('NOW MUST MANUALLY DOWNLOAD FROM:')
+        url = 'http://www.bom.gov.au/climate/dwo/%s%s/text/%s.%s%s.csv' %(year,month_str,siteinfo.loc[sid,"url_id"],year,month_str)
+        print(url)
+
+        fname = url.split('/')[-1]
+        fpath = f'./2022/{fname}'
+
+        # open csv, but skip unknown lenght of rows that aren't valid
+        with open(fpath, encoding="utf8", errors='ignore') as f:
+            while f.readline() != '\n':
+                pass
+
+            data[sid]=pd.read_csv(f,usecols =[1,2,3],names=['day','tmin','tmax'],skiprows=1,parse_dates=[0],dayfirst=True,index_col=[0])
 
     # create daily '-all.csv' file
     key = next(iter(data))
@@ -70,4 +79,45 @@ for month in [1,2,3]:
                 f.write("%s,%s,%s,%sT06:00:00Z,%s,%sT18:00:00Z\n" %(key,siteinfo.loc[key,'csv_str'],item.loc[date,'tmax'],date.date(),item.loc[date,'tmin'],date.date()))
 
     print('done month %s' %month)
+
+
+
+# #### FOLLOWING STOPPED WORKING IN 2022 BECAUSE BOM DISALLOWED SCRAPING
+
+# ###### CHANGE YEAR AND MONTHS ####
+# year = '2022'
+# for month in [1]:
+#     ##############################
+
+#     month_str = str(month).zfill(2)
+
+#     # download monthly data
+#     data = {}
+#     for sid in siteinfo.index:
+#         print('getting %s: %s csv from BOM' %(sid,siteinfo.loc[sid,"name"]))
+#         try:
+#             url = 'http://www.bom.gov.au/climate/dwo/%s%s/text/%s.%s%s.csv' %(year,month_str,siteinfo.loc[sid,"url_id"],year,month_str)
+#             # get csv
+#             s=requests.get(url).text
+#             # remove header junk
+#             s = s.partition('Date')[1]+s.partition('Date')[2] 
+#             # import to dataframe
+#             data[sid]=pd.read_csv(io.StringIO(s),header=None,usecols =[1,2,3],skiprows=1,names=['day','tmin','tmax'],parse_dates=[0],dayfirst=True,index_col=[0])
+#         except Exception as e:
+#             print(e)
+
+#     # create daily '-all.csv' file
+#     key = next(iter(data))
+#     for date in data[key].index:
+
+#         day_str   = str(date.day).zfill(2)
+
+#         fname = '%s%s%s-all.csv' %(year[-2:],month_str,day_str)
+#         with open(fname, 'w') as f:
+#             f.write('station_id,tz,lat,lon,tmax,tmax_dt,tmin,tmin_dt\n')
+#             for key,item in data.items():
+#                 f.write("%s,%s,%s,%sT06:00:00Z,%s,%sT18:00:00Z\n" %(key,siteinfo.loc[key,'csv_str'],item.loc[date,'tmax'],date.date(),item.loc[date,'tmin'],date.date()))
+
+#     print('done month %s' %month)
+
 

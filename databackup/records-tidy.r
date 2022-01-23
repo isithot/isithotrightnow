@@ -22,7 +22,7 @@ filter = dplyr::filter
 # or the end of the year. To run the next year, 
 # change start_date to the first of the next year
 # and rerun records-tidy.py
-start_date <- ymd("20210101")
+start_date <- ymd("20220101")
 ###################################
 
 # set base path depending on whether this is run on the server
@@ -64,10 +64,14 @@ get_category_array <- function(heatmap_array) {
 station_set <- fromJSON(paste0(fullpath, "www/locations.json"))
 for (i in 1:length(station_set)) {
   if (file.exists(paste0(fullpath,"databackup/", station_set[[i]]["id"],"-", current_year, ".csv"))) {
-    station_set[[i]]$percentileHeatmap_array <- array(data = read_csv(paste0(fullpath,"databackup/", station_set[[i]]["id"], 
-                                                                           "-", current_year, ".csv"))[["percentile"]],
-                                                    dim = c(31,12))
-    station_set[[i]]$categoryHeatmap_array <- get_category_array(heatmap_array = station_set[[i]]$percentileHeatmap_array)
+    station_set[[i]]$percentileHeatmap_array <-
+      array(data =
+        read_csv(
+          paste0(fullpath,"databackup/", station_set[[i]]["id"], "-", current_year, ".csv"),
+          col_types = "Dn")[["percentile"]],
+        dim = c(31, 12))
+    station_set[[i]]$categoryHeatmap_array <-
+      get_category_array(heatmap_array = station_set[[i]]$percentileHeatmap_array)
   } else {
     station_set[[i]]$percentileHeatmap_array <- array(dim = c(31,12))
     station_set[[i]]$categoryHeatmap_array <- array(dim = c(31,12))
@@ -78,6 +82,9 @@ for (i in 1:length(station_set)) {
 # In the future this loop will be replaced by calculation only for the previous
 # day and the data will be saved in an R dataframe
 for (d in 1:length(dates)) {
+
+  message(">> Calculating percentiles for: ", d, " (", dates[d], ")") 
+
   file <- dates[d]
   date <- ymd(substr(file, 1, 6))
   print(file)
@@ -86,26 +93,46 @@ for (d in 1:length(dates)) {
 
   for (i in 1:length(station_set))
   {
+
+    message(">>>> For station ", i, " - ", station_set[[i]]$id, " ", station_set[[i]]$name)
     
     # Calculate percentiles of historical data
     HistObs <- getHistoricalObs(station_set[[i]]$id, date = date, window = 7)
     histPercentiles <- calcHistPercentiles(Obs = HistObs)
+
+    message(">>>>>> HistObs is a ", class(HistObs), " with dims ", paste(dim(HistObs), collapse = "x"))
+    message(">>>>>> histPercentiles is ", histPercentiles)
     
     Tavg.now <- daydata[which(as.numeric(daydata$station_id) == as.numeric(station_set[[i]]$id)), ]$tavg
     
-    # don't include the median when binning obs against the climate!
-    # (the -100 and 100 allow us to have the lowest and highest bins)
-    station_set[[i]]$categoryHeatmap_array[day(date), month(date)] <-
-      as.character(cut(Tavg.now,
-        breaks = c(
-          -100,
-          histPercentiles[!rownames(histPercentiles) %in% "50%", "Tavg"],
-          100),
-        labels = c("bc","rc","c","a","h","rh","bh"),
-        include.lowest = T, right = F))
+    message(">>>>>> Tavg.now is ", class(Tavg.now), " of length ", length(Tavg.now))
+
+    # if there's no temperature data for this day, just put an NA for the
+    # heatmap
+    if (length(Tavg.now) == 0L) {
+      
+      station_set[[i]]$percentileHeatmap_array[day(date), month(date)] <- NA
+
+    } else {
+
+      # otherwise, calculate the heatmap category for the station and day
+
+      # don't include the median when binning obs against the climate!
+      # (the -100 and 100 allow us to have the lowest and highest bins)
+      station_set[[i]]$categoryHeatmap_array[day(date), month(date)] <-
+        as.character(cut(Tavg.now,
+          breaks = c(
+            -100,
+            histPercentiles[!rownames(histPercentiles) %in% "50%", "Tavg"],
+            100),
+          labels = c("bc","rc","c","a","h","rh","bh"),
+          include.lowest = T, right = F))
     
-    station_set[[i]]$percentileHeatmap_array[day(date), month(date)] <-
-      100 * round(ecdf(HistObs$Tavg)(Tavg.now), digits = 2)
+      station_set[[i]]$percentileHeatmap_array[day(date), month(date)] <-
+        100 * round(ecdf(HistObs$Tavg)(Tavg.now), digits = 2)
+
+  }
+
   }
 }
 
