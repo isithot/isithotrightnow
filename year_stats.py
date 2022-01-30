@@ -6,12 +6,12 @@ from scipy import stats
 import sys
 import os
 
-siteids = ['014015','015590','066062','070351','067105','040842','023090','094029','087031','009021']
-sitenames = ['Darwin Airport','Alice Springs Airport','Sydney Observatory Hill',
-                'Canberra Airport','Richmond RAAF','Brisbane Airport','Adelaide Kent Town',
-                'Hobart Ellerslie Road','Melbourne (Laverton RAAF)','Perth Airport']
+siteids = ['014015','015590','070351','067105','040842','094029','009021']
+sitenames = ['Darwin Airport','Alice Springs Airport',
+                'Canberra Airport','Richmond RAAF','Brisbane Airport',
+                'Hobart Ellerslie Road','Perth Airport']
 
-syear = '2019'
+syear = '2021'
 
 # get latest acornsat data
 # !data/get_acornsat.sh 
@@ -42,7 +42,7 @@ ndays = [31,28,31,30,31,30,31,31,30,31,30,31]
 
 for siteid in siteids:
     # read historical temperatures from ACORN.SAT
-    hist_min[siteid] = pd.read_csv('data/acorn.sat.minT.%s.daily.csv' %siteid,
+    hist_min[siteid] = pd.read_csv(f'data/ACORN-SAT_V2.2.0/tmin.{siteid}.daily.csv',
         # old ACORNSAT version uses "...daily.txt"
         # skiprows = [0],
         # delim_whitespace = True,
@@ -53,7 +53,7 @@ for siteid in siteids:
         na_values = [99999.9],
         parse_dates = [0],
         index_col = [0])
-    hist_max[siteid] = pd.read_csv('data/acorn.sat.maxT.%s.daily.csv' %siteid,
+    hist_max[siteid] = pd.read_csv(f'data/ACORN-SAT_V2.2.0/tmax.{siteid}.daily.csv',
         # skiprows = [0],
         # delim_whitespace = True,
         skiprows = [0,1],
@@ -68,7 +68,7 @@ for siteid in siteids:
     year_avg[siteid] = hist_avg[siteid].groupby(hist_avg[siteid].index.year).mean()
 
     # read yearly percentile
-    current[siteid] = pd.read_csv('databackup/%s-%s.csv' %(siteid,syear), 
+    current[siteid] = pd.read_csv(f'databackup/{siteid}-{syear}.csv', 
         parse_dates=[0], index_col=[0])
 
 ### get tmin and tmax into year frame using daily-all.csv records ###
@@ -83,15 +83,20 @@ for siteid in siteids:
             sday = str(iday).zfill(2)
             smonth = str(imonth).zfill(2)
 
-            # open current day -all frame
-            day = pd.read_csv('databackup/18%s%s-all.csv' %(smonth,sday),dtype={'station_id':str})
+            try:
+                # open current day -all frame
+                day = pd.read_csv(f'databackup/{syear[-2:]}{smonth}{sday}-all.csv',dtype={'station_id':str})
 
-            # place min/max of current day from -all.csv frame into year[site] dictionary
-            current[siteid].loc['%s-%s-%s' %(syear,smonth,sday),'tmax'] = day[day.station_id==siteid]['tmax'].values
-            current[siteid].loc['%s-%s-%s' %(syear,smonth,sday),'tmin'] = day[day.station_id==siteid]['tmin'].values
+                # place min/max of current day from -all.csv frame into year[site] dictionary
+                current[siteid].loc[f'{syear}-{smonth}-{sday}','tmax'] = day[day.station_id==siteid]['tmax'].values
+                current[siteid].loc[f'{syear}-{smonth}-{sday}','tmin'] = day[day.station_id==siteid]['tmin'].values
+            except Exception:
+                current[siteid].loc[f'{syear}-{smonth}-{sday}','tmax'] = np.nan
+                current[siteid].loc[f'{syear}-{smonth}-{sday}','tmin'] = np.nan
+
             # calculate daily average
-            current[siteid].loc['%s-%s-%s' %(syear,smonth,sday),'tavg'] = (current[siteid].loc['%s-%s-%s' %(syear,smonth,sday),'tmax'] + 
-                                                                    current[siteid].loc['%s-%s-%s' %(syear,smonth,sday),'tmin'])/2
+            current[siteid].loc[f'{syear}-{smonth}-{sday}','tavg'] = (current[siteid].loc[f'{syear}-{smonth}-{sday}','tmax'] + 
+                                                                    current[siteid].loc[f'{syear}-{smonth}-{sday}','tmin'])/2
 
             # place this year avg tempearture in historical records
             year_avg[siteid].loc[int(syear),'temp'] = current[siteid].loc[:,'tavg'].mean()
@@ -108,7 +113,7 @@ for siteid,sitename in zip(siteids,sitenames):
 
     plt.close('all')
     fig, ax = plt.subplots(nrows=1,ncols=1,figsize=(7,4))
-    ax.set_title('%s yearly average temperature' %sitename,fontsize=12)
+    ax.set_title(f'{sitename} yearly average temperature',fontsize=12)
     ax.set_ylabel('Temperature (°C)', fontsize=12)
 
     data = year_avg[siteid].dropna()
