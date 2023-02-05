@@ -22,7 +22,7 @@ filter = dplyr::filter
 # or the end of the year. To run the next year, 
 # change start_date to the first of the next year
 # and rerun records-tidy.py
-start_date <- ymd("20220101")
+# start_date <- ymd("20220101")
 ###################################
 
 # set base path depending on whether this is run on the server
@@ -31,7 +31,8 @@ fullpath <- if_else(Sys.info()["user"] == "ubuntu",
   "/srv/isithotrightnow/", "./")
 
 current_date <- with_tz(Sys.Date(), tzone = "Australia/Sydney") - 1
-current_year <- year(start_date)
+current_year <- year(current_date)
+start_date <- ymd(paste0(current_year,"0101"))
 end_date <- if_else(year(current_date) != current_year, 
                    ymd(paste0(current_year,"1231")),
                    current_date)

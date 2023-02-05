@@ -41,7 +41,9 @@ siteinfo = siteinfo.set_index('sid')
 
 
 ###### CHANGE YEAR AND MONTHS ####
-year = '2022'
+year = '2023'
+update_sids = ['066214']
+
 for month in [1]:
     ##############################
 
@@ -49,7 +51,7 @@ for month in [1]:
 
     # download monthly data
     data = {}
-    for sid in siteinfo.index:
+    for sid in update_sids:
         print('getting %s: %s csv from BOM' %(sid,siteinfo.loc[sid,"name"]))
 
         print('NOW MUST MANUALLY DOWNLOAD FROM:')
@@ -74,13 +76,27 @@ for month in [1]:
 
         fname = '%s%s%s-all.csv' %(year[-2:],month_str,day_str)
         with open(fname, 'w') as f:
+
             f.write('station_id,tz,lat,lon,tmax,tmax_dt,tmin,tmin_dt\n')
             for key,item in data.items():
                 f.write("%s,%s,%s,%sT06:00:00Z,%s,%sT18:00:00Z\n" %(key,siteinfo.loc[key,'csv_str'],item.loc[date,'tmax'],date.date(),item.loc[date,'tmin'],date.date()))
 
     print('done month %s' %month)
 
+############################################################
+### TO UPDATE SELECT LINES ONLY BASED ON update_sids
+# shutil.move(source, source + "~")
+# with open(source+'~', 'r') as f0:
+#     with open(source, 'w') as f:
+#         for line in f0:
+#             for sid in update_sids:
+#                 if sid in line:
+#                     print(sid,line)
+#                     f.write("%s,%s,%s,%sT06:00:00Z,%s,%sT18:00:00Z\n" %(key,siteinfo.loc[key,'csv_str'],item.loc[date,'tmax'],date.date(),item.loc[date,'tmin'],date.date()))
+#                 else:
+#                     f.write(line)
 
+############################################################
 
 # #### FOLLOWING STOPPED WORKING IN 2022 BECAUSE BOM DISALLOWED SCRAPING
 
