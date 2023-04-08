@@ -17,13 +17,13 @@ getHistoricalObs <- function(station_id, date = Sys.Date(), window = 7) {
   if(missing(date)) warning("Warning: Date missing. Calculating percentiles for today's date")
   if(missing(window)) warning("Warning: Window missing. Getting historical obs over +/- 7 day window")
   # # Read historical obs
-  HistObs.Tmax <- read.table(paste0(fullpath,"data/ACORN-SAT_V2.2.0/tmax.", station_id, ".daily.csv"),
+  HistObs.Tmax <- read.table(paste0(fullpath,"data/ACORN-SAT_V2.3.0/tmax.", station_id, ".daily.csv"),
                             header = FALSE, skip = 2,
                             colClasses = c("character","numeric","NULL","NULL"),
                             col.names = c("Date","Tmax","null","null"),
                             na.strings=c(""," ","NA"),
                             sep = ",")
-  HistObs.Tmin <- read.table(paste0(fullpath,"data/ACORN-SAT_V2.2.0/tmin.", station_id, ".daily.csv"),
+  HistObs.Tmin <- read.table(paste0(fullpath,"data/ACORN-SAT_V2.3.0/tmin.", station_id, ".daily.csv"),
                             header = FALSE, skip = 2,
                             colClasses = c("character","numeric","NULL","NULL"),
                             col.names = c("Date","Tmin","null","null"),
