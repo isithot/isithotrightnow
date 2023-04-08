@@ -33,32 +33,39 @@ def lambda_handler(event, context):
 
     # Read historical tmax obs from s3
     s3_fpath = f"{fullpath}/data/ACORN-SAT_V2.3.0/tmax.{station_id}.daily.csv"
-    HistObs_Tmax = pd.read_csv(download_from_aws(s3_fpath),
+    local_fpath = download_from_aws(s3_fpath)
+    HistObs_Tmax = pd.read_csv(local_fpath,
                                header=None, skiprows=2,
                                usecols=[0, 1], names=["Date", "Tmax"],
                                na_values=["", " ", "NA"])
     # Read historical tmin obs from s3
     s3_fpath = f"{fullpath}/data/ACORN-SAT_V2.3.0/tmin.{station_id}.daily.csv"
-    HistObs_Tmin = pd.read_csv(download_from_aws(s3_fpath),
+    local_fpath = download_from_aws(s3_fpath)
+    HistObs_Tmin = pd.read_csv(local_fpath,
                                header=None, skiprows=2,
                                usecols=[0, 1], names=["Date", "Tmin"],
                                na_values=["", " ", "NA"])
 
     HistObs = pd.merge(HistObs_Tmax, HistObs_Tmin, on="Date", how="outer")
-    HistObs[["Year", "Month", "Day"]] = HistObs["Date"].str.split("-", expand=True).astype(int)
-
-    # Calculate averages
-    HistObs["Tavg"] = (HistObs["Tmax"] + HistObs["Tmin"]) / 2
-    HistObs["monthDay"] = pd.to_datetime(HistObs[["Year", "Month", "Day"]]).dt.strftime("%m%d")
 
     # Filter by date window
+    HistObs[["Year", "Month", "Day"]] = HistObs["Date"].str.split("-", expand=True).astype(int)
+    HistObs["monthDay"] = pd.to_datetime(HistObs[["Year", "Month", "Day"]]).dt.strftime("%m%d")
     window_dates = [date + datetime.timedelta(days=x) for x in range(-window, window+1)]
-    result = HistObs[HistObs["monthDay"].isin(window_dates)].drop(columns=["monthDay"])
-    result.to_csv(f"/tmp/historical_{station_id}.txt")
+    window_days = [x.strftime("%m%d") for x in window_dates]
+    result = HistObs[HistObs["monthDay"].isin(window_days)].drop(columns=["monthDay"])
+
+    # Calculate averages
+    result["Tavg"] = (result["Tmax"] + result["Tmin"]) / 2
+
+    # Convert index to datetime
+    result['Date'] = pd.to_datetime(result['Date'])
+    result.set_index('Date', inplace=True)
 
     # upload to s3
+    result.to_csv(f"/tmp/historical_{station_id}.txt")
     bucket_url = upload_to_aws(f"/tmp/historical_{station_id}.txt", f"sandbox/historical_{station_id}.txt")
-    
+
     status = {
         'statusCode': 200,
         'body': ". Find this on the bucket at " + bucket_url
