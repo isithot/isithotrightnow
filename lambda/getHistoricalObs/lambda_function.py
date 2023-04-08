@@ -1,13 +1,13 @@
 import boto3
 import pandas as pd
-from datetime import date, timedelta
+import datetime
 import os
 
 def lambda_handler(event, context):
     """
     Saves a DataFrame of historical Tmax, Tmin, and Tavg observations for the given date to s3 bucket.
 
-    Args:
+    event Args:
         station_id (int): Station ID to retrieve data for.
         date (date, optional): Date to retrieve data for. Defaults to today's date.
         window (int, optional): Number of days to include in the historical window. Defaults to 7.
@@ -15,18 +15,21 @@ def lambda_handler(event, context):
     Returns:
         pandas.DataFrame: writes pandas DataFrame containing historical Tmax, Tmin, and Tavg observations.
     """
-    station_id = event['station_id']
-    date = event['date']
-    window = event['window']
-    # Raise an error if station ID is missing.
-    if station_id is None:
-        raise ValueError("Error: Station ID missing")
 
-    # Raise a warning if date or window is missing.
-    if date is None:
-        print("Warning: Date missing. Calculating percentiles for today's date")
-    if window is None:
-        print("Warning: Window missing. Getting historical obs over +/- 7 day window")
+    try: 
+        station_id = event['station_id']
+    except KeyError:
+        raise ValueError("Error: Station ID missing")
+    try: 
+        date = event['date']
+    except KeyError:
+        date = datetime.date.today()
+        print(f"Warning: Date missing. Calculating percentiles for today's date: {date}")
+    try:
+        window = event['window']
+    except KeyError:
+        window = 7
+        print(f"Warning: Window missing. Getting historical obs over +/- {window} day window")
 
     # Read historical tmax obs from s3
     s3_fpath = f"{fullpath}/data/ACORN-SAT_V2.3.0/tmax.{station_id}.daily.csv"
@@ -49,12 +52,13 @@ def lambda_handler(event, context):
     HistObs["monthDay"] = pd.to_datetime(HistObs[["Year", "Month", "Day"]]).dt.strftime("%m%d")
 
     # Filter by date window
-    window_dates = [date + timedelta(days=x) for x in range(-window, window+1)]
+    window_dates = [date + datetime.timedelta(days=x) for x in range(-window, window+1)]
     result = HistObs[HistObs["monthDay"].isin(window_dates)].drop(columns=["monthDay"])
     result.to_csv(f"/tmp/historical_{station_id}.txt")
 
     # upload to s3
     bucket_url = upload_to_aws(f"/tmp/historical_{station_id}.txt", f"sandbox/historical_{station_id}.txt")
+    
     status = {
         'statusCode': 200,
         'body': ". Find this on the bucket at " + bucket_url
@@ -65,8 +69,9 @@ def lambda_handler(event, context):
 def download_from_aws(s3_fpath):
 
     s3 = boto3.client('s3')
+    bucket_name = 'isithot-data'
+
     fname = os.path.basename(s3_fpath)
-    bucket_name = 'my-s3-bucket'
     local_file_path = f'/tmp/{fname}'
 
     try:
@@ -86,6 +91,7 @@ def download_from_aws(s3_fpath):
         return None
 
 def upload_to_aws(local_file, s3_file):
+
     s3 = boto3.client('s3')
     bucket_name = 'isithot-data'
 
