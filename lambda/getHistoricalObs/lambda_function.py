@@ -1,9 +1,11 @@
+import boto3
 import pandas as pd
 from datetime import date, timedelta
+import os
 
-def lambda_handler(station_id, date=date.today(), window=7):
+def lambda_handler(event, context):
     """
-    Returns a DataFrame of historical Tmax, Tmin, and Tavg observations for the given date.
+    Saves a DataFrame of historical Tmax, Tmin, and Tavg observations for the given date to s3 bucket.
 
     Args:
         station_id (int): Station ID to retrieve data for.
@@ -11,8 +13,11 @@ def lambda_handler(station_id, date=date.today(), window=7):
         window (int, optional): Number of days to include in the historical window. Defaults to 7.
 
     Returns:
-        pandas.DataFrame: DataFrame containing historical Tmax, Tmin, and Tavg observations.
+        pandas.DataFrame: writes pandas DataFrame containing historical Tmax, Tmin, and Tavg observations.
     """
+    station_id = event['station_id']
+    date = event['date']
+    window = event['window']
     # Raise an error if station ID is missing.
     if station_id is None:
         raise ValueError("Error: Station ID missing")
@@ -23,12 +28,15 @@ def lambda_handler(station_id, date=date.today(), window=7):
     if window is None:
         print("Warning: Window missing. Getting historical obs over +/- 7 day window")
 
-    # Read historical obs
-    HistObs_Tmax = pd.read_csv(f"{fullpath}/data/ACORN-SAT_V2.3.0/tmax.{station_id}.daily.csv",
+    # Read historical tmax obs from s3
+    s3_fpath = f"{fullpath}/data/ACORN-SAT_V2.3.0/tmax.{station_id}.daily.csv"
+    HistObs_Tmax = pd.read_csv(download_from_aws(s3_fpath),
                                header=None, skiprows=2,
                                usecols=[0, 1], names=["Date", "Tmax"],
                                na_values=["", " ", "NA"])
-    HistObs_Tmin = pd.read_csv(f"{fullpath}/data/ACORN-SAT_V2.3.0/tmin.{station_id}.daily.csv",
+    # Read historical tmin obs from s3
+    s3_fpath = f"{fullpath}/data/ACORN-SAT_V2.3.0/tmin.{station_id}.daily.csv"
+    HistObs_Tmin = pd.read_csv(download_from_aws(s3_fpath),
                                header=None, skiprows=2,
                                usecols=[0, 1], names=["Date", "Tmin"],
                                na_values=["", " ", "NA"])
@@ -43,27 +51,50 @@ def lambda_handler(station_id, date=date.today(), window=7):
     # Filter by date window
     window_dates = [date + timedelta(days=x) for x in range(-window, window+1)]
     result = HistObs[HistObs["monthDay"].isin(window_dates)].drop(columns=["monthDay"])
+    result.to_csv(f"/tmp/historical_{station_id}.txt")
 
-    result.to_csv("/tmp/historical.txt")
-
-    bucket_url = upload_to_aws("/tmp/historical.txt", "sandbox/historical.txt")
-
-    result = {
+    # upload to s3
+    bucket_url = upload_to_aws(f"/tmp/historical_{station_id}.txt", f"sandbox/historical_{station_id}.txt")
+    status = {
         'statusCode': 200,
-        'body': json.dumps(str(num1) + " + " + str(num2) + " = " + str(result) + ". Find this on the bucket at " + bucket_url)
+        'body': ". Find this on the bucket at " + bucket_url
     }
 
-    return result
+    return status
+
+def download_from_aws(s3_fpath):
+
+    s3 = boto3.client('s3')
+    fname = os.path.basename(s3_fpath)
+    bucket_name = 'my-s3-bucket'
+    local_file_path = f'/tmp/{fname}'
+
+    try:
+        # Get the object from S3 bucket
+        response = s3.get_object(Bucket=bucket_name, Key=s3_fpath)
+
+        # Save the object to local file
+        with open(local_file_path, 'wb') as f:
+            f.write(response['Body'].read())
+
+        print(f"File saved to {local_file_path}")
+
+        return local_file_path
+
+    except Exception as e:
+        print(f"Error getting S3 object: {e}")
+        return None
 
 def upload_to_aws(local_file, s3_file):
     s3 = boto3.client('s3')
+    bucket_name = 'isithot-data'
 
     try:
-        s3.upload_file(local_file, "isithot-data", s3_file)
+        s3.upload_file(local_file, bucket_name, s3_file)
         url = s3.generate_presigned_url(
             ClientMethod='get_object',
             Params={
-                'Bucket': "isithot-data",
+                'Bucket': bucket_name,
                 'Key': s3_file
             },
             ExpiresIn=24 * 3600
@@ -74,3 +105,4 @@ def upload_to_aws(local_file, s3_file):
     except FileNotFoundError:
         print("The file was not found")
         return None
+    
