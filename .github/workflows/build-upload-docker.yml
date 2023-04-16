@@ -7,8 +7,8 @@ on:
   push:
     branches: [ lambda-rcontainer ]
     paths:
-      - "/.github/workflow/build-upload-docker.yml"
-      - "lambda/createTestPlot/*"
+      - "/.github/workflows/build-upload-docker.yml"
+      - "/lambda/createTestPlot/*"
 
 jobs:
   
