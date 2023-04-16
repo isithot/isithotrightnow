@@ -2,9 +2,13 @@
 
 name: Build and deploy R Lambda Docker image to ECR
 
-# on:
-#   push:
-#     branches: [ lambda-rcontainer ]
+# run the workfow whenever this file or the image folder gets pushes on the lambda-container branch
+on:
+  push:
+    branches: [ lambda-rcontainer ]
+    paths:
+      - "/.github/workflow/build-upload-docker.yml"
+      - "lambda/createTestPlot/*"
 
 jobs:
   
