@@ -6,3 +6,4 @@ www/output
 .Rhistory
 *.log
 2018-stats/
+.DS_Store
