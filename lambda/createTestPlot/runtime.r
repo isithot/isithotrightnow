@@ -27,13 +27,16 @@ createTestPlot <- function() {
     bucket_exists(bucket = isithot_bucket, region = isithot_bucket_region)
 
   if (bucket_ok) {
-    try {
-      put_object(test_path, bucket = isithot_bucket,
-        region = isithot_bucket_region)
-      message <- "Plot saved and uploaded to S3."
-    } catch {
-      message <- "Plot saved. Bucket exists, but there was a problem uplaoding."
-    }
+    tryCatch(
+      {
+        put_object(test_path, bucket = isithot_bucket,
+          region = isithot_bucket_region)
+        message <- "Plot saved and uploaded to S3."
+      },
+      error = {
+        message <-
+          "Plot saved. Bucket exists, but there was a problem uplaoding."
+      })
   } else {
     message <- "Plot saved, but bucket does not exist."
   }
