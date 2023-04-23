@@ -29,7 +29,9 @@ createTestPlot <- function() {
   if (bucket_ok) {
     tryCatch(
       {
-        put_object(test_path, bucket = isithot_bucket,
+        put_object(test_path,
+          object = basename(test_path),
+          bucket = isithot_bucket,
           region = isithot_bucket_region)
         message <- "Plot saved and uploaded to S3."
       },
