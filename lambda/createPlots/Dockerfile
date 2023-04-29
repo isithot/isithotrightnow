@@ -33,5 +33,7 @@ RUN chmod 755 -R /lambda
 RUN printf '#!/bin/sh\ncd /lambda\nRscript runtime.r' > /var/runtime/bootstrap \
   && chmod +x /var/runtime/bootstrap
 
-# function to run in this 
-CMD ["createTestPlot"]
+# function to run in this (this should be overridden with the name of another
+# function in runtime.r using the "entrypoint" setting when configuring your
+# lambda)
+CMD ["defaultFunc"]

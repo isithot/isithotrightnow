@@ -2,6 +2,20 @@ library(ggplot2)
 library(tibble)
 library(aws.s3)
 
+# defaultFunc: just prints a message. here as a default so that you can verify
+# your lambda config (and to make it clear if you've forgotten to override
+# the entrypoint)
+defaultFunc <- function() {
+  return(list(message = paste(
+    "This is the default function for the Is it hot right now R runtime.",
+    "If you're configuring a new Lambda function, you should override the",
+    "Lambda's entrypoint to be the name of one of the other functions in this",
+    "file.")))
+}
+
+# createTestPlot: our "test" plotting function. generates a plot from random
+# data, saves it to disk, and then uploads it to S3. base other plotting
+# functions off this
 createTestPlot <- function() {
 
   # generate some test data

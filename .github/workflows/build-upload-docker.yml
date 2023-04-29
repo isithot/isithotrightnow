@@ -9,7 +9,7 @@ on:
   #   branches: [ lambda-rcontainer ]
   #   paths:
   #     - "/.github/workflows/build-upload-docker.yml"
-  #     - "/lambda/createTestPlot/*"
+  #     - "/lambda/createPlots/*"
 
 jobs:
   
@@ -38,9 +38,9 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: iihrn-create-test-plot
+        ECR_REPOSITORY: iihrn-create-plots
         IMAGE_TAG: latest
       run: |
-        cd lambda/createTestPlot
+        cd lambda/createPlots
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
