@@ -2,6 +2,7 @@
 # iihrn_colour: highlight colour
 iihrn_colour <- "firebrick"
 base_colour <- "#333333"
+bg_colour <- "#eeeeee"
 
 #' Define some sensible defaults for text annotations
 #' 
@@ -41,10 +42,7 @@ theme_iihrn <- function(base_family = "Roboto Condensed", base_size = 20) {
       hjust = 0.5),
     axis.text = element_text(face = "bold"),
     axis.title = element_text(face = "bold", size = rel(0.8)),
-    axis.ticks.y = element_blank()
-  )
+    axis.ticks.y = element_blank())
 }
 
-# for dist plot:
-# axis.title.y = element_blank(),
-# axis.text.y = element_blank(),
+
