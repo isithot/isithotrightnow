@@ -1,5 +1,7 @@
 library(ggplot2)
 library(lubridate)
+library(dplyr)
+library(forcats)
 library(aws.s3)
 
 source("util.r")
@@ -29,7 +31,7 @@ defaultFunc <- function() {
 #' @param hist_95p The 95th percentile of historical temperatures.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
-#' @param output_path
+#' @param output_path: the path to write the plot to
 createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, hist_5p,
   hist_50p, hist_95p, station_tz, station_label, output_path) {
 
@@ -138,7 +140,7 @@ createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, hist_5p,
       y = "Daily average temperature")
 
   # write out to disk
-  ggsave(filename = output_path, plot = plot_ts, bg = bg_colour,
+  ggsave(filename = output_path, plot = plot_ts, bg = bg_colour_today,
     height = 4.5, width = 8, units = "in")
 
 }
@@ -157,7 +159,7 @@ createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, hist_5p,
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
 #' @param record_start: The date of the first record in the obs
-#' @param output_path
+#' @param output_path: the path to write the plot to
 createDistributionPlot <- function(hist_obs, date_now, tavg_now, hist_5p,
   hist_50p, hist_95p, station_tz, station_label, record_start, output_path) {
 
@@ -242,14 +244,88 @@ createDistributionPlot <- function(hist_obs, date_now, tavg_now, hist_5p,
         record_start))
 
   # write out to disk
-  ggsave(filename = output_path, plot = dist_plot, bg = bg_colour,
+  ggsave(filename = output_path, plot = dist_plot, bg = bg_colour_today,
     height = 4.5, width = 8, units = "in")
 
   }
 
-# createTestPlot: our "test" plotting function. generates a plot from random
-# data, saves it to disk, and then uploads it to S3. base other plotting
-# functions off this
+#' Creates a plot of this year's ratings
+#' 
+#' @param obs_thisyear: this year's observations as a dataframe, from
+#'   databackup/[id]-[year].csv. cols include date, percentile
+#' @param date_now: today's date as a Date object
+#' @param station_label: the station label
+#' @param output_path: the path to write the plot to
+createHeatwavePlot <- function(obs_thisyear, date_now, station_label,
+  output_path) {
+
+  rating_colours <- c(
+    "#2166ac",
+    "#67a9cf",
+    "#d1e5f0",
+    "#f7f7f7",
+    "#fddbc7",
+    "#ef8a62",
+    "#b2182b")
+
+  # extract month and day from the date
+  obs_thisyear |>
+    filter(!is.na(date)) |>
+    mutate(
+      month = fct_rev(factor(month(date), labels = month.abb)),
+      day = mday(date)) ->
+  obs_thisyear_toplot
+
+  hw_plot <-
+    ggplot(obs_thisyear_toplot) +
+    aes(x = day, y = month) +
+    geom_tile(aes(fill = percentile)) +
+    geom_text(aes(label = percentile),
+      family = "Roboto Condensed", fontface = "bold", size = 3.5) +
+    coord_fixed() +
+    scale_x_discrete(limits = factor(1:31), position = "top",
+      expand = expansion(0)) +
+    scale_y_discrete(drop = TRUE, expand = expansion(0)) +
+    scale_fill_stepsn(
+      colours = rating_colours,
+      breaks = c(0, 5, 20, 40, 60, 80, 95, 100),
+      limits = c(0, 100),
+      na.value = NA,
+      guide = guide_bins(
+        show.limits = TRUE,
+        reverse = TRUE,
+        keyheight = unit(1 / 13, "npc"),
+        keywidth = unit(0.0125, "npc"))) +
+    labs(
+      x = NULL,
+      y = NULL,
+      fill = NULL,
+      title = paste(station_label, "percentiles for", year(date_now))) +
+    theme_iihrn() +
+    theme(
+      # TODO - varying key heights
+      plot.background = element_rect(fill = NA, colour = NA),
+      panel.background = element_rect(fill = NA, colour = NA),
+      panel.grid = element_blank(),
+      panel.border = element_rect(fill = NA, colour = "black", size = 0.5),
+      axis.ticks = element_blank(),
+      axis.text = element_text(colour = base_colour, size = rel(0.5)),
+      legend.margin = margin(),
+      legend.background = element_blank(),
+      legend.justification = "center",
+      legend.text = element_text(size = rel(0.5)),
+      legend.title = element_blank())
+
+  # write out to disk
+  ggsave(filename = output_path, plot = hw_plot, bg = bg_colour_hw,
+    height = 1060, width = 2400, units = "px")
+
+}
+
+#' The "test" plotting function
+#'
+#' Generates a plot from random data, saves it to disk, and then uploads it to
+#' S3. Base other plotting functions off this.
 createTestPlot <- function() {
 
   # generate some test data

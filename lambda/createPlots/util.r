@@ -2,7 +2,8 @@
 # iihrn_colour: highlight colour
 iihrn_colour <- "firebrick"
 base_colour <- "#333333"
-bg_colour <- "#eeeeee"
+bg_colour_today <- "#eeeeee"
+bg_colour_hw <- "#dddddd"
 
 #' Define some sensible defaults for text annotations
 #' 
