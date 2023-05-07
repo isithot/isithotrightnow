@@ -330,9 +330,6 @@ createHeatwavePlot <- function(obs_thisyear, date_now, station_label,
 
 }
 
-# test case
-createHeatwavePlot(testdata, date_now, station_label, output_path)
-
 #' The "test" plotting function
 #'
 #' Generates a plot from random data, saves it to disk, and then uploads it to
