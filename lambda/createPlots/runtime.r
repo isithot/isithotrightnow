@@ -291,36 +291,47 @@ createHeatwavePlot <- function(obs_thisyear, date_now, station_label,
       breaks = c(0, 5, 20, 40, 60, 80, 95, 100),
       limits = c(0, 100),
       na.value = NA,
-      guide = guide_bins(
-        show.limits = TRUE,
-        reverse = TRUE,
-        keyheight = unit(1 / 13, "npc"),
-        keywidth = unit(0.0125, "npc"))) +
+      # colour bar disables `even.steps` to keep blocks proportional in height
+      guide = guide_coloursteps(
+        even.steps = FALSE,
+        barheight = unit(0.679, "npc"),
+        barwidth = unit(0.0125, "npc"),
+        frame.colour = base_colour,
+        frame.linewidth = 0.25,
+        )) +
     labs(
       x = NULL,
       y = NULL,
       fill = NULL,
-      title = paste(station_label, "percentiles for", year(date_now))) +
+      title = paste(station_label, "percentiles for", year(date_now)),
+      caption = "© isithotrightnow.com") +
     theme_iihrn() +
     theme(
       # TODO - varying key heights
       plot.background = element_rect(fill = NA, colour = NA),
       panel.background = element_rect(fill = NA, colour = NA),
       panel.grid = element_blank(),
-      panel.border = element_rect(fill = NA, colour = "black", size = 0.5),
+      panel.border = element_rect(fill = NA, colour = "black", linewidth = 0.5),
       axis.ticks = element_blank(),
       axis.text = element_text(colour = base_colour, size = rel(0.5)),
       legend.margin = margin(),
+      legend.spacing.y = unit(0, "mm"),
+      legend.box.spacing = unit(0.0125, "npc"),
       legend.background = element_blank(),
       legend.justification = "center",
       legend.text = element_text(size = rel(0.5)),
-      legend.title = element_blank())
+      legend.title = element_blank(),
+      plot.caption = element_text(size = rel(0.4))
+      )
 
   # write out to disk
   ggsave(filename = output_path, plot = hw_plot, bg = bg_colour_hw,
     height = 1060, width = 2400, units = "px")
 
 }
+
+# test case
+createHeatwavePlot(testdata, date_now, station_label, output_path)
 
 #' The "test" plotting function
 #'
