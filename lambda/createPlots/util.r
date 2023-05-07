@@ -5,6 +5,47 @@ base_colour <- "#333333"
 bg_colour_today <- "#eeeeee"
 bg_colour_hw <- "#dddddd"
 
+rating_colours <- c(
+  "#2166ac", 0-5
+  "#4393c3", 5-10
+  "#92c5de", 10-40
+  "#d1e5f0", 40-50
+  "#fddbc7", 50-60
+  "#f4a582", 60-90
+  "#d6604d", 90-95
+  "#b2182b") 95-100
+
+#' Return a data frame of lower and upper limits for shading graphics based on
+#' our ratings.
+#' @param obs A vector of temperatures from which to extract percentiles
+#' @return A data frame with columns:
+#'   - pct_upper <chr>: the upper percentile of the region
+#'   - pct_lower <chr>: the lower percentile of the region
+#'   - value_upper <dbl>: the upper temperature threshold the region
+#'   - value_lower <dbl>: the lower temperature threshold of the region
+#'   - rating_colour <chr>: the hex code of the colour to use
+extract_percentiles <- function(obs) {
+  obs %>%
+    quantile(
+      c(0, 0.05, 0.10, 0.40, 0.50, 0.60, 0.90, 0.95, 1),
+      na.rm = TRUE) %>%
+    tibble(
+      pct_upper = names(.),
+      pct_lower = lag(names(.), 1),
+      value_upper = .,
+      value_lower = lag(., 1)) %>%
+    # we don't need to categorise temps lower than the lowest
+    slice(-1) %>%
+    mutate(rating_colour = rating_colours) ->
+  percentiles
+
+  # unbound the ends
+  percentiles$lower[1] <- Inf
+  percentiles$upper[nrow(percentiles)] <- Inf
+
+  return(percentiles)
+}
+
 #' Define some sensible defaults for text annotations
 #' 
 #' @param size: The size of the text. Defaults to 50% of the base size.

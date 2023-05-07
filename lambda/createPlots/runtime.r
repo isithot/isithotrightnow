@@ -26,34 +26,35 @@ defaultFunc <- function() {
 #' @param tavg_now: The current average temperature.
 #' @param hist_percentiles: An array of historical percentiles (formerly
 #'   HistPercentiles).
-#' @param hist_5p The 5th percentile of historical temperatures.
-#' @param hist_50p The median of historical temperatures.
-#' @param hist_95p The 95th percentile of historical temperatures.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
 #' @param output_path: the path to write the plot to
-createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, hist_5p,
-  hist_50p, hist_95p, station_tz, station_label, output_path) {
-
-  # TODO - pull a hist percentiles
+createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, station_tz,
+station_label, output_path) {
 
   stopifnot(
     "Arg `today` should be length 1"         = length(today) != 1,
     "Arg `tavg_now` should be length 1"      = length(tavg_now) != 1,
-    "Arg `hist_5p` should be length 1"       = length(hist_5p) != 1,
-    "Arg `hist_50p` should be length 1"      = length(hist_50p) != 1,
-    "Arg `hist_95p` should be length 1"      = length(hist_95p) != 1,
+    # "Arg `hist_5p` should be length 1"       = length(hist_5p) != 1,
+    # "Arg `hist_50p` should be length 1"      = length(hist_50p) != 1,
+    # "Arg `hist_95p` should be length 1"      = length(hist_95p) != 1,
     "Arg `station_tz` should be length 1"    = length(station_tz) != 1,
     "Arg `station_label` should be length 1" = length(station_label) != 1,
     "Arg `output_path` should be length 1"   = length(output_path) != 1,
     "Arg `today` should be a date"           = is(today, "Date"),
     "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
-    "Arg `hist_5p` should be a number"       = is(hist_5p, "numeric"),
-    "Arg `hist_50p` should be a number"      = is(hist_50p, "numeric"),
-    "Arg `hist_95p` should be a number"      = is(hist_95p, "numeric"),
+    # "Arg `hist_5p` should be a number"       = is(hist_5p, "numeric"),
+    # "Arg `hist_50p` should be a number"      = is(hist_50p, "numeric"),
+    # "Arg `hist_95p` should be a number"      = is(hist_95p, "numeric"),
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
     "Arg `station_label` should be a string" = is(station_label, "character"),
     "Arg `output_path` should be a string"   = is(output_path, "character"))
+
+  # extract percentiles of historical obs (unbound the ends)
+  percentiles <- extract_percentiles(hist_obs$Tavg)
+  hist_5p  <- percentiles %>% filter(percentile == "5%")  %>% pull(value_upper)
+  hist_50p <- percentiles %>% filter(percentile == "50%") %>% pull(value_upper)
+  hist_95p <- percentiles %>% filter(percentile == "95%") %>% pull(value_upper)
 
   # fit linear trend for label
   # (we're doing it twice; might be worth a benchmark)
@@ -74,6 +75,16 @@ createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, hist_5p,
   plot_ts <-
     ggplot(data = obs) +
     aes(x = Date, y = Tavg) +
+    # dashed percentile lines and labels
+    geom_rect(
+      aes(
+        xmin = -Inf,
+        xmax = Inf,
+        ymin = value_lower,
+        ymax = value_upper,
+        fill = rating_colour),
+      data = percentiles) +
+    # now the observations
     # james - i don't understand what this first geom is for
     # geom_line(size = 0.0, colour = "#CCCCCC") +
     geom_point(size = rel(1.5), colour = base_colour, alpha = 0.25) +
@@ -96,11 +107,6 @@ createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, hist_5p,
       vjust = 2.5,
       label = paste0(round(tavg_now, 1), "°C"),
       highlight = TRUE) +
-    # dashed percentile lines and labels
-    geom_hline(aes(yintercept = hist_95p), linetype = 2, alpha = 0.5) +
-    geom_hline(aes(yintercept = hist_5p), linetype = 2, alpha = 0.5) +
-    # james - perhaps we should consider replacing the dotted lines with blocks
-    # of colour that are the same as our category colours?
     annotate_text_iihrn(
       x = min(hist_obs$Date, na.rm = TRUE),
       y = hist_95p,
@@ -153,71 +159,73 @@ createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, hist_5p,
 #'   Cols include Year, Month, Day, Tmax, Tmin, Tavg, Date.
 #' @param today: Today's date (in UTC?)
 #' @param tavg_now: The current average temperature.
-#' @param hist_percentiles: An array of historical percentiles (formerly
-#'   HistPercentiles).
-#' @param hist_5p The 5th percentile of historical temperatures.
-#' @param hist_50p The median of historical temperatures.
-#' @param hist_95p The 95th percentile of historical temperatures.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
 #' @param record_start: The date of the first record in the obs
 #' @param output_path: the path to write the plot to
-createDistributionPlot <- function(hist_obs, date_now, tavg_now, hist_5p,
-  hist_50p, hist_95p, station_tz, station_label, record_start, output_path) {
+createDistributionPlot <- function(hist_obs, date_now, tavg_now, station_tz,
+  station_label, record_start, output_path) {
 
   stopifnot(
     "Arg `today` should be length 1"         = length(today) != 1,
     "Arg `tavg_now` should be length 1"      = length(tavg_now) != 1,
-    "Arg `hist_5p` should be length 1"       = length(hist_5p) != 1,
-    "Arg `hist_50p` should be length 1"      = length(hist_50p) != 1,
-    "Arg `hist_95p` should be length 1"      = length(hist_95p) != 1,
+    # "Arg `hist_5p` should be length 1"       = length(hist_5p) != 1,
+    # "Arg `hist_50p` should be length 1"      = length(hist_50p) != 1,
+    # "Arg `hist_95p` should be length 1"      = length(hist_95p) != 1,
     "Arg `station_tz` should be length 1"    = length(station_tz) != 1,
     "Arg `record_start` should be length 1"  = length(record_start) != 1,
     "Arg `station_label` should be length 1" = length(station_label) != 1,
     "Arg `output_path` should be length 1"   = length(output_path) != 1,
     "Arg `today` should be a date"           = is(today, "Date"),
     "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
-    "Arg `hist_5p` should be a number"       = is(hist_5p, "numeric"),
-    "Arg `hist_50p` should be a number"      = is(hist_50p, "numeric"),
-    "Arg `hist_95p` should be a number"      = is(hist_95p, "numeric"),
+    # "Arg `hist_5p` should be a number"       = is(hist_5p, "numeric"),
+    # "Arg `hist_50p` should be a number"      = is(hist_50p, "numeric"),
+    # "Arg `hist_95p` should be a number"      = is(hist_95p, "numeric"),
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
     "Arg `station_label` should be a string" = is(station_label, "character"),
     "Arg `record_start` should be a date"    = is(record_start, "Date"),
     "Arg `output_path` should be a string"   = is(output_path, "character"))
+
+  # extract percentiles of historical obs
+  hist_obs %>%
+    quantile(c(0.05, 0.10, 0.40, 0.50, 0.60, 0.90, 0.95), na.rm = TRUE) ->
+  percentiles
+
+  # TODO - shade distribution based on percentiles
 
   dist_plot <- ggplot(hist_obs) +
     aes(x = Tavg) +
     geom_density(adjust = 0.7, colour = NA, fill = base_colour, alpha = 0.3) +
     # dashed vertical percentile lines and labels, plus today's temperature
     geom_vline(xintercept = tavg_now, colour = iihrn_colour, size = rel(1.5)) +
-    geom_vline(xintercept = hist_50p, linetype = 2, alpha = 0.5) +
-    geom_vline(xintercept = hist_5p,  linetype = 2, alpha = 0.5) +
-    geom_vline(xintercept = hist_95p, linetype = 2, alpha = 0.5) +
+    # geom_vline(xintercept = hist_50p, linetype = 2, alpha = 0.5) +
+    # geom_vline(xintercept = hist_5p,  linetype = 2, alpha = 0.5) +
+    # geom_vline(xintercept = hist_95p, linetype = 2, alpha = 0.5) +
     annotate_text_iihrn(
-      x = hist_5p,
+      x = percentiles["5%"],
       y = 0,
       vjust = -0.75,
       hjust = -0.05,
-      label = paste0("5th percentile:  ", round(hist_5p, 1), "°C"),
+      label = paste0("5th percentile:  ", round(percentiles["5%"], 1), "°C"),
       size = 4,
       angle = 90,
       alpha = 0.9) +
     annotate_text_iihrn(
-      x = hist_50p,
+      x = percentiles["50%"],
       y = 0,
       vjust = -0.75,
       hjust = -0.05,
       label = paste0(
-        "50th percentile: ", round(hist_50p, 1), "°C"),
+        "50th percentile: ", round(percentiles["50%"], 1), "°C"),
       size = 4,
       angle = 90,
       alpha = 0.9) +
     annotate_text_iihrn(
-      x = hist_95p,
+      x = percentiles["95%"],
       y = 0,
       vjust = -0.75,
       hjust = -0.05,
-      label = paste0("95th percentile:  ", round(hist_95p, 1), "°C"),
+      label = paste0("95th percentile:  ", round(percentiles["95%"], 1), "°C"),
       size = 4,
       angle = 90,
       alpha = 0.9) +
@@ -260,16 +268,6 @@ createDistributionPlot <- function(hist_obs, date_now, tavg_now, hist_5p,
 #' @param output_path: the path to write the plot to
 createHeatwavePlot <- function(obs_thisyear, date_now, station_label,
   output_path) {
-
-  rating_colours <- c(
-    "#2166ac",
-    "#4393c3",
-    "#92c5de",
-    "#d1e5f0",
-    "#fddbc7",
-    "#f4a582",
-    "#d6604d",
-    "#b2182b")
 
   # extract month and day from the date
   obs_thisyear |>
