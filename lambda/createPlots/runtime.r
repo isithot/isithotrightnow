@@ -35,6 +35,8 @@ defaultFunc <- function() {
 createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, hist_5p,
   hist_50p, hist_95p, station_tz, station_label, output_path) {
 
+  # TODO - pull a hist percentiles
+
   stopifnot(
     "Arg `today` should be length 1"         = length(today) != 1,
     "Arg `tavg_now` should be length 1"      = length(tavg_now) != 1,
@@ -261,11 +263,12 @@ createHeatwavePlot <- function(obs_thisyear, date_now, station_label,
 
   rating_colours <- c(
     "#2166ac",
-    "#67a9cf",
+    "#4393c3",
+    "#92c5de",
     "#d1e5f0",
-    "#f7f7f7",
     "#fddbc7",
-    "#ef8a62",
+    "#f4a582",
+    "#d6604d",
     "#b2182b")
 
   # extract month and day from the date
@@ -288,7 +291,7 @@ createHeatwavePlot <- function(obs_thisyear, date_now, station_label,
     scale_y_discrete(drop = TRUE, expand = expansion(0)) +
     scale_fill_stepsn(
       colours = rating_colours,
-      breaks = c(0, 5, 20, 40, 60, 80, 95, 100),
+      breaks = c(0, 5, 10, 40, 50, 60, 90, 95, 100),
       limits = c(0, 100),
       na.value = NA,
       # colour bar disables `even.steps` to keep blocks proportional in height
@@ -307,7 +310,6 @@ createHeatwavePlot <- function(obs_thisyear, date_now, station_label,
       caption = "© isithotrightnow.com") +
     theme_iihrn() +
     theme(
-      # TODO - varying key heights
       plot.background = element_rect(fill = NA, colour = NA),
       panel.background = element_rect(fill = NA, colour = NA),
       panel.grid = element_blank(),
