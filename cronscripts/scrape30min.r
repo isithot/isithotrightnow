@@ -6,12 +6,9 @@
 # This is a script run every half hour to scrape current observations
 # It is run through crontab, editable with: crontab
 
-library(dplyr)
-library(readr)
-library(purrr)
-library(lubridate)
+library(tidyverse)
 library(xml2)
-library(RJSONIO)
+library(jsonlite)
 
 message(Sys.time(), " Looking for new observations...")
 
@@ -27,51 +24,66 @@ bom_xml_path <- "ftp://ftp.bom.gov.au/anon/gen/fwo/"
 
 # get station id list from locations.json
 #and use it to construct a station filter
-station_ids <-
-  fromJSON(paste0(fullpath, "www/locations.json")) %>%
-  map(~ pluck(., "id")) %>%
-  unlist()
+
+# get vector of station ids
+station_ids <- fromJSON(paste0("data/latest/locations.json")) %>% pull(id)
+
+# filter for querying xml
 xpath_filter <-
   paste0("@bom-id = '", station_ids, "'") %>%
   paste(collapse = " or ")
 
-obs_new <-
-  map_dfr(
-    # for each state, we're going to...
-    c("D", "N", "Q", "S", "T", "V", "W"),
-    # download the file and select the matching stations
-    ~ read_xml(paste0(bom_xml_path, "ID", ., "60920.xml")) %>%
-    xml_find_all(paste0("//station[", xpath_filter, "]")) %>%
-    # build a data frame with the info we want...
-    {
-      data_frame(
-        station_id = xml_attr(., "bom-id"),
-        tz = xml_attr(., "tz"),
-        lat = xml_attr(., "lat"),
-        lon = xml_attr(., "lon"),
-        tmax =
-          xml_find_first(., ".//element[@type='maximum_air_temperature']") %>%
+
+#' Read the BOM XML files for a specified state, locate all weather stations
+#' matching our list, extract the latest weather observation for each station
+#' and return a dataframe for each station containing the observation
+#' @param state 
+get_state_obs <- function(state = c("D", "N", "Q", "S", "T", "V", "W")) {
+
+  # validate provided state against argument formals (one only)
+  state <- match.arg(state, several.ok = FALSE)
+
+  read_xml(paste0(bom_xml_path, "ID", state, "60920.xml")) %>%
+    xml_find_all(paste0("//station[", xpath_filter, "]")) ->
+  matching_stations
+    # extract the following elements into a dataframe for each of the
+    # matching stations...
+    
+    tibble(
+      station_id = xml_attr(matching_stations, "bom-id"),
+      tz = xml_attr(matching_stations, "tz"),
+      lat = xml_attr(matching_stations, "lat"),
+      lon = xml_attr(matching_stations, "lon"),
+      tmax =
+        xml_find_first(matching_stations,
+          ".//element[@type='maximum_air_temperature']") %>%
           xml_text() %>%
           as.numeric(),
-        tmax_dt =
-          xml_find_first(., ".//element[@type='maximum_air_temperature']") %>%
+      tmax_dt =
+        xml_find_first(matching_stations,
+          ".//element[@type='maximum_air_temperature']") %>%
           xml_attr("time-local"),
-        tmin =
-          xml_find_first(., ".//element[@type='minimum_air_temperature']") %>%
+      tmin =
+        xml_find_first(matching_stations,
+          ".//element[@type='minimum_air_temperature']") %>%
           xml_text() %>%
           as.numeric(),
-        tmin_dt =
-          xml_find_first(., ".//element[@type='minimum_air_temperature']") %>%
-          xml_attr("time-local"))
-    }  %>%
-    # convert the date-time strings
-    rowwise() %>%
+      tmin_dt =
+        xml_find_first(matching_stations,
+          ".//element[@type='minimum_air_temperature']") %>%
+          xml_attr("time-local")) %>%
+    # note we convert to utc here
     mutate(
-      tmax_dt = ymd_hms(tmax_dt, tz = tz),
-      tmin_dt = ymd_hms(tmin_dt, tz = tz)) %>%
-    ungroup())
+      tmax_dt = ymd_hms(tmax_dt, tz = "UTC"),
+      tmin_dt = ymd_hms(tmin_dt, tz = "UTC"))
+}
+
+# extract the station detials for each state abd glue them together
+# then parse the date-time strings to local date-times
+obs_new <-
+  map_dfr(c("D", "N", "Q", "S", "T", "V", "W"), get_state_obs)
   
-  message(Sys.time(), " Downloaded and extracted new observations")
+message(Sys.time(), " Downloaded and extracted new observations")
 
 # just use these obs if we don't have existing ones
 if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
@@ -91,33 +103,25 @@ if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
         tmax = col_double(),
         tmin = col_double(),
         .default = col_character())) %>%
-    rowwise() %>%
-    # note that datetimes are written out in utc. we can leave them this way
-    # for the time checking maths :)
+    rename(tmax_old = tmax, tmin_old = tmin) |>
     mutate(
-      tmax_dt = ymd_hms(tmax_dt),
-      tmin_dt = ymd_hms(tmin_dt)) %>%
-    ungroup() %>%
-    rename(
-      tmax_old = tmax,
-      tmax_old_dt = tmax_dt,
-      tmin_old = tmin,
-      tmin_old_dt = tmin_dt)
+      tmax_old_dt = ymd_hms(tmax_dt),
+      tmin_old_dt = ymd_hms(tmin_dt)) %>%
+    select(-tmax_dt, -tmin_dt)
+
+  today_start_utc <- function(tz) {
+    today(tz) %>%
+      paste("00:00:00") %>%
+      ymd_hms(tz = tz) %>%
+      with_tz("UTC")
+  }
   
   # join the old and new obs together, select the better obs,
   # drop the others and write it out
-  full_join(obs_new, obs_old) %>%
+  joined <- full_join(obs_new, obs_old,
+    by = join_by(station_id, tz, lat, lon)) %>%
   # get today's local midnight in utc so that we can drop old obs from yesterday
-  rowwise() %>%
-  mutate(
-    today_start_utc =
-      Sys.time() %>%
-      with_tz(tz) %>%
-      date() %>%
-      paste("00:00:00") %>%
-      ymd_hms(tz = tz) %>%
-      with_tz('UTC')) %>%
-  ungroup() %>%
+  mutate(today_start_utc = today_start_utc(tz)) %>%
   mutate(
     # first, select new obs if they're more extreme than the previous ones
     # *and* within the 24 hour window....
@@ -134,12 +138,10 @@ if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
     tmax_selected_dt = coalesce(tmax_selected_dt, tmax_dt, tmax_old_dt),
     tmin_selected = coalesce(tmin_selected, tmin, tmin_old),
     tmin_selected_dt = coalesce(tmin_selected_dt, tmin_dt, tmin_old_dt)) %>%
-  print() %>% # for debugging!
   select(
     station_id, tz, lat, lon,
     tmax = tmax_selected, tmax_dt = tmax_selected_dt,
     tmin = tmin_selected, tmin_dt = tmin_selected_dt) %>%
-  print() %>%
   write_csv(paste0(fullpath, "data/latest/latest-all.csv"))
 
   message(Sys.time(), " Wrote out new station observations")
