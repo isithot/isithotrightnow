@@ -79,7 +79,7 @@ get_state_obs <- function(state = c("D", "N", "Q", "S", "T", "V", "W")) {
 }
 
 #' Find the start of today in a specified timezone
-find_today_start_utc <- function(tz) {
+find_today_start <- function(tz) {
     today(tz) %>%
       paste("00:00:00") %>%
       ymd_hms(tz = tz) %>%
@@ -123,18 +123,18 @@ if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
     full_join(obs_new, obs_old,
       by = join_by(station_id, tz, lat, lon)) %>%
   # get today's local midnight in utc so that we can drop old obs from yesterday
-  mutate(today_start_utc = find_today_start_utc(tz)) %>%
+  mutate(today_start = find_today_start(tz)) %>%
   mutate(
     # first, select new obs if they're more extreme than the previous ones
     # *and* within the 24 hour window....
     tmax_selected = if_else(
-      tmax >= tmax_old | tmax_old_dt < today_start_utc, tmax, tmax_old),
+      tmax >= tmax_old | tmax_old_dt < today_start, tmax, tmax_old),
     tmax_selected_dt = if_else(
-      tmax >= tmax_old | tmax_old_dt < today_start_utc, tmax_dt, tmax_old_dt),
+      tmax >= tmax_old | tmax_old_dt < today_start, tmax_dt, tmax_old_dt),
     tmin_selected = if_else(
-      tmin <= tmin_old | tmin_old_dt < today_start_utc, tmin, tmin_old),
+      tmin <= tmin_old | tmin_old_dt < today_start, tmin, tmin_old),
     tmin_selected_dt = if_else(
-      tmin <= tmin_old | tmin_old_dt < today_start_utc, tmin_dt, tmin_old_dt),
+      tmin <= tmin_old | tmin_old_dt < today_start, tmin_dt, tmin_old_dt),
     # then, backfill any nas 
     tmax_selected = coalesce(tmax_selected, tmax, tmax_old),
     tmax_selected_dt = coalesce(tmax_selected_dt, tmax_dt, tmax_old_dt),
