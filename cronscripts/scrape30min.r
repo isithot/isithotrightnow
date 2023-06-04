@@ -78,6 +78,14 @@ get_state_obs <- function(state = c("D", "N", "Q", "S", "T", "V", "W")) {
       tmin_dt = ymd_hms(tmin_dt, tz = "UTC"))
 }
 
+#' Find the start of today in a specified timezone
+find_today_start_utc <- function(tz) {
+    today(tz) %>%
+      paste("00:00:00") %>%
+      ymd_hms(tz = tz) %>%
+      with_tz("UTC")
+  }
+
 # extract the station detials for each state abd glue them together
 # then parse the date-time strings to local date-times
 obs_new <-
@@ -108,20 +116,14 @@ if (!file.exists(paste0(fullpath, "data/latest/latest-all.csv")))
       tmax_old_dt = ymd_hms(tmax_dt),
       tmin_old_dt = ymd_hms(tmin_dt)) %>%
     select(-tmax_dt, -tmin_dt)
-
-  today_start_utc <- function(tz) {
-    today(tz) %>%
-      paste("00:00:00") %>%
-      ymd_hms(tz = tz) %>%
-      with_tz("UTC")
-  }
   
   # join the old and new obs together, select the better obs,
   # drop the others and write it out
-  joined <- full_join(obs_new, obs_old,
-    by = join_by(station_id, tz, lat, lon)) %>%
+  joined <-
+    full_join(obs_new, obs_old,
+      by = join_by(station_id, tz, lat, lon)) %>%
   # get today's local midnight in utc so that we can drop old obs from yesterday
-  mutate(today_start_utc = today_start_utc(tz)) %>%
+  mutate(today_start_utc = find_today_start_utc(tz)) %>%
   mutate(
     # first, select new obs if they're more extreme than the previous ones
     # *and* within the 24 hour window....
