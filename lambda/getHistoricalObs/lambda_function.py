@@ -13,6 +13,7 @@ def lambda_handler(event, context):
     Returns:
         pandas.DataFrame: writes pandas DataFrame containing historical Tmax, Tmin, and Tavg observations.
     """
+    print('this is GetHistoricalObs')
 
     try: 
         station_id = event['station_id']
@@ -30,14 +31,14 @@ def lambda_handler(event, context):
         print(f"Warning: Window missing. Getting historical obs over +/- {window} day window")
 
     # Read historical tmax obs from s3
-    s3_fpath = f"/1-datasources/ACORN-SAT_V2.3.0/tmax.{station_id}.daily.csv"
+    s3_fpath = f"1-datasources/ACORN-SAT_V2.3.0/tmax.{station_id}.daily.csv"
     local_fpath = download_from_aws(s3_fpath)
     HistObs_Tmax = pd.read_csv(local_fpath,
                                header=None, skiprows=2,
                                usecols=[0, 1], names=["Date", "Tmax"],
                                na_values=["", " ", "NA"])
     # Read historical tmin obs from s3
-    s3_fpath = f"/1-datasources/ACORN-SAT_V2.3.0/tmin.{station_id}.daily.csv"
+    s3_fpath = f"1-datasources/ACORN-SAT_V2.3.0/tmin.{station_id}.daily.csv"
     local_fpath = download_from_aws(s3_fpath)
     HistObs_Tmin = pd.read_csv(local_fpath,
                                header=None, skiprows=2,
@@ -62,7 +63,7 @@ def lambda_handler(event, context):
 
     # upload to s3
     result.to_csv(f"/tmp/historical_{station_id}.txt")
-    bucket_url = upload_to_aws(f"/tmp/historical_{station_id}.txt", f"/2-processed/historical_{station_id}.txt")
+    bucket_url = upload_to_aws(f"/tmp/historical_{station_id}.txt", f"2-processed/historical_{station_id}.txt")
 
     status = {
         'statusCode': 200,
