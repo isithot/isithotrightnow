@@ -5,22 +5,16 @@ import pandas as pd
 from urllib.request import urlopen
 from lxml import etree
 import json
+import boto3
 
 def lambda_handler(event, context):
 
     print(f"{datetime.now()} Looking for new observations...")
 
-    if os.environ.get("AWS_EXECUTION_ENV") is not None:
-        # running on the server
-        fullpath = "/mnt/isithotrightnow/"
-    else:
-        # testing locally
-        fullpath = "./"
-
     bom_xml_path = "ftp://ftp.bom.gov.au/anon/gen/fwo/"
-    locations_url = f"{fullpath}www/locations.json"
+    locations_url = f"1-datasources/locations.json"
     # Open the JSON file
-    with open(locations_url) as file:
+    with open(download_from_aws(locations_url)) as file:
         # Load the JSON data
         locations = json.load(file)
 
@@ -62,38 +56,104 @@ def lambda_handler(event, context):
     print(f"{datetime.now()} Downloaded and extracted new observations")
 
     # just use these obs if we don't have existing ones
-    csv_path = os.path.join(fullpath, "data/latest/latest-all.csv")
-    if not os.path.exists(csv_path):
-        obs_new.to_csv(csv_path, index=False)
-        print(str(datetime.now()) + " Wrote out first station observations")
-    else:
-        obs_old = pd.read_csv(csv_path, dtype={'tmax': float, 'tmin': float})
+    csv_path = f"1-datasources/latest/latest-all.csv"
+    
+    obs_old = pd.read_csv(download_from_aws(csv_path), dtype={'tmax': float, 'tmin': float})
+    
+    # Convert datetime columns to datetime objects
+    obs_old['tmax_dt'] = pd.to_datetime(obs_old['tmax_dt'])
+    obs_old['tmin_dt'] = pd.to_datetime(obs_old['tmin_dt'])
 
-        # Convert datetime columns to datetime objects
-        obs_old['tmax_dt'] = pd.to_datetime(obs_old['tmax_dt'])
-        obs_old['tmin_dt'] = pd.to_datetime(obs_old['tmin_dt'])
+    # Get today's local midnight in UTC
+    tz = [timezone(row_tz) for row_tz in obs_old['tz']]
+    obs_old['today_start_utc'] = [datetime.now(row_tz).replace(hour=0, minute=0, second=0).astimezone(timezone('UTC')) for row_tz in tz]
 
-        # Get today's local midnight in UTC
-        tz = [timezone(row_tz) for row_tz in obs_old['tz']]
-        obs_old['today_start_utc'] = [datetime.now(row_tz).replace(hour=0, minute=0, second=0).astimezone(timezone('UTC')) for row_tz in tz]
+    # Select new obs if they're more extreme than the previous ones within the last 24 hours
+    obs_merged = pd.merge(obs_new, obs_old, on='station_id', how='outer', suffixes=('', '_old'))
+    obs_merged['tmax_selected'] = obs_merged.apply(lambda row: row['tmax'] if row['tmax'] >= row['tmax_old'] or row['tmax_dt_old'] < row['today_start_utc'] else row['tmax_old'], axis=1)
+    obs_merged['tmax_selected_dt'] = obs_merged.apply(lambda row: row['tmax_dt'] if row['tmax'] >= row['tmax_old'] or row['tmax_dt'] < row['today_start_utc'] else row['tmax_dt_old'], axis=1)
+    obs_merged['tmin_selected'] = obs_merged.apply(lambda row: row['tmin'] if row['tmin'] <= row['tmin_old'] or row['tmin_dt_old'] < row['today_start_utc'] else row['tmin_old'], axis=1)
+    obs_merged['tmin_selected_dt'] = obs_merged.apply(lambda row: row['tmin_dt'] if row['tmin'] <= row['tmin_old'] or row['tmin_dt_old'] < row['today_start_utc'] else row['tmin_dt_old'], axis=1)
+    obs_merged['updated'] = obs_merged.apply(lambda row: row['tmax'] >= row['tmax_old'] or row['tmin'] <= row['tmin_old'] or row['tmax_dt_old'] < row['today_start_utc'] or row['tmin_dt_old'] < row['today_start_utc'], axis=1)
 
-        # Select new obs if they're more extreme than the previous ones within the last 24 hours
-        obs_merged = pd.merge(obs_new, obs_old, on='station_id', how='outer', suffixes=('', '_old'))
-        obs_merged['tmax_selected'] = obs_merged.apply(lambda row: row['tmax'] if row['tmax'] >= row['tmax_old'] or row['tmax_dt_old'] < row['today_start_utc'] else row['tmax_old'], axis=1)
-        obs_merged['tmax_selected_dt'] = obs_merged.apply(lambda row: row['tmax_dt'] if row['tmax'] >= row['tmax_old'] or row['tmax_dt'] < row['today_start_utc'] else row['tmax_dt_old'], axis=1)
-        obs_merged['tmin_selected'] = obs_merged.apply(lambda row: row['tmin'] if row['tmin'] <= row['tmin_old'] or row['tmin_dt_old'] < row['today_start_utc'] else row['tmin_old'], axis=1)
-        obs_merged['tmin_selected_dt'] = obs_merged.apply(lambda row: row['tmin_dt'] if row['tmin'] <= row['tmin_old'] or row['tmin_dt_old'] < row['today_start_utc'] else row['tmin_dt_old'], axis=1)
+    # Backfill any missing values
+    obs_merged['tmax_selected'] = obs_merged['tmax_selected'].fillna(obs_merged['tmax']).fillna(obs_merged['tmax_old'])
+    obs_merged['tmax_selected_dt'] = obs_merged['tmax_selected_dt'].fillna(obs_merged['tmax_dt']).fillna(obs_merged['tmax_dt_old'])
+    obs_merged['tmin_selected'] = obs_merged['tmin_selected'].fillna(obs_merged['tmin']).fillna(obs_merged['tmin_old'])
+    obs_merged['tmin_selected_dt'] = obs_merged['tmin_selected_dt'].fillna(obs_merged['tmin_dt']).fillna(obs_merged['tmin_dt_old'])
 
-        # Backfill any missing values
-        obs_merged['tmax_selected'] = obs_merged['tmax_selected'].fillna(obs_merged['tmax']).fillna(obs_merged['tmax_old'])
-        obs_merged['tmax_selected_dt'] = obs_merged['tmax_selected_dt'].fillna(obs_merged['tmax_dt']).fillna(obs_merged['tmax_dt_old'])
-        obs_merged['tmin_selected'] = obs_merged['tmin_selected'].fillna(obs_merged['tmin']).fillna(obs_merged['tmin_old'])
-        obs_merged['tmin_selected_dt'] = obs_merged['tmin_selected_dt'].fillna(obs_merged['tmin_dt']).fillna(obs_merged['tmin_dt_old'])
+    # Select the desired columns
+    obs_result = obs_merged[['station_id', 'tz', 'lat', 'lon', 'tmax_selected', 'tmax_selected_dt', 'tmin_selected', 'tmin_selected_dt', 'updated']]
 
-        # Select the desired columns
-        obs_result = obs_merged[['station_id', 'tz', 'lat', 'lon', 'tmax_selected', 'tmax_selected_dt', 'tmin_selected', 'tmin_selected_dt']]
+    # rename columns
+    obs_result = obs_result.rename(columns = {'tmax_selected': 'tmax', 'tmax_selected_dt': 'tmax_dt', 'tmin_selected': 'tmin', 'tmin_selected_dt': 'tmin_dt'})
 
-        # Write the result to the CSV file
-        obs_result.to_csv(csv_path, index=False)
+    # invoke processCurrentObs lambda function if tmax/tmix is updated
+    obs_merged.apply(lambda row: invoke_processCurrentObs(row.to_dict()) if row['updated'] else None, axis=1)
 
-        print(str(datetime.now()) + " Wrote out new station observations")
+    # drop updated column
+    obs_result = obs_result.drop(columns=['updated'])
+
+    # Write the result to the CSV file
+    obs_result.to_csv(f'/tmp/latest-all.csv', index=False)
+
+    # upload the local file to S3 bucket
+    upload_to_aws(f'/tmp/latest-all.csv', csv_path)
+    
+    print(str(datetime.now()) + " Wrote out new station observations")
+
+def invoke_processCurrentObs(payload):
+    # Replace 'FunctionName' with the name of your Lambda function
+    response = lambda_client.invoke(
+        FunctionName='processCurrentObs',
+        InvocationType='Event',  # This will asynchronously invoke the Lambda function
+        Payload=payload
+    )
+    return response
+
+
+def download_from_aws(s3_fpath):
+
+    s3 = boto3.client('s3')
+    bucket_name = 'isithot-data'
+
+    fname = os.path.basename(s3_fpath)
+    local_file_path = f'/tmp/{fname}'
+
+    try:
+        # Get the object from S3 bucket
+        response = s3.get_object(Bucket=bucket_name, Key=s3_fpath)
+
+        # Save the object to local file
+        with open(local_file_path, 'wb') as f:
+            f.write(response['Body'].read())
+
+        print(f"File saved to {local_file_path}")
+
+        return local_file_path
+
+    except Exception as e:
+        print(f"Error getting S3 object: {e}")
+        return None
+
+def upload_to_aws(local_file, s3_file):
+
+    s3 = boto3.client('s3')
+    bucket_name = 'isithot-data'
+
+    try:
+        s3.upload_file(local_file, bucket_name, s3_file)
+        url = s3.generate_presigned_url(
+            ClientMethod='get_object',
+            Params={
+                'Bucket': bucket_name,
+                'Key': s3_file
+            },
+            ExpiresIn=24 * 3600
+        )
+
+        print("Upload Successful", url)
+        return url
+    except FileNotFoundError:
+        print("The file was not found")
+        return None
