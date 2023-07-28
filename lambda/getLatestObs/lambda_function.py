@@ -74,7 +74,9 @@ def lambda_handler(event, context):
     obs_merged['tmax_selected_dt'] = obs_merged.apply(lambda row: row['tmax_dt'] if row['tmax'] >= row['tmax_old'] or row['tmax_dt'] < row['today_start_utc'] else row['tmax_dt_old'], axis=1)
     obs_merged['tmin_selected'] = obs_merged.apply(lambda row: row['tmin'] if row['tmin'] <= row['tmin_old'] or row['tmin_dt_old'] < row['today_start_utc'] else row['tmin_old'], axis=1)
     obs_merged['tmin_selected_dt'] = obs_merged.apply(lambda row: row['tmin_dt'] if row['tmin'] <= row['tmin_old'] or row['tmin_dt_old'] < row['today_start_utc'] else row['tmin_dt_old'], axis=1)
-    obs_merged['updated'] = obs_merged.apply(lambda row: row['tmax'] >= row['tmax_old'] or row['tmin'] <= row['tmin_old'] or row['tmax_dt_old'] < row['today_start_utc'] or row['tmin_dt_old'] < row['today_start_utc'], axis=1)
+
+    # a list to keep track of the updated rows
+    updated_list = list(obs_merged.apply(lambda row: row['tmax'] >= row['tmax_old'] or row['tmin'] <= row['tmin_old'] or row['tmax_dt_old'] < row['today_start_utc'] or row['tmin_dt_old'] < row['today_start_utc'], axis=1))
 
     # Backfill any missing values
     obs_merged['tmax_selected'] = obs_merged['tmax_selected'].fillna(obs_merged['tmax']).fillna(obs_merged['tmax_old'])
@@ -83,16 +85,10 @@ def lambda_handler(event, context):
     obs_merged['tmin_selected_dt'] = obs_merged['tmin_selected_dt'].fillna(obs_merged['tmin_dt']).fillna(obs_merged['tmin_dt_old'])
 
     # Select the desired columns
-    obs_result = obs_merged[['station_id', 'tz', 'lat', 'lon', 'tmax_selected', 'tmax_selected_dt', 'tmin_selected', 'tmin_selected_dt', 'updated']]
+    obs_result = obs_merged[['station_id', 'tz', 'lat', 'lon', 'tmax_selected', 'tmax_selected_dt', 'tmin_selected', 'tmin_selected_dt']]
 
     # rename columns
     obs_result = obs_result.rename(columns = {'tmax_selected': 'tmax', 'tmax_selected_dt': 'tmax_dt', 'tmin_selected': 'tmin', 'tmin_selected_dt': 'tmin_dt'})
-
-    # invoke processCurrentObs lambda function if tmax/tmix is updated
-    obs_merged.apply(lambda row: invoke_processCurrentObs(row.to_dict()) if row['updated'] else None, axis=1)
-
-    # drop updated column
-    obs_result = obs_result.drop(columns=['updated'])
 
     # Write the result to the CSV file
     obs_result.to_csv(f'/tmp/latest-all.csv', index=False)
@@ -102,8 +98,19 @@ def lambda_handler(event, context):
     
     print(str(datetime.now()) + " Wrote out new station observations")
 
+    # invoke processCurrentObs lambda function if tmax/tmix is updated
+    for i,updated in enumerate(updated_list):
+        if updated:
+            print('invoking processCurrentObs for station: ', obs_result.iloc[i]['station_id'])
+            invoke_processCurrentObs(json.dumps(obs_result.iloc[i].to_dict(), default=convert_timestamp_to_str))
+
+def convert_timestamp_to_str(data):
+    if isinstance(data, pd.Timestamp):
+        return data.isoformat()  # Convert to ISO format
+    return data
+
 def invoke_processCurrentObs(payload):
-    # Replace 'FunctionName' with the name of your Lambda function
+    lambda_client = boto3.client('lambda')
     response = lambda_client.invoke(
         FunctionName='processCurrentObs',
         InvocationType='Event',  # This will asynchronously invoke the Lambda function
