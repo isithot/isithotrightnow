@@ -6,18 +6,6 @@ library(aws.s3)
 
 source("util.r")
 
-#' Just prints a message
-#'
-#' Here as a default so that you can verify your lambda config (and to make it
-#' clear if you've forgotten to override the entrypoint)
-defaultFunc <- function() {
-  return(list(message = paste(
-    "This is the default function for the Is it hot right now R runtime.",
-    "If you're configuring a new Lambda function, you should override the",
-    "Lambda's entrypoint to be the name of one of the other functions in this",
-    "file.")))
-}
-
 #' Create a timeseries plot
 #' 
 #' @param hist_obs: The historical observations data frame (formerly HistObs).
