@@ -26,29 +26,21 @@ defaultFunc <- function() {
 #' @param tavg_now: The current average temperature.
 #' @param hist_percentiles: An array of historical percentiles (formerly
 #'   HistPercentiles).
+#' @param station_id: The id of the station, for saving to s3.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
-#' @param output_path: the path to write the plot to
-createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, station_tz,
-station_label, output_path) {
+createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, station_id,
+  station_tz, station_label) {
 
   stopifnot(
     "Arg `today` should be length 1"         = length(today) != 1,
     "Arg `tavg_now` should be length 1"      = length(tavg_now) != 1,
-    # "Arg `hist_5p` should be length 1"       = length(hist_5p) != 1,
-    # "Arg `hist_50p` should be length 1"      = length(hist_50p) != 1,
-    # "Arg `hist_95p` should be length 1"      = length(hist_95p) != 1,
     "Arg `station_tz` should be length 1"    = length(station_tz) != 1,
     "Arg `station_label` should be length 1" = length(station_label) != 1,
-    "Arg `output_path` should be length 1"   = length(output_path) != 1,
     "Arg `today` should be a date"           = is(today, "Date"),
     "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
-    # "Arg `hist_5p` should be a number"       = is(hist_5p, "numeric"),
-    # "Arg `hist_50p` should be a number"      = is(hist_50p, "numeric"),
-    # "Arg `hist_95p` should be a number"      = is(hist_95p, "numeric"),
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
-    "Arg `station_label` should be a string" = is(station_label, "character"),
-    "Arg `output_path` should be a string"   = is(output_path, "character"))
+    "Arg `station_label` should be a string" = is(station_label, "character"))
 
   # extract percentiles of historical obs (unbound the ends)
   percentiles <- extract_percentiles(hist_obs$Tavg)
@@ -72,7 +64,7 @@ station_label, output_path) {
       expansion(mult = c(0.05, 0.05))))
 
   # build the plot
-  plot_ts <-
+  ts_plot <-
     ggplot(data = obs) +
     aes(x = Date, y = Tavg) +
     # dashed percentile lines and labels
@@ -148,43 +140,46 @@ station_label, output_path) {
       y = "Daily average temperature")
 
   # write out to disk
-  ggsave(filename = output_path, plot = plot_ts, bg = bg_colour_today,
+  temp_path <- tempfile("timeseries-", fileext = ".png")
+  ggsave(
+    filename = temp_path,
+    plot = ts_plot, bg = bg_colour_today,
     height = 4.5, width = 8, units = "in")
 
+  # upload to s3
+  put_object(
+    file = temp_path,
+    object = file.path("www", "plots", "timeseries",
+      paste0("timeseries-", station_id, ".png")),
+    bucket = "isithot-data")
 }
 
 #' Create a distribution plot
 #'
-#' @param hist_obs: The historical observations data frame (formerly HistObs).
-#'   Cols include Year, Month, Day, Tmax, Tmin, Tavg, Date.
 #' @param today: Today's date (in UTC?)
 #' @param tavg_now: The current average temperature.
+#' @param station_id: The id of the station, for saving to s3.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
 #' @param record_start: The date of the first record in the obs
-#' @param output_path: the path to write the plot to
 createDistributionPlot <- function(hist_obs, date_now, tavg_now, station_tz,
-  station_label, record_start, output_path) {
+  station_label, record_starth) {
 
   stopifnot(
     "Arg `today` should be length 1"         = length(today) != 1,
     "Arg `tavg_now` should be length 1"      = length(tavg_now) != 1,
-    # "Arg `hist_5p` should be length 1"       = length(hist_5p) != 1,
-    # "Arg `hist_50p` should be length 1"      = length(hist_50p) != 1,
-    # "Arg `hist_95p` should be length 1"      = length(hist_95p) != 1,
     "Arg `station_tz` should be length 1"    = length(station_tz) != 1,
     "Arg `record_start` should be length 1"  = length(record_start) != 1,
     "Arg `station_label` should be length 1" = length(station_label) != 1,
-    "Arg `output_path` should be length 1"   = length(output_path) != 1,
     "Arg `today` should be a date"           = is(today, "Date"),
     "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
-    # "Arg `hist_5p` should be a number"       = is(hist_5p, "numeric"),
-    # "Arg `hist_50p` should be a number"      = is(hist_50p, "numeric"),
-    # "Arg `hist_95p` should be a number"      = is(hist_95p, "numeric"),
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
     "Arg `station_label` should be a string" = is(station_label, "character"),
-    "Arg `record_start` should be a date"    = is(record_start, "Date"),
-    "Arg `output_path` should be a string"   = is(output_path, "character"))
+    "Arg `record_start` should be a date"    = is(record_start, "Date"))
+
+  # TODO - get hist_obs from s3? or supplied directly in arg?
+  # (The historical observations data frame (formerly HistObs).
+  #   Cols include Year, Month, Day, Tmax, Tmin, Tavg, Date.)
 
   # extract percentiles of historical obs
   hist_obs %>%
@@ -254,9 +249,18 @@ createDistributionPlot <- function(hist_obs, date_now, tavg_now, station_tz,
         record_start))
 
   # write out to disk
-  ggsave(filename = output_path, plot = dist_plot, bg = bg_colour_today,
+  temp_path <- tempfile("timeseries-", fileext = ".png")
+  ggsave(
+    filename = temp_path,
+    plot = dist_plot, bg = bg_colour_today,
     height = 4.5, width = 8, units = "in")
 
+  # upload to s3
+  put_object(
+    file = temp_path,
+    object = file.path("www", "plots", "distribution",
+      paste0("distribution-", station_id, ".png")),
+    bucket = "isithot-data")
   }
 
 #' Creates a plot of this year's ratings
@@ -264,10 +268,9 @@ createDistributionPlot <- function(hist_obs, date_now, tavg_now, station_tz,
 #' @param obs_thisyear: this year's observations as a dataframe, from
 #'   databackup/[id]-[year].csv. cols include date, percentile
 #' @param date_now: today's date as a Date object
+#' @param station_id: The id of the station, for saving to s3.
 #' @param station_label: the station label
-#' @param output_path: the path to write the plot to
-createHeatwavePlot <- function(obs_thisyear, date_now, station_label,
-  output_path) {
+createHeatwavePlot <- function(obs_thisyear, date_now, station_label) {
 
   # extract month and day from the date
   obs_thisyear |>
@@ -325,8 +328,18 @@ createHeatwavePlot <- function(obs_thisyear, date_now, station_label,
       )
 
   # write out to disk
-  ggsave(filename = output_path, plot = hw_plot, bg = bg_colour_hw,
+  temp_path <- tempfile("timeseries-", fileext = ".png")
+  ggsave(
+    filename = temp_path,
+    plot = hw_plot, bg = bg_colour_hw,
     height = 1060, width = 2400, units = "px")
+
+  # upload to s3
+  put_object(
+    file = temp_path,
+    object = file.path("www", "plots", "heatwave",
+      paste0("heatwave-", station_id, ".png")),
+    bucket = "isithot-data")
 
 }
 
