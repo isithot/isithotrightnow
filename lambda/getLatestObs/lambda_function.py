@@ -41,7 +41,7 @@ def lambda_handler(event, context):
             obs_list.append((station_id, tz, lat, lon, tmax, tmax_dt, tmin, tmin_dt))
 
         obs_df = pd.DataFrame(obs_list, columns=["station_id", "tz", "lat", "lon", "tmax", "tmax_dt", "tmin", "tmin_dt"])
-        obs_df["station_id"] = obs_df["station_id"].astype("int64")
+        obs_df["station_id"] = obs_df["station_id"]
         obs_df["lat"] = obs_df["lat"].astype("float64")
         obs_df["lon"] = obs_df["lon"].astype("float64")
         obs_df["tmax"] = obs_df["tmax"].astype("float64")
@@ -58,8 +58,8 @@ def lambda_handler(event, context):
     # just use these obs if we don't have existing ones
     csv_path = f"1-datasources/latest/latest-all.csv"
     
-    obs_old = pd.read_csv(download_from_aws(csv_path), dtype={'tmax': float, 'tmin': float})
-    
+    obs_old = pd.read_csv(download_from_aws(csv_path), dtype={'station_id': str, 'tmax': float, 'tmin': float})
+
     # Convert datetime columns to datetime objects
     obs_old['tmax_dt'] = pd.to_datetime(obs_old['tmax_dt'])
     obs_old['tmin_dt'] = pd.to_datetime(obs_old['tmin_dt'])

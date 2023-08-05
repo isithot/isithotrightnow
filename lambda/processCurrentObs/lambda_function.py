@@ -143,6 +143,7 @@ def upload_to_aws(local_file, s3_file):
 def lambda_handler(event, context):
 
     station_id, tz, lat, lon, tmax_now, tmax_dt, tmin_now, tmin_dt = event.values()
+    print(event.values())
     print(f"\n\nBeginning analysis: {station_id}")
 
     # Load station data from locations.json
