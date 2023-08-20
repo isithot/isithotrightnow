@@ -10,25 +10,22 @@ source("util.r")
 #' 
 #' @param hist_obs: The historical observations data frame (formerly HistObs).
 #'   Cols include Year, Month, Day, Tmax, Tmin, Tavg, Date.
-#' @param date_now: Today's date (in UTC?)
 #' @param tavg_now: The current average temperature.
 #' @param station_id: The id of the station, for saving to s3.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
-createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, station_id,
+createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
   station_tz, station_label) {
 
+  date_now <- Sys.time() |> as.Date(station_tz)
+
   # rename problematic column
-  hist_obs %>%
-    rename(ob_date = Date) ->
-  hist_obs
+  hist_obs <- rename(hist_obs, ob_date = Date)
 
   stopifnot(
-    "Arg `date_now` should be length 1"      = length(date_now) == 1,
     "Arg `tavg_now` should be length 1"      = length(tavg_now) == 1,
     "Arg `station_tz` should be length 1"    = length(station_tz) == 1,
     "Arg `station_label` should be length 1" = length(station_label) == 1,
-    "Arg `date_now` should be a date"        = is(date_now, "Date"),
     "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
     "Arg `station_label` should be a string" = is(station_label, "character"))
@@ -39,11 +36,17 @@ createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, station_id,
   hist_50p <- percentiles %>% filter(pct_upper == "50%") %>% pull(value_upper)
   hist_95p <- percentiles %>% filter(pct_upper == "95%") %>% pull(value_upper)
 
+  # add the bucket colours to eahc observation
+  hist_obs |>
+    left_join(percentiles,
+      join_by(between(Tavg, value_lower, value_upper, bounds = "(]"))) ->
+  hist_obs_shaded
+
   print(percentiles)
 
   # fit linear trend for label
   # (we're doing it twice; might be worth a benchmark)
-  linear_model <- lm(formula = Tavg ~ ob_date, data = hist_obs)
+  linear_model <- lm(formula = Tavg ~ ob_date, data = hist_obs_shaded)
   trend <- linear_model$coeff[2]
 
   # conditionally make extra room for the TODAY label either above or below,
@@ -56,27 +59,24 @@ createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, station_id,
     y_scale_expand <- expansion(mult = c(0.05, 0.05))
   }
 
+  # today's observation
+  tibble(x = date_now, y = tavg_now) |>
+    left_join(percentiles,
+      join_by(between(y, value_lower, value_upper, bounds = "(]"))) ->
+  today_df
+
+
   # build the plot
   ts_plot <-
-    ggplot(data = hist_obs) +
+    ggplot(data = hist_obs_shaded) +
     # dashed percentile lines and labels
-    geom_rect(
-      aes(
-        xmin = as.Date(-Inf),
-        xmax = as.Date(Inf),
-        ymin = value_lower,
-        ymax = value_upper,
-        fill = rating_colour),
-      data = percentiles,
-      alpha = 0.5) +
     # now the observations
     # james - i don't understand what this first geom is for
-    # geom_line(linewidth = 0.0, colour = "#CCCCCC") +
     geom_point(
-      aes(x = ob_date, y = Tavg),
+      aes(x = ob_date, y = Tavg, colour = rating_colour),
       size = rel(1.1),
-      colour = base_colour,
-      alpha = 0.25) +
+      # colour = base_colour,
+      alpha = 0.5) +
     geom_smooth(
       aes(x = ob_date, y = Tavg),
       method = lm,
@@ -85,42 +85,44 @@ createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, station_id,
       linewidth = 0.5) +
     # today's point and labels
     geom_point(
-      aes(x = x, y = y),
-      data = data.frame(x = date_now, y = tavg_now),
-      colour = iihrn_colour,
+      aes(x = x, y = y, colour = rating_colour),
+      data = today_df,
       size = rel(5)) +
     annotate_text_iihrn(
-      x = date_now,
-      y = tavg_now,
+      x = today_df$x,
+      y = today_df$y,
       vjust = -1.5,
       label = "TODAY",
-      colour = iihrn_colour) +
+      highlight = FALSE) +
     annotate_text_iihrn(
-      x = date_now,
-      y = tavg_now,
+      x = today_df$x,
+      y = today_df$y,
       vjust = 2.5,
       label = paste0(round(tavg_now, 1), "°C"),
-      highlight = TRUE) +
+      highlight = FALSE) +
     annotate_text_iihrn(
-      x = min(hist_obs$ob_date, na.rm = TRUE),
+      x = min(hist_obs_shaded$ob_date, na.rm = TRUE),
       y = hist_95p,
       label = paste0(
         "95th percentile: ", round(hist_95p, 1), "°C"),
       hjust = "inward",
-      vjust = -0.5) +
+      vjust = -0.5,
+      highlight = FALSE) +
     annotate_text_iihrn(
-      x = min(hist_obs$ob_date, na.rm = TRUE),
+      x = min(hist_obs_shaded$ob_date, na.rm = TRUE),
       y = hist_5p,
       label = paste0(
         "5th percentile: ", round(hist_5p, 1), "°C"),
       hjust = "inward",
-      vjust = -0.5) +
+      vjust = -0.5,
+      highlight = FALSE) +
     annotate_text_iihrn(
-      x = min(hist_obs$ob_date, na.rm = TRUE),
+      x = min(hist_obs_shaded$ob_date, na.rm = TRUE),
       y = hist_50p,
       label = paste0("Trend: +", round(trend * 365 * 100, 1), "°C/ century"),
       hjust = "inward",
-      vjust = -0.5) +
+      vjust = -0.5,
+      highlight = FALSE) +
     scale_x_date(
       date_breaks = "20 years",
       date_labels = "%Y") +
@@ -128,7 +130,7 @@ createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, station_id,
       breaks = seq(0, 100, by = 5),
       labels = scales::label_number(suffix = "°C"),
       expand = y_scale_expand) +
-    scale_fill_identity() +
+    scale_colour_identity() +
     theme_iihrn() +
     theme(
       axis.line = element_line(),
