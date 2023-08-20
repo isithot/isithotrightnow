@@ -161,26 +161,24 @@ createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, station_id,
 
 #' Create a distribution plot
 #'
-#' @param today: Today's date (in UTC?)
+#' @param hist_obs: The historical observations data frame (formerly HistObs).
+#'   Cols include Year, Month, Day, Tmax, Tmin, Tavg, Date.
 #' @param tavg_now: The current average temperature.
 #' @param station_id: The id of the station, for saving to s3.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
-#' @param record_start: The date of the first record in the obs
-createDistributionPlot <- function(hist_obs, date_now, tavg_now, station_tz,
-  station_label, record_starth) {
+createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
+  station_label) {
 
   stopifnot(
-    "Arg `date_now` should be length 1"      = length(date_now) == 1,
     "Arg `tavg_now` should be length 1"      = length(tavg_now) == 1,
     "Arg `station_tz` should be length 1"    = length(station_tz) == 1,
-    "Arg `record_start` should be length 1"  = length(record_start) == 1,
     "Arg `station_label` should be length 1" = length(station_label) == 1,
-    "Arg `date_now` should be a date"        = is(date_now, "Date"),
     "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
-    "Arg `station_label` should be a string" = is(station_label, "character"),
-    "Arg `record_start` should be a date"    = is(record_start, "Date"))
+    "Arg `station_label` should be a string" = is(station_label, "character"))
+
+  record_start <- hist_obs |> slice_min(Date) |> pull(Date)
 
   # TODO - get hist_obs from s3? or supplied directly in arg?
   # (The historical observations data frame (formerly HistObs).
@@ -244,7 +242,7 @@ createDistributionPlot <- function(hist_obs, date_now, tavg_now, station_tz,
       size = 4,
       angle = 90,
       alpha = 1) +
-    scale_x_continuous(labels = scales::label_number(suffix = "°C"))
+    scale_x_continuous(labels = scales::label_number(suffix = "°C")) +
     scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
     theme_iihrn() +
     theme(
