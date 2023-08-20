@@ -1,6 +1,7 @@
 library(ggplot2)
 library(lubridate)
 library(dplyr)
+library(stringr)
 library(forcats)
 library(aws.s3)
 
@@ -189,22 +190,49 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
   #   quantile(c(0.05, 0.10, 0.40, 0.50, 0.60, 0.90, 0.95), na.rm = TRUE) ->
   # percentiles
 
-  percentiles <- extract_percentiles(hist_obs$Tavg)
+  percentiles <-
+    extract_percentiles(hist_obs$Tavg) |>
+    mutate(
+      pct_upper_num = as.numeric(str_remove(pct_upper, "%")) / 100,
+      pct_lower_num = as.numeric(str_remove(pct_lower, "%")) / 100)
   hist_5p  <- percentiles %>% filter(pct_upper == "5%")  %>% pull(value_upper)
   hist_50p <- percentiles %>% filter(pct_upper == "50%") %>% pull(value_upper)
   hist_95p <- percentiles %>% filter(pct_upper == "95%") %>% pull(value_upper)
 
-  # TODO - shade distribution based on percentiles
+  # going to manually calculate the distribution so that we can
+  # shade it by bucket!
+  tavg_density <- density(hist_obs$Tavg, na.rm = TRUE)
+  tavg_density_df <-
+    tibble(x = tavg_density$x, y = tavg_density$y) |>
+    left_join(percentiles,
+      join_by(between(x, value_lower, value_upper, bounds = "[)")))
+
+  # unfortunately we also have to "overlap" the breakpoitns to ensure they
+  # don't leave seams behind... ugh, this is uglier than it ought to be
+  breakpoints <-
+    tavg_density_df |>
+    arrange(x) |>
+    mutate(
+      prev_rating_colour = lag(rating_colour),
+      is_break = rating_colour != prev_rating_colour) |>
+    filter(is_break) |>
+    mutate(rating_colour = prev_rating_colour) |>
+    select(-prev_rating_colour, -is_break)
+
+  tavg_density_bound <- bind_rows(tavg_density_df, breakpoints)
 
   dist_plot <- ggplot(hist_obs) +
     aes(x = Tavg) +
-    geom_density(adjust = 0.7, colour = NA, fill = base_colour, alpha = 0.3) +
+    # geom_density(adjust = 0.7, colour = NA, fill = base_colour, alpha = 0.3) +
+    # shade each bucket separately
+    geom_area(
+      aes(x, y, fill = rating_colour),
+      data = tavg_density_bound,
+      colour = NA) +
     # dashed vertical percentile lines and labels, plus today's temperature
-    geom_vline(xintercept = tavg_now, colour = iihrn_colour, linewidth = rel(1.5)) +
-    # geom_vline(xintercept = hist_50p, linetype = 2, alpha = 0.5) +
-    # geom_vline(xintercept = hist_5p,  linetype = 2, alpha = 0.5) +
-    # geom_vline(xintercept = hist_95p, linetype = 2, alpha = 0.5) +
+    geom_vline(xintercept = tavg_now, colour = base_colour, linewidth = rel(1.5)) +
     annotate_text_iihrn(
+      highlight = FALSE,
       x = hist_5p,
       y = 0,
       vjust = -0.75,
@@ -214,6 +242,7 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
       angle = 90,
       alpha = 0.9) +
     annotate_text_iihrn(
+      highlight = FALSE,
       x = hist_50p,
       y = 0,
       vjust = -0.75,
@@ -224,6 +253,7 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
       angle = 90,
       alpha = 0.9) +
     annotate_text_iihrn(
+      highlight = FALSE,
       x = hist_95p,
       y = 0,
       vjust = -0.75,
@@ -233,17 +263,18 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
       angle = 90,
       alpha = 0.9) +
     annotate_text_iihrn(
+      highlight = FALSE,
       x = tavg_now,
       y = Inf,
       vjust = -0.75,
       hjust = 1.1,
       label = paste0("TODAY:  ", tavg_now, "°C"),
-      highlight = TRUE,
       size = 4,
       angle = 90,
       alpha = 1) +
     scale_x_continuous(labels = scales::label_number(suffix = "°C")) +
     scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+    scale_fill_identity() +
     theme_iihrn() +
     theme(
       axis.title.y = element_blank(),
