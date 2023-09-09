@@ -20,18 +20,21 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
 
   date_now <- Sys.time() |> as.Date(station_tz)
 
-  # cast dates ({jsonlite} doesn't do it for us)
-  hist_obs <-
-    hist_obs %>%
-    mutate(ob_date = as.Date(Date))
-
   stopifnot(
+    "Arg `hist_obs` should be a data frame"  = is.data.frame(hist_obs),
+    "Arg `hist_obs` should include the columns `Date` and `Tavg`" =
+      c("Date", "Tavg") %in% names(hist_obs) |> all(),
     "Arg `tavg_now` should be length 1"      = length(tavg_now) == 1,
     "Arg `station_tz` should be length 1"    = length(station_tz) == 1,
     "Arg `station_label` should be length 1" = length(station_label) == 1,
     "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
     "Arg `station_label` should be a string" = is(station_label, "character"))
+  
+  # cast dates ({jsonlite} doesn't do it for us)
+  hist_obs <-
+    hist_obs %>%
+    mutate(ob_date = as.Date(Date))
 
   # extract percentiles of historical obs (unbound the ends)
   percentiles <- extract_percentiles(hist_obs$Tavg)
@@ -186,6 +189,9 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
     mutate(ob_date = as.Date(Date))
 
   stopifnot(
+    "Arg `hist_obs` should be a data frame"  = is.data.frame(hist_obs),
+    "Arg `hist_obs` should include the columns `Date` and `Tavg`" =
+      c("Date", "Tavg") %in% names(hist_obs) |> all(),
     "Arg `tavg_now` should be length 1"      = length(tavg_now) == 1,
     "Arg `station_tz` should be length 1"    = length(station_tz) == 1,
     "Arg `station_label` should be length 1" = length(station_label) == 1,
@@ -298,6 +304,17 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
 createHeatwavePlot <- function(obs_thisyear, station_id, station_tz, station_label) {
 
   date_now <- Sys.time() |> as.Date(station_tz)
+
+  stopifnot(
+    "Arg `obs_thisyear` should be a data frame"  = is.data.frame(obs_thisyear),
+    "Arg `obs_thisyear` should include the columns `Date` and `Tavg`" =
+      c("date", "percentile") %in% names(obs_thisyear) |> all(),
+    "Arg `tavg_now` should be length 1"      = length(tavg_now) == 1,
+    "Arg `station_tz` should be length 1"    = length(station_tz) == 1,
+    "Arg `station_label` should be length 1" = length(station_label) == 1,
+    "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
+    "Arg `station_tz` should be a string"    = is(station_tz, "character"),
+    "Arg `station_label` should be a string" = is(station_label, "character"))
 
   # extract month and day from the date
   obs_thisyear |>
