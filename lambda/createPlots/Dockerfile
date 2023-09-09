@@ -19,14 +19,15 @@ ENV PATH="${PATH}:/opt/R/${R_VERSION}/bin/"
 RUN yum -y install openssl-devel
 
 # install r  packages
-RUN Rscript -e "install.packages(c('httr', 'jsonlite', 'logger', 'remotes', 'tidyverse', 'systemfonts', 'aws.s3', 'lambdr'), repos = 'https://packagemanager.rstudio.com/all/__linux__/centos7/latest')"
+RUN Rscript -e "install.packages(c('httr', 'jsonlite', 'logger', 'remotes', 'tidyverse', 'systemfonts', 'aws.s3', 'lambdr', 'ggridges'), repos = 'https://packagemanager.rstudio.com/all/__linux__/centos7/latest')"
 
 # install fonts
 COPY Roboto_Condensed/RobotoCondensed*.ttf /usr/share/fonts/
 
-# copy r script into container
+# copy r script(s) into container
 RUN mkdir /lambda
 COPY runtime.r /lambda
+COPY util.r /lambda
 RUN chmod 755 -R /lambda
 
 # run lambdr + source functions

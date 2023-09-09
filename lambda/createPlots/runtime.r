@@ -1,132 +1,132 @@
 library(ggplot2)
+library(ggridges)
 library(lubridate)
 library(dplyr)
 library(forcats)
 library(aws.s3)
 
-source("util.r")
-
-#' Just prints a message
-#'
-#' Here as a default so that you can verify your lambda config (and to make it
-#' clear if you've forgotten to override the entrypoint)
-defaultFunc <- function() {
-  return(list(message = paste(
-    "This is the default function for the Is it hot right now R runtime.",
-    "If you're configuring a new Lambda function, you should override the",
-    "Lambda's entrypoint to be the name of one of the other functions in this",
-    "file.")))
-}
+source("/lambda/util.r")
 
 #' Create a timeseries plot
 #' 
 #' @param hist_obs: The historical observations data frame (formerly HistObs).
 #'   Cols include Year, Month, Day, Tmax, Tmin, Tavg, Date.
-#' @param today: Today's date (in UTC?)
 #' @param tavg_now: The current average temperature.
-#' @param hist_percentiles: An array of historical percentiles (formerly
-#'   HistPercentiles).
+#' @param station_id: The id of the station, for saving to s3.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
-#' @param output_path: the path to write the plot to
-createTimeseriesPlot <- function(hist_obs, date_now, tavg_now, station_tz,
-station_label, output_path) {
+createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
+  station_tz, station_label) {
+
+  date_now <- Sys.time() |> as.Date(station_tz)
+
+  # rename problematic column
+  hist_obs <- rename(hist_obs, ob_date = Date)
 
   stopifnot(
-    "Arg `today` should be length 1"         = length(today) != 1,
-    "Arg `tavg_now` should be length 1"      = length(tavg_now) != 1,
-    # "Arg `hist_5p` should be length 1"       = length(hist_5p) != 1,
-    # "Arg `hist_50p` should be length 1"      = length(hist_50p) != 1,
-    # "Arg `hist_95p` should be length 1"      = length(hist_95p) != 1,
-    "Arg `station_tz` should be length 1"    = length(station_tz) != 1,
-    "Arg `station_label` should be length 1" = length(station_label) != 1,
-    "Arg `output_path` should be length 1"   = length(output_path) != 1,
-    "Arg `today` should be a date"           = is(today, "Date"),
+    "Arg `tavg_now` should be length 1"      = length(tavg_now) == 1,
+    "Arg `station_tz` should be length 1"    = length(station_tz) == 1,
+    "Arg `station_label` should be length 1" = length(station_label) == 1,
     "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
-    # "Arg `hist_5p` should be a number"       = is(hist_5p, "numeric"),
-    # "Arg `hist_50p` should be a number"      = is(hist_50p, "numeric"),
-    # "Arg `hist_95p` should be a number"      = is(hist_95p, "numeric"),
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
-    "Arg `station_label` should be a string" = is(station_label, "character"),
-    "Arg `output_path` should be a string"   = is(output_path, "character"))
+    "Arg `station_label` should be a string" = is(station_label, "character"))
 
   # extract percentiles of historical obs (unbound the ends)
   percentiles <- extract_percentiles(hist_obs$Tavg)
-  hist_5p  <- percentiles %>% filter(percentile == "5%")  %>% pull(value_upper)
-  hist_50p <- percentiles %>% filter(percentile == "50%") %>% pull(value_upper)
-  hist_95p <- percentiles %>% filter(percentile == "95%") %>% pull(value_upper)
+  hist_5p  <- percentiles %>% filter(pct_upper == "5%")  %>% pull(value_upper)
+  hist_95p <- percentiles %>% filter(pct_upper == "95%") %>% pull(value_upper)
+  hist_50p <- hist_obs %>% pull(Tavg) %>% median(na.rm = TRUE)
+
+  # add the bucket colours to eahc observation
+  hist_obs |>
+    left_join(percentiles,
+      join_by(between(Tavg, value_lower, value_upper, bounds = "(]"))) ->
+  hist_obs_shaded
 
   # fit linear trend for label
   # (we're doing it twice; might be worth a benchmark)
-  linear_model <- lm(formula = Tavg ~ Date, data = hist_obs)
+  linear_model <- lm(formula = Tavg ~ ob_date, data = hist_obs_shaded)
   trend <- linear_model$coeff[2]
 
   # conditionally make extra room for the TODAY label either above or below,
   # depending on whether the current temp is in the top/bottom 5%
-  y_scale_expand = ifelse(
-    Tavg.now > hist_95p,
-    expansion(mult = c(0.05, 0.15)),
-    ifelse(
-      Tavg.now < hist_5p,
-      expansion(mult = c(0.15, 0.05)),
-      expansion(mult = c(0.05, 0.05))))
+  if (tavg_now > hist_95p) {
+    y_scale_expand <- expansion(mult = c(0.05, 0.15))
+  } else if (tavg_now < hist_5p) {
+    y_scale_expand <- expansion(mult = c(0.15, 0.05))
+  } else {
+    y_scale_expand <- expansion(mult = c(0.05, 0.05))
+  }
+
+  # today's observation
+  tibble(x = date_now, y = tavg_now) |>
+    left_join(percentiles,
+      join_by(between(y, value_lower, value_upper, bounds = "(]"))) ->
+  today_df
 
   # build the plot
-  plot_ts <-
-    ggplot(data = obs) +
-    aes(x = Date, y = Tavg) +
+  ts_plot <-
+    ggplot(data = hist_obs_shaded) +
     # dashed percentile lines and labels
-    geom_rect(
-      aes(
-        xmin = -Inf,
-        xmax = Inf,
-        ymin = value_lower,
-        ymax = value_upper,
-        fill = rating_colour),
-      data = percentiles) +
     # now the observations
     # james - i don't understand what this first geom is for
-    # geom_line(size = 0.0, colour = "#CCCCCC") +
-    geom_point(size = rel(1.5), colour = base_colour, alpha = 0.25) +
-    geom_smooth(method = lm, se = FALSE, col = "gray60", size = 0.5) +
-    # today's point and labels
     geom_point(
-      aes(x = x, y = y),
-      data = data.frame(x = date_now, y = tavg_now),
-      colour = iihrn_colour,
-      size = rel(5)) +
+      aes(x = ob_date, y = Tavg, colour = rating_colour),
+      size = rel(1.1),
+      # colour = base_colour,
+      alpha = 0.5) +
+    # 5th/95th percentile lines and labels
     annotate_text_iihrn(
-      x = today,
-      y = tavg_now,
-      vjust = -1.5,
-      label = "TODAY",
-      colour = iihrn_colour) +
-    annotate_text_iihrn(
-      x = today,
-      y = tavg_now,
-      vjust = 2.5,
-      label = paste0(round(tavg_now, 1), "°C"),
-      highlight = TRUE) +
-    annotate_text_iihrn(
-      x = min(hist_obs$Date, na.rm = TRUE),
+      x = min(hist_obs_shaded$ob_date, na.rm = TRUE),
       y = hist_95p,
       label = paste0(
         "95th percentile: ", round(hist_95p, 1), "°C"),
       hjust = "inward",
-      vjust = -0.5) +
+      vjust = -0.5,
+      highlight = FALSE) +
     annotate_text_iihrn(
-      x = min(hist_obs$Date, na.rm = TRUE),
+      x = min(hist_obs_shaded$ob_date, na.rm = TRUE),
       y = hist_5p,
       label = paste0(
         "5th percentile: ", round(hist_5p, 1), "°C"),
       hjust = "inward",
-      vjust = -0.5) +
+      vjust = -0.5,
+      highlight = FALSE) +
+    geom_hline(yintercept = hist_5p, colour = base_colour,
+      linetype = "longdash") +
+    geom_hline(yintercept = hist_95p, colour = base_colour,
+      linetype = "longdash") +
+    # today's point and labels
+    geom_point(
+      aes(x = x, y = y, colour = rating_colour),
+      data = today_df,
+      size = rel(5)) +
     annotate_text_iihrn(
-      x = min(hist_obs$Date, na.rm = TRUE),
+      x = today_df$x,
+      y = today_df$y,
+      vjust = -1.5,
+      label = "TODAY",
+      highlight = FALSE) +
+    annotate_text_iihrn(
+      x = today_df$x,
+      y = today_df$y,
+      vjust = 2.5,
+      label = paste0(round(tavg_now, 1), "°C"),
+      highlight = FALSE) +
+    # trend line and label
+    geom_smooth(
+      aes(x = ob_date, y = Tavg),
+      method = lm,
+      se = FALSE,
+      col = base_colour,
+      linewidth = 0.5) +
+    annotate_text_iihrn(
+      x = min(hist_obs_shaded$ob_date, na.rm = TRUE),
       y = hist_50p,
       label = paste0("Trend: +", round(trend * 365 * 100, 1), "°C/ century"),
       hjust = "inward",
-      vjust = -0.5) +
+      vjust = -0.5,
+      highlight = FALSE) +
     scale_x_date(
       date_breaks = "20 years",
       date_labels = "%Y") +
@@ -134,6 +134,7 @@ station_label, output_path) {
       breaks = seq(0, 100, by = 5),
       labels = scales::label_number(suffix = "°C"),
       expand = y_scale_expand) +
+    scale_colour_identity() +
     theme_iihrn() +
     theme(
       axis.line = element_line(),
@@ -148,84 +149,94 @@ station_label, output_path) {
       y = "Daily average temperature")
 
   # write out to disk
-  ggsave(filename = output_path, plot = plot_ts, bg = bg_colour_today,
+  temp_path <- tempfile("timeseries-", fileext = ".png")
+  ggsave(
+    filename = temp_path,
+    plot = ts_plot, bg = bg_colour_today,
     height = 4.5, width = 8, units = "in")
+  
+  # upload to s3
+  put_object(
+    file = temp_path,
+    object = file.path("www", "plots", "timeseries",
+      paste0("timeseries-", station_id, ".png")),
+    bucket = "isithot-data")
 
+  return(temp_path)
 }
 
 #' Create a distribution plot
 #'
 #' @param hist_obs: The historical observations data frame (formerly HistObs).
 #'   Cols include Year, Month, Day, Tmax, Tmin, Tavg, Date.
-#' @param today: Today's date (in UTC?)
 #' @param tavg_now: The current average temperature.
+#' @param station_id: The id of the station, for saving to s3.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
-#' @param record_start: The date of the first record in the obs
-#' @param output_path: the path to write the plot to
-createDistributionPlot <- function(hist_obs, date_now, tavg_now, station_tz,
-  station_label, record_start, output_path) {
+createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
+  station_label) {
 
   stopifnot(
-    "Arg `today` should be length 1"         = length(today) != 1,
-    "Arg `tavg_now` should be length 1"      = length(tavg_now) != 1,
-    # "Arg `hist_5p` should be length 1"       = length(hist_5p) != 1,
-    # "Arg `hist_50p` should be length 1"      = length(hist_50p) != 1,
-    # "Arg `hist_95p` should be length 1"      = length(hist_95p) != 1,
-    "Arg `station_tz` should be length 1"    = length(station_tz) != 1,
-    "Arg `record_start` should be length 1"  = length(record_start) != 1,
-    "Arg `station_label` should be length 1" = length(station_label) != 1,
-    "Arg `output_path` should be length 1"   = length(output_path) != 1,
-    "Arg `today` should be a date"           = is(today, "Date"),
+    "Arg `tavg_now` should be length 1"      = length(tavg_now) == 1,
+    "Arg `station_tz` should be length 1"    = length(station_tz) == 1,
+    "Arg `station_label` should be length 1" = length(station_label) == 1,
     "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
-    # "Arg `hist_5p` should be a number"       = is(hist_5p, "numeric"),
-    # "Arg `hist_50p` should be a number"      = is(hist_50p, "numeric"),
-    # "Arg `hist_95p` should be a number"      = is(hist_95p, "numeric"),
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
-    "Arg `station_label` should be a string" = is(station_label, "character"),
-    "Arg `record_start` should be a date"    = is(record_start, "Date"),
-    "Arg `output_path` should be a string"   = is(output_path, "character"))
+    "Arg `station_label` should be a string" = is(station_label, "character"))
 
-  # extract percentiles of historical obs
-  hist_obs %>%
-    quantile(c(0.05, 0.10, 0.40, 0.50, 0.60, 0.90, 0.95), na.rm = TRUE) ->
-  percentiles
+  record_start <- hist_obs %>% slice_min(ob_date) %>% pull(ob_date) %>% year()
+
+  percentiles <- extract_percentiles(hist_obs$Tavg)
+  hist_5p  <- percentiles %>% filter(pct_upper == "5%")  %>% pull(value_upper)
+  hist_95p <- percentiles %>% filter(pct_upper == "95%") %>% pull(value_upper)
+  hist_50p <- hist_obs %>% pull(Tavg) %>% median(na.rm = TRUE)
 
   # TODO - shade distribution based on percentiles
 
   dist_plot <- ggplot(hist_obs) +
-    aes(x = Tavg) +
-    geom_density(adjust = 0.7, colour = NA, fill = base_colour, alpha = 0.3) +
+    aes(x = Tavg, y = 0) +
+    # geom_density_ridges_gradient(
+    #   adjust = 0.7, colour = NA) +
+    stat_density_ridges(
+      aes(fill = stat(quantile)),
+      colour = NA,
+      geom = "density_ridges_gradient",
+      calc_ecdf = TRUE,
+      quantiles = percentiles$frac_lower |> head(-1),
+      quantile_lines = TRUE
+      ) +
     # dashed vertical percentile lines and labels, plus today's temperature
-    geom_vline(xintercept = tavg_now, colour = iihrn_colour, size = rel(1.5)) +
+    geom_vline(xintercept = tavg_now, colour = base_colour, linewidth = rel(1.5)) +
     # geom_vline(xintercept = hist_50p, linetype = 2, alpha = 0.5) +
     # geom_vline(xintercept = hist_5p,  linetype = 2, alpha = 0.5) +
     # geom_vline(xintercept = hist_95p, linetype = 2, alpha = 0.5) +
     annotate_text_iihrn(
-      x = percentiles["5%"],
+      x = hist_5p,
       y = 0,
-      vjust = -0.75,
+      vjust = 1.75,
       hjust = -0.05,
-      label = paste0("5th percentile:  ", round(percentiles["5%"], 1), "°C"),
+      label = paste0("5th percentile:  ", round(hist_5p, 1), "°C"),
+      highlight = FALSE,
       size = 4,
       angle = 90,
       alpha = 0.9) +
     annotate_text_iihrn(
-      x = percentiles["50%"],
+      x = hist_50p,
       y = 0,
-      vjust = -0.75,
       hjust = -0.05,
       label = paste0(
-        "50th percentile: ", round(percentiles["50%"], 1), "°C"),
+        "50th percentile: ", round(hist_50p, 1), "°C"),
+      highlight = FALSE,
       size = 4,
       angle = 90,
       alpha = 0.9) +
     annotate_text_iihrn(
-      x = percentiles["95%"],
+      x = hist_95p,
       y = 0,
       vjust = -0.75,
       hjust = -0.05,
-      label = paste0("95th percentile:  ", round(percentiles["95%"], 1), "°C"),
+      label = paste0("95th percentile:  ", round(hist_95p, 1), "°C"),
+      highlight = FALSE,
       size = 4,
       angle = 90,
       alpha = 0.9) +
@@ -235,12 +246,13 @@ createDistributionPlot <- function(hist_obs, date_now, tavg_now, station_tz,
       vjust = -0.75,
       hjust = 1.1,
       label = paste0("TODAY:  ", tavg_now, "°C"),
-      highlight = TRUE,
+      highlight = FALSE,
       size = 4,
       angle = 90,
       alpha = 1) +
-    scale_x_continuous(labels = scales::label_number(suffix = "°C"))
-    scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+    scale_x_continuous(labels = scales::label_number(suffix = "°C")) +
+    scale_y_continuous(expand = expansion(add = c(0, 0.015))) +
+    scale_fill_manual(values = rating_colours, guide = guide_none()) +
     theme_iihrn() +
     theme(
       axis.title.y = element_blank(),
@@ -249,14 +261,24 @@ createDistributionPlot <- function(hist_obs, date_now, tavg_now, station_tz,
       x = "Daily average temperature",
       y = NULL,
       title = paste0(
-        "Distribution of daily average temperatures\n",
-        "for this time of year since ",
-        record_start))
+        station_label,
+        " daily average temperatures\nfor the two weeks around ",
+        format(date_now, format = "%d %B", tz = station_tz),
+        " since ", record_start))
 
   # write out to disk
-  ggsave(filename = output_path, plot = dist_plot, bg = bg_colour_today,
+  temp_path <- tempfile("dist-", fileext = ".png")
+  ggsave(
+    filename = temp_path,
+    plot = dist_plot, bg = bg_colour_today,
     height = 4.5, width = 8, units = "in")
 
+  # upload to s3
+  put_object(
+    file = temp_path,
+    object = file.path("www", "plots", "distribution",
+      paste0("distribution-", station_id, ".png")),
+    bucket = "isithot-data")
   }
 
 #' Creates a plot of this year's ratings
@@ -264,10 +286,9 @@ createDistributionPlot <- function(hist_obs, date_now, tavg_now, station_tz,
 #' @param obs_thisyear: this year's observations as a dataframe, from
 #'   databackup/[id]-[year].csv. cols include date, percentile
 #' @param date_now: today's date as a Date object
+#' @param station_id: The id of the station, for saving to s3.
 #' @param station_label: the station label
-#' @param output_path: the path to write the plot to
-createHeatwavePlot <- function(obs_thisyear, date_now, station_label,
-  output_path) {
+createHeatwavePlot <- function(obs_thisyear, date_now, station_label) {
 
   # extract month and day from the date
   obs_thisyear |>
@@ -289,7 +310,7 @@ createHeatwavePlot <- function(obs_thisyear, date_now, station_label,
     scale_y_discrete(drop = TRUE, expand = expansion(0)) +
     scale_fill_stepsn(
       colours = rating_colours,
-      breaks = c(0, 5, 10, 40, 50, 60, 90, 95, 100),
+      breaks = c(0, 5, 10, 40, 60, 90, 95, 100),
       limits = c(0, 100),
       na.value = NA,
       # colour bar disables `even.steps` to keep blocks proportional in height
@@ -325,8 +346,18 @@ createHeatwavePlot <- function(obs_thisyear, date_now, station_label,
       )
 
   # write out to disk
-  ggsave(filename = output_path, plot = hw_plot, bg = bg_colour_hw,
+  temp_path <- tempfile("timeseries-", fileext = ".png")
+  ggsave(
+    filename = temp_path,
+    plot = hw_plot, bg = bg_colour_hw,
     height = 1060, width = 2400, units = "px")
+
+  # upload to s3
+  put_object(
+    file = temp_path,
+    object = file.path("www", "plots", "heatwave",
+      paste0("heatwave-", station_id, ".png")),
+    bucket = "isithot-data")
 
 }
 

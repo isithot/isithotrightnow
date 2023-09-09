@@ -6,14 +6,13 @@ bg_colour_today <- "#eeeeee"
 bg_colour_hw <- "#dddddd"
 
 rating_colours <- c(
-  "#2166ac", 0-5
-  "#4393c3", 5-10
-  "#92c5de", 10-40
-  "#d1e5f0", 40-50
-  "#fddbc7", 50-60
-  "#f4a582", 60-90
-  "#d6604d", 90-95
-  "#b2182b") 95-100
+  "#2166ac",    # 0-5%
+  "#67a9cf",    # 5-10%
+  "#d1e5f0",    # 10-40%
+  "#f7f7f7",    # 40-60%
+  "#fddbc7",    # 60-90%
+  "#ef8a62",    # 90-95%
+  "#b2182b")    # 95-100%
 
 #' Return a data frame of lower and upper limits for shading graphics based on
 #' our ratings.
@@ -25,11 +24,13 @@ rating_colours <- c(
 #'   - value_lower <dbl>: the lower temperature threshold of the region
 #'   - rating_colour <chr>: the hex code of the colour to use
 extract_percentiles <- function(obs) {
+
+  quantiles <- c(0, 0.05, 0.10, 0.40, 0.60, 0.90, 0.95, 1)
+
   obs %>%
-    quantile(
-      c(0, 0.05, 0.10, 0.40, 0.50, 0.60, 0.90, 0.95, 1),
-      na.rm = TRUE) %>%
+    quantile(quantiles, na.rm = TRUE) %>%
     tibble(
+      frac_lower = quantiles,
       pct_upper = names(.),
       pct_lower = lag(names(.), 1),
       value_upper = .,
@@ -40,18 +41,18 @@ extract_percentiles <- function(obs) {
   percentiles
 
   # unbound the ends
-  percentiles$lower[1] <- Inf
-  percentiles$upper[nrow(percentiles)] <- Inf
+  percentiles$value_lower[1] <- -Inf
+  percentiles$value_upper[nrow(percentiles)] <- Inf
 
   return(percentiles)
 }
 
 #' Define some sensible defaults for text annotations
-#' 
+#'
 #' @param size: The size of the text. Defaults to 50% of the base size.
 #' @param highlight: If true, use the highlight text colour.
 #' @param ...: Other arguments passed to annotate.
-annotate_text_iihrn <- function(size = rel(0.5),
+annotate_text_iihrn <- function(size = 3,
   highlight = c(FALSE, TRUE), ...) {
   annotate(
     geom = "text",
