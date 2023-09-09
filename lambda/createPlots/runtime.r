@@ -20,8 +20,10 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
 
   date_now <- Sys.time() |> as.Date(station_tz)
 
-  # rename problematic column
-  hist_obs <- rename(hist_obs, ob_date = Date)
+  # cast dates ({jsonlite} doesn't do it for us)
+  hist_obs <-
+    hist_obs %>%
+    mutate(ob_date = as.Date(Date))
 
   stopifnot(
     "Arg `tavg_now` should be length 1"      = length(tavg_now) == 1,
@@ -176,6 +178,11 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
 createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
   station_label) {
 
+  # cast dates ({jsonlite} doesn't do it for us)
+  hist_obs <-
+    hist_obs %>%
+    mutate(ob_date = as.Date(Date))
+
   stopifnot(
     "Arg `tavg_now` should be length 1"      = length(tavg_now) == 1,
     "Arg `station_tz` should be length 1"    = length(station_tz) == 1,
@@ -190,8 +197,6 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
   hist_5p  <- percentiles %>% filter(pct_upper == "5%")  %>% pull(value_upper)
   hist_95p <- percentiles %>% filter(pct_upper == "95%") %>% pull(value_upper)
   hist_50p <- hist_obs %>% pull(Tavg) %>% median(na.rm = TRUE)
-
-  # TODO - shade distribution based on percentiles
 
   dist_plot <- ggplot(hist_obs) +
     aes(x = Tavg, y = 0) +
@@ -294,6 +299,7 @@ createHeatwavePlot <- function(obs_thisyear, date_now, station_label) {
   obs_thisyear |>
     filter(!is.na(date)) |>
     mutate(
+      date = as.Date(date),
       month = fct_rev(factor(month(date), labels = month.abb)),
       day = mday(date)) ->
   obs_thisyear_toplot
