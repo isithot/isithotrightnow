@@ -175,7 +175,7 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
 #' @param station_id: The id of the station, for saving to s3.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
-  createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
+  createDistributionPlot <- function(hist_obs, tavg_now, station_id, station_tz,
     station_label) {
 
   date_now <- Sys.time() |> as.Date(station_tz)
