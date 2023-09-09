@@ -184,7 +184,7 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
     "Arg `station_label` should be a string" = is(station_label, "character"))
 
-  record_start <- hist_obs |> slice_min(Date) |> pull(Date)
+  record_start <- hist_obs %>% slice_min(ob_date) %>% pull(ob_date) %>% year()
 
   # TODO - get hist_obs from s3? or supplied directly in arg?
   # (The historical observations data frame (formerly HistObs).
@@ -268,9 +268,10 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
       x = "Daily average temperature",
       y = NULL,
       title = paste0(
-        "Distribution of daily average temperatures\n",
-        "for this time of year since ",
-        record_start))
+        station_label,
+        " daily average temperatures\nfor the two weeks around ",
+        format(date_now, format = "%d %B", tz = station_tz),
+        " since ", record_start))
 
   # write out to disk
   temp_path <- tempfile("dist-", fileext = ".png")
