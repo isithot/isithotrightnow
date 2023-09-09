@@ -36,16 +36,12 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
   hist_5p  <- percentiles %>% filter(pct_upper == "5%")  %>% pull(value_upper)
   hist_95p <- percentiles %>% filter(pct_upper == "95%") %>% pull(value_upper)
   hist_50p <- hist_obs %>% pull(Tavg) %>% median(na.rm = TRUE)
-  
-  percentiles %>% filter(pct_upper == "50%") %>% pull(value_upper)
 
   # add the bucket colours to eahc observation
   hist_obs |>
     left_join(percentiles,
       join_by(between(Tavg, value_lower, value_upper, bounds = "(]"))) ->
   hist_obs_shaded
-
-  print(percentiles)
 
   # fit linear trend for label
   # (we're doing it twice; might be worth a benchmark)
@@ -68,7 +64,6 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
       join_by(between(y, value_lower, value_upper, bounds = "(]"))) ->
   today_df
 
-
   # build the plot
   ts_plot <-
     ggplot(data = hist_obs_shaded) +
@@ -80,12 +75,27 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
       size = rel(1.1),
       # colour = base_colour,
       alpha = 0.5) +
-    geom_smooth(
-      aes(x = ob_date, y = Tavg),
-      method = lm,
-      se = FALSE,
-      col = base_colour,
-      linewidth = 0.5) +
+    # 5th/95th percentile lines and labels
+    annotate_text_iihrn(
+      x = min(hist_obs_shaded$ob_date, na.rm = TRUE),
+      y = hist_95p,
+      label = paste0(
+        "95th percentile: ", round(hist_95p, 1), "°C"),
+      hjust = "inward",
+      vjust = -0.5,
+      highlight = FALSE) +
+    annotate_text_iihrn(
+      x = min(hist_obs_shaded$ob_date, na.rm = TRUE),
+      y = hist_5p,
+      label = paste0(
+        "5th percentile: ", round(hist_5p, 1), "°C"),
+      hjust = "inward",
+      vjust = -0.5,
+      highlight = FALSE) +
+    geom_hline(yintercept = hist_5p, colour = base_colour,
+      linetype = "longdash") +
+    geom_hline(yintercept = hist_95p, colour = base_colour,
+      linetype = "longdash") +
     # today's point and labels
     geom_point(
       aes(x = x, y = y, colour = rating_colour),
@@ -103,22 +113,13 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
       vjust = 2.5,
       label = paste0(round(tavg_now, 1), "°C"),
       highlight = FALSE) +
-    annotate_text_iihrn(
-      x = min(hist_obs_shaded$ob_date, na.rm = TRUE),
-      y = hist_95p,
-      label = paste0(
-        "95th percentile: ", round(hist_95p, 1), "°C"),
-      hjust = "inward",
-      vjust = -0.5,
-      highlight = FALSE) +
-    annotate_text_iihrn(
-      x = min(hist_obs_shaded$ob_date, na.rm = TRUE),
-      y = hist_5p,
-      label = paste0(
-        "5th percentile: ", round(hist_5p, 1), "°C"),
-      hjust = "inward",
-      vjust = -0.5,
-      highlight = FALSE) +
+    # trend line and label
+    geom_smooth(
+      aes(x = ob_date, y = Tavg),
+      method = lm,
+      se = FALSE,
+      col = base_colour,
+      linewidth = 0.5) +
     annotate_text_iihrn(
       x = min(hist_obs_shaded$ob_date, na.rm = TRUE),
       y = hist_50p,
