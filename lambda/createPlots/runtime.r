@@ -1,4 +1,5 @@
 library(ggplot2)
+library(ggridges)
 library(lubridate)
 library(dplyr)
 library(forcats)
@@ -33,8 +34,10 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
   # extract percentiles of historical obs (unbound the ends)
   percentiles <- extract_percentiles(hist_obs$Tavg)
   hist_5p  <- percentiles %>% filter(pct_upper == "5%")  %>% pull(value_upper)
-  hist_50p <- percentiles %>% filter(pct_upper == "50%") %>% pull(value_upper)
   hist_95p <- percentiles %>% filter(pct_upper == "95%") %>% pull(value_upper)
+  hist_50p <- hist_obs %>% pull(Tavg) %>% median(na.rm = TRUE)
+  
+  percentiles %>% filter(pct_upper == "50%") %>% pull(value_upper)
 
   # add the bucket colours to eahc observation
   hist_obs |>
@@ -193,16 +196,25 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
 
   percentiles <- extract_percentiles(hist_obs$Tavg)
   hist_5p  <- percentiles %>% filter(pct_upper == "5%")  %>% pull(value_upper)
-  hist_50p <- percentiles %>% filter(pct_upper == "50%") %>% pull(value_upper)
   hist_95p <- percentiles %>% filter(pct_upper == "95%") %>% pull(value_upper)
+  hist_50p <- hist_obs %>% pull(Tavg) %>% median(na.rm = TRUE)
 
   # TODO - shade distribution based on percentiles
 
   dist_plot <- ggplot(hist_obs) +
-    aes(x = Tavg) +
-    geom_density(adjust = 0.7, colour = NA, fill = base_colour, alpha = 0.3) +
+    aes(x = Tavg, y = 1) +
+    # geom_density_ridges_gradient(
+    #   adjust = 0.7, colour = NA) +
+    stat_density_ridges(
+      aes(fill = stat(quantile)),
+      colour = NA,
+      geom = "density_ridges_gradient",
+      calc_ecdf = TRUE,
+      quantiles = percentiles$frac_lower |> head(-1),
+      quantile_lines = TRUE
+      ) +
     # dashed vertical percentile lines and labels, plus today's temperature
-    geom_vline(xintercept = tavg_now, colour = iihrn_colour, linewidth = rel(1.5)) +
+    geom_vline(xintercept = tavg_now, colour = base_colour, linewidth = rel(1.5)) +
     # geom_vline(xintercept = hist_50p, linetype = 2, alpha = 0.5) +
     # geom_vline(xintercept = hist_5p,  linetype = 2, alpha = 0.5) +
     # geom_vline(xintercept = hist_95p, linetype = 2, alpha = 0.5) +
@@ -240,12 +252,13 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
       vjust = -0.75,
       hjust = 1.1,
       label = paste0("TODAY:  ", tavg_now, "°C"),
-      highlight = TRUE,
+      highlight = FALSE,
       size = 4,
       angle = 90,
       alpha = 1) +
     scale_x_continuous(labels = scales::label_number(suffix = "°C")) +
-    scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
+    scale_y_continuous(limits = c(1, 1.32), expand = expansion(0)) +
+    scale_fill_manual(values = rating_colours, guide = guide_none()) +
     theme_iihrn() +
     theme(
       axis.title.y = element_blank(),
@@ -259,7 +272,7 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
         record_start))
 
   # write out to disk
-  temp_path <- tempfile("timeseries-", fileext = ".png")
+  temp_path <- tempfile("dist-", fileext = ".png")
   ggsave(
     filename = temp_path,
     plot = dist_plot, bg = bg_colour_today,
@@ -302,7 +315,7 @@ createHeatwavePlot <- function(obs_thisyear, date_now, station_label) {
     scale_y_discrete(drop = TRUE, expand = expansion(0)) +
     scale_fill_stepsn(
       colours = rating_colours,
-      breaks = c(0, 5, 10, 40, 50, 60, 90, 95, 100),
+      breaks = c(0, 5, 10, 40, 60, 90, 95, 100),
       limits = c(0, 100),
       na.value = NA,
       # colour bar disables `even.steps` to keep blocks proportional in height
