@@ -24,6 +24,9 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
   date_now <- Sys.time() |> as.Date(station_tz)
 
   message("Validating arguments")
+  message(paste(
+    "Arg `hist_obs` has classes: ", paste(class(hist_obs), collapse = ", ")))
+  message("`Printing hist_obs`: ", hist_obs)
   flush.console()
 
   stopifnot(
