@@ -220,22 +220,22 @@ def lambda_handler(event, context):
     # invoke time series plotting function
     invoke_plotting_lambda(
         "createTimeseriesPlot",
-        json.dumps({
+        {
             "hist_obs": hist_obs.to_json(orient="records"),
             "tavg_now": tavg_now,
             "station_id": station_id,
             "station_tz": tz,
-            "station_label": this_station['label']}))
+            "station_label": this_station['label']})
 
     # invoke distribution plotting function
     invoke_plotting_lambda(
         "createDistributionPlot",
-        json.dumps({
+        {
             "hist_obs": hist_obs.to_json(orient="records"),
             "tavg_now": tavg_now,
             "station_id": station_id,
             "station_tz": tz,
-            "station_label": this_station['label']}))
+            "station_label": this_station['label']})
     
     # invoke heatwave plotting function
     # TODO - do we have obs_thisyear here? (prev. databackup/[id]-[year].csv)
