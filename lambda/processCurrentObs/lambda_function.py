@@ -140,10 +140,10 @@ def upload_to_aws(local_file, s3_file):
         print("The file was not found")
         return None
 
-def invoke_createTimeseriesPlot(payload):
+def invoke_plotting_lambda(fn_name, payload):
     lambda_client = boto3.client('lambda')
     response = lambda_client.invoke(
-        FunctionName='createTimeseriesPlot',
+        FunctionName=fn_name,
         InvocationType='Event',
         Payload=json.dumps(payload)
     )
@@ -155,7 +155,7 @@ def lambda_handler(event, context):
     print(event.values())
     print(f"\n\nBeginning analysis: {station_id}")
 
-    # Load station data from locations.json
+    # Load station metadata from locations.json
     loc_s3_fpath = f'1-datasources/locations.json'
     loc_local_fpath = download_from_aws(loc_s3_fpath)
     with open(loc_local_fpath) as f:
@@ -217,13 +217,32 @@ def lambda_handler(event, context):
         json.dump(stats_dict, f)
     upload_to_aws(file_path, f'www/stats/stats_{station_id}.json')
     
-    # invoke plotting function
-    # needs hist_obs, date_now, tavg_now, station_id, station_tz, station_label
-    payload_dict = {"hist_obs": hist_obs.to_json(orient="split"),
-                    "date_now": current_date.strftime("%Y-%m-%d"),
-                    "tavg_now": tavg_now,
-                    "station_id": station_id,
-                    "station_tz": tz,
-                    "station_label": this_station['label']}
+    # invoke time series plotting function
+    invoke_plotting_lambda(
+        "createTimeseriesPlot",
+        json.dumps({
+            "hist_obs": hist_obs.to_json(orient="records"),
+            "tavg_now": tavg_now,
+            "station_id": station_id,
+            "station_tz": tz,
+            "station_label": this_station['label']}))
+
+    # invoke distribution plotting function
+    invoke_plotting_lambda(
+        "createDistributionPlot",
+        json.dumps({
+            "hist_obs": hist_obs.to_json(orient="records"),
+            "tavg_now": tavg_now,
+            "station_id": station_id,
+            "station_tz": tz,
+            "station_label": this_station['label']}))
     
-    invoke_createTimeseriesPlot(json.dumps(payload_dict))
+    # invoke heatwave plotting function
+    # TODO - do we have obs_thisyear here? (prev. databackup/[id]-[year].csv)
+    # invoke_plotting_lambda(
+    #     "createHeatwavePlot",
+    #     json.dumps({
+    #         "obs_thisyear": # ...,
+    #         "station_id": station_id,
+    #         "station_tz": tz,
+    #         "station_label": this_station['label']}))
