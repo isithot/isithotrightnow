@@ -70,8 +70,8 @@ def bin_obs(tavg_now, hist_percentiles):
 
 def ECDF(data):
     """Compute ECDF for a one-dimensional array of measurements."""
-    # Sort the data in ascending order
-    sorted_data = np.sort(data)
+    # Drop NAs and sort the data in ascending order
+    sorted_data = np.sort(data.dropna())
 
     # Calculate the y-values for the ECDF
     n = len(data)
