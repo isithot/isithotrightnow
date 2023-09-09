@@ -5,7 +5,7 @@ library(dplyr)
 library(forcats)
 library(aws.s3)
 
-source("util.r")
+source("/lambda/util.r")
 
 #' Create a timeseries plot
 #' 

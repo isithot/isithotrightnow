@@ -24,9 +24,10 @@ RUN Rscript -e "install.packages(c('httr', 'jsonlite', 'logger', 'remotes', 'tid
 # install fonts
 COPY Roboto_Condensed/RobotoCondensed*.ttf /usr/share/fonts/
 
-# copy r script into container
+# copy r script(s) into container
 RUN mkdir /lambda
 COPY runtime.r /lambda
+COPY util.r /lambda
 RUN chmod 755 -R /lambda
 
 # run lambdr + source functions
