@@ -292,10 +292,12 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
 #' 
 #' @param obs_thisyear: this year's observations as a dataframe, from
 #'   databackup/[id]-[year].csv. cols include date, percentile
-#' @param date_now: today's date as a Date object
 #' @param station_id: The id of the station, for saving to s3.
+#' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: the station label
-createHeatwavePlot <- function(obs_thisyear, date_now, station_label) {
+createHeatwavePlot <- function(obs_thisyear, station_id, station_tz, station_label) {
+
+  date_now <- Sys.time() |> as.Date(station_tz)
 
   # extract month and day from the date
   obs_thisyear |>
