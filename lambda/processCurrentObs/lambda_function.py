@@ -140,6 +140,15 @@ def upload_to_aws(local_file, s3_file):
         print("The file was not found")
         return None
 
+def invoke_createTimeseriesPlot(payload):
+    lambda_client = boto3.client('lambda')
+    response = lambda_client.invoke(
+        FunctionName='createTimeseriesPlot',
+        InvocationType='Event',
+        Payload=json.dumps(payload)
+    )
+    return response
+
 def lambda_handler(event, context):
 
     station_id, tz, lat, lon, tmax_now, tmax_dt, tmin_now, tmin_dt = event.values()
@@ -207,3 +216,14 @@ def lambda_handler(event, context):
     with open(file_path, "w") as f:
         json.dump(stats_dict, f)
     upload_to_aws(file_path, f'www/stats/stats_{station_id}.json')
+    
+    # invoke plotting function
+    # needs hist_obs, date_now, tavg_now, station_id, station_tz, station_label
+    payload_dict = {"hist_obs": hist_obs.to_json(orient="split"),
+                    "date_now": current_date.strftime("%Y-%m-%d"),
+                    "tavg_now": tavg_now,
+                    "station_id": station_id,
+                    "station_tz": tz,
+                    "station_label": this_station['label']}
+    
+    invoke_createTimeseriesPlot(json.dumps(payload_dict))
