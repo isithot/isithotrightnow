@@ -19,10 +19,12 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
   station_tz, station_label) {
 
   message("Beginning function")
+  flush.console()
 
   date_now <- Sys.time() |> as.Date(station_tz)
 
   message("Validating arguments")
+  flush.console()
 
   stopifnot(
     "Arg `hist_obs` should be a data frame"  = is.data.frame(hist_obs),
@@ -36,6 +38,7 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
     "Arg `station_label` should be a string" = is(station_label, "character"))
   
   message("Casting observation dates")
+  flush.console()
 
   # cast dates ({jsonlite} doesn't do it for us)
   hist_obs <-
