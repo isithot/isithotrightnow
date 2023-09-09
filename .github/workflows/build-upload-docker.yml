@@ -2,14 +2,14 @@
 
 name: Build and deploy R Lambda Docker image to ECR
 
-# update the image whenever we touch the r files on the lambda branch
+# update the image whenever we touch the the lambda branch
 on:
   workflow_dispatch:
   push:
     branches: lambda
-    paths:
-      - "/.github/workflows/build-upload-docker.yml"
-      - "/lambda/createPlots/*"
+    # paths:
+    #   - "/.github/workflows/build-upload-docker.yml"
+    #   - "/lambda/createPlots/*"
 
 jobs:
   
