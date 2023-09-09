@@ -186,15 +186,6 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
 
   record_start <- hist_obs %>% slice_min(ob_date) %>% pull(ob_date) %>% year()
 
-  # TODO - get hist_obs from s3? or supplied directly in arg?
-  # (The historical observations data frame (formerly HistObs).
-  #   Cols include Year, Month, Day, Tmax, Tmin, Tavg, Date.)
-
-  # extract percentiles of historical obs
-  # hist_obs %>%
-  #   quantile(c(0.05, 0.10, 0.40, 0.50, 0.60, 0.90, 0.95), na.rm = TRUE) ->
-  # percentiles
-
   percentiles <- extract_percentiles(hist_obs$Tavg)
   hist_5p  <- percentiles %>% filter(pct_upper == "5%")  %>% pull(value_upper)
   hist_95p <- percentiles %>% filter(pct_upper == "95%") %>% pull(value_upper)
@@ -203,7 +194,7 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
   # TODO - shade distribution based on percentiles
 
   dist_plot <- ggplot(hist_obs) +
-    aes(x = Tavg, y = 1) +
+    aes(x = Tavg, y = 0) +
     # geom_density_ridges_gradient(
     #   adjust = 0.7, colour = NA) +
     stat_density_ridges(
@@ -222,19 +213,20 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
     annotate_text_iihrn(
       x = hist_5p,
       y = 0,
-      vjust = -0.75,
+      vjust = 1.75,
       hjust = -0.05,
       label = paste0("5th percentile:  ", round(hist_5p, 1), "°C"),
+      highlight = FALSE,
       size = 4,
       angle = 90,
       alpha = 0.9) +
     annotate_text_iihrn(
       x = hist_50p,
       y = 0,
-      vjust = -0.75,
       hjust = -0.05,
       label = paste0(
         "50th percentile: ", round(hist_50p, 1), "°C"),
+      highlight = FALSE,
       size = 4,
       angle = 90,
       alpha = 0.9) +
@@ -244,6 +236,7 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
       vjust = -0.75,
       hjust = -0.05,
       label = paste0("95th percentile:  ", round(hist_95p, 1), "°C"),
+      highlight = FALSE,
       size = 4,
       angle = 90,
       alpha = 0.9) +
@@ -258,7 +251,7 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_tz,
       angle = 90,
       alpha = 1) +
     scale_x_continuous(labels = scales::label_number(suffix = "°C")) +
-    scale_y_continuous(limits = c(1, 1.32), expand = expansion(0)) +
+    scale_y_continuous(expand = expansion(add = c(0, 0.015))) +
     scale_fill_manual(values = rating_colours, guide = guide_none()) +
     theme_iihrn() +
     theme(
