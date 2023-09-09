@@ -18,7 +18,11 @@ source("/lambda/util.r")
 createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
   station_tz, station_label) {
 
+  message("Beginning function")
+
   date_now <- Sys.time() |> as.Date(station_tz)
+
+  message("Validating arguments")
 
   stopifnot(
     "Arg `hist_obs` should be a data frame"  = is.data.frame(hist_obs),
@@ -31,10 +35,14 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
     "Arg `station_label` should be a string" = is(station_label, "character"))
   
+  message("Casting observation dates")
+
   # cast dates ({jsonlite} doesn't do it for us)
   hist_obs <-
     hist_obs %>%
     mutate(ob_date = as.Date(Date))
+
+  message("Extracting percentiles")
 
   # extract percentiles of historical obs (unbound the ends)
   percentiles <- extract_percentiles(hist_obs$Tavg)
@@ -42,16 +50,22 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
   hist_95p <- percentiles %>% filter(pct_upper == "95%") %>% pull(value_upper)
   hist_50p <- hist_obs %>% pull(Tavg) %>% median(na.rm = TRUE)
 
+  message("Joining percentile colours to observations")
+
   # add the bucket colours to eahc observation
   hist_obs |>
     left_join(percentiles,
       join_by(between(Tavg, value_lower, value_upper, bounds = "(]"))) ->
   hist_obs_shaded
 
+  message("Fitting linear trend")
+
   # fit linear trend for label
   # (we're doing it twice; might be worth a benchmark)
   linear_model <- lm(formula = Tavg ~ ob_date, data = hist_obs_shaded)
   trend <- linear_model$coeff[2]
+
+  message("Calculating Y scale expansion")
 
   # conditionally make extra room for the TODAY label either above or below,
   # depending on whether the current temp is in the top/bottom 5%
@@ -63,11 +77,15 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
     y_scale_expand <- expansion(mult = c(0.05, 0.05))
   }
 
+  message("Building today's observation")
+
   # today's observation
   tibble(x = date_now, y = tavg_now) |>
     left_join(percentiles,
       join_by(between(y, value_lower, value_upper, bounds = "(]"))) ->
   today_df
+
+  message("Building the plot")
 
   # build the plot
   ts_plot <-
@@ -153,12 +171,16 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
       x = NULL,
       y = "Daily average temperature")
 
+  message("Writing the plot out to disk temporarily")
+
   # write out to disk
   temp_path <- tempfile("timeseries-", fileext = ".png")
   ggsave(
     filename = temp_path,
     plot = ts_plot, bg = bg_colour_today,
     height = 4.5, width = 8, units = "in")
+
+  message("Uploading the plot to S3 bucket")
   
   # upload to s3
   put_object(
@@ -167,7 +189,8 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
       paste0("timeseries-", station_id, ".png")),
     bucket = "isithot-data")
 
-  return(temp_path)
+  message("All done!")
+  return()
 }
 
 #' Create a distribution plot
@@ -178,15 +201,14 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
 #' @param station_id: The id of the station, for saving to s3.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
-  createDistributionPlot <- function(hist_obs, tavg_now, station_id, station_tz,
-    station_label) {
+createDistributionPlot <- function(hist_obs, tavg_now, station_id, station_tz,
+  station_label) {
+
+  message("Beginning function")
 
   date_now <- Sys.time() |> as.Date(station_tz)
 
-  # cast dates ({jsonlite} doesn't do it for us)
-  hist_obs <-
-    hist_obs %>%
-    mutate(ob_date = as.Date(Date))
+  message("Validating arguments")
 
   stopifnot(
     "Arg `hist_obs` should be a data frame"  = is.data.frame(hist_obs),
@@ -198,18 +220,29 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
     "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
     "Arg `station_label` should be a string" = is(station_label, "character"))
+  
+  message("Casting observation dates")
+
+  # cast dates ({jsonlite} doesn't do it for us)
+  hist_obs <-
+    hist_obs %>%
+    mutate(ob_date = as.Date(Date))
+
+  message("Getting start of observation record")
 
   record_start <- hist_obs %>% slice_min(ob_date) %>% pull(ob_date) %>% year()
+
+  message("Extracting percntiles")
 
   percentiles <- extract_percentiles(hist_obs$Tavg)
   hist_5p  <- percentiles %>% filter(pct_upper == "5%")  %>% pull(value_upper)
   hist_95p <- percentiles %>% filter(pct_upper == "95%") %>% pull(value_upper)
   hist_50p <- hist_obs %>% pull(Tavg) %>% median(na.rm = TRUE)
 
+  message("Building plot")
+
   dist_plot <- ggplot(hist_obs) +
     aes(x = Tavg, y = 0) +
-    # geom_density_ridges_gradient(
-    #   adjust = 0.7, colour = NA) +
     stat_density_ridges(
       aes(fill = stat(quantile)),
       colour = NA,
@@ -279,6 +312,8 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
         format(date_now, format = "%d %B", tz = station_tz),
         " since ", record_start))
 
+  message("Writing plot out to disk temporarily")
+
   # write out to disk
   temp_path <- tempfile("dist-", fileext = ".png")
   ggsave(
@@ -286,13 +321,18 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
     plot = dist_plot, bg = bg_colour_today,
     height = 4.5, width = 8, units = "in")
 
+  message("Uploading plot to S3 bucket")
+
   # upload to s3
   put_object(
     file = temp_path,
     object = file.path("www", "plots", "distribution",
       paste0("distribution-", station_id, ".png")),
     bucket = "isithot-data")
-  }
+
+  message("All done!")
+  return()
+}
 
 #' Creates a plot of this year's ratings
 #' 
@@ -303,7 +343,11 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
 #' @param station_label: the station label
 createHeatwavePlot <- function(obs_thisyear, station_id, station_tz, station_label) {
 
+  message("Beginning function")
+
   date_now <- Sys.time() |> as.Date(station_tz)
+
+  message("Validating arguments")
 
   stopifnot(
     "Arg `obs_thisyear` should be a data frame"  = is.data.frame(obs_thisyear),
@@ -316,6 +360,8 @@ createHeatwavePlot <- function(obs_thisyear, station_id, station_tz, station_lab
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
     "Arg `station_label` should be a string" = is(station_label, "character"))
 
+  message("Extracting observation day/month components")
+
   # extract month and day from the date
   obs_thisyear |>
     filter(!is.na(date)) |>
@@ -325,12 +371,14 @@ createHeatwavePlot <- function(obs_thisyear, station_id, station_tz, station_lab
       day = mday(date)) ->
   obs_thisyear_toplot
 
+  message("Building plot")
+
   hw_plot <-
     ggplot(obs_thisyear_toplot) +
     aes(x = day, y = month) +
     geom_tile(aes(fill = percentile)) +
     geom_text(aes(label = percentile),
-      family = "Roboto Condensed", fontface = "bold", size = 3.5) +
+      family = "Roboto Condensed", fontface = "bold", size = 3.25) +
     coord_fixed() +
     scale_x_discrete(limits = factor(1:31), position = "top",
       expand = expansion(0)) +
@@ -372,12 +420,16 @@ createHeatwavePlot <- function(obs_thisyear, station_id, station_tz, station_lab
       plot.caption = element_text(size = rel(0.4))
       )
 
+  message("Writing plot out to disk temporarily")
+
   # write out to disk
   temp_path <- tempfile("timeseries-", fileext = ".png")
   ggsave(
     filename = temp_path,
     plot = hw_plot, bg = bg_colour_hw,
     height = 1060, width = 2400, units = "px")
+
+  message("Uploading plot to S3 bucket")
 
   # upload to s3
   put_object(
@@ -386,6 +438,8 @@ createHeatwavePlot <- function(obs_thisyear, station_id, station_tz, station_lab
       paste0("heatwave-", station_id, ".png")),
     bucket = "isithot-data")
 
+  message("All done!")
+  return()
 }
 
 #' The "test" plotting function
