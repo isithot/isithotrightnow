@@ -25,7 +25,7 @@ rating_colours <- c(
 #'   - rating_colour <chr>: the hex code of the colour to use
 extract_percentiles <- function(obs) {
 
-  quantiles <- c(0, 0.05, 0.10, 0.40, 0.60, 0.90, 0.95, 1)
+  quantiles <- c(0, 0.05, 0.20, 0.40, 0.60, 0.80, 0.95, 1)
 
   obs %>%
     quantile(quantiles, na.rm = TRUE) %>%
