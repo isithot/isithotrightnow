@@ -23,14 +23,27 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
 
   date_now <- Sys.time() |> as.Date(station_tz)
 
+  message(
+    "Here is `hist_obs` before de-serialisation (of classes ",
+    paste(class(hist_obs), collapse = ","),
+    "):")
+  message(hist_obs)
+  flush.console()
 
   # hist_obs comes as a JSON string when invoked externally rather than through
   # the console. we need to convert it manually
-  if (!is.character(hist_obs)) {
+  if (is.character(hist_obs)) {
     message("De-serialising observations")
     flush.console()
     hist_obs <- fromJSON(hist_obs)
+    message(
+      "Here is `hist_obs` after deserialisation (of classes ",
+      paste(class(hist_obs), collapse = ","),
+      "):")
+    message(hist_obs)
+    flush.console()
   }
+
   
   message("Validating arguments")
   flush.console()
@@ -232,7 +245,7 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_id, station_tz,
 
   # hist_obs comes as a JSON string when invoked externally rather than through
   # the console. we need to convert it manually
-  if (!is.character(hist_obs)) {
+  if (is.character(hist_obs)) {
     message("De-serialising observations")
     flush.console()
     hist_obs <- fromJSON(hist_obs)
@@ -388,7 +401,7 @@ createHeatwavePlot <- function(obs_thisyear, station_id, station_tz, station_lab
 
   # obs_thisyear comes as a JSON string when invoked externally rather
   # than through the console. we need to convert it manually
-  if (!is.character(obs_thisyear)) {
+  if (is.character(obs_thisyear)) {
     message("De-serialising observations")
     flush.console()
     obs_thisyear <- fromJSON(obs_thisyear)
