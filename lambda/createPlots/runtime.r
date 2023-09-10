@@ -278,6 +278,20 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_id, station_tz,
 
   dist_plot <- ggplot(hist_obs) +
     aes(x = Tavg, y = 0) +
+    # today marker (behind density curve)
+    geom_vline(xintercept = tavg_now, colour = base_colour,
+      linewidth = rel(1.25)) +
+    annotate_text_iihrn(
+      x = tavg_now,
+      y = Inf,
+      vjust = -0.75,
+      hjust = 1.1,
+      label = paste0("TODAY:  ", tavg_now, "°C"),
+      highlight = FALSE,
+      size = 4,
+      angle = 90,
+      alpha = 1) +
+    # density curve
     stat_density_ridges(
       aes(fill = stat(quantile)),
       colour = NA,
@@ -286,11 +300,24 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_id, station_tz,
       quantiles = percentiles$frac_lower |> head(-1),
       quantile_lines = TRUE
       ) +
-    # dashed vertical percentile lines and labels, plus today's temperature
-    geom_vline(xintercept = tavg_now, colour = base_colour, linewidth = rel(1.5)) +
-    # geom_vline(xintercept = hist_50p, linetype = 2, alpha = 0.5) +
-    # geom_vline(xintercept = hist_5p,  linetype = 2, alpha = 0.5) +
-    # geom_vline(xintercept = hist_95p, linetype = 2, alpha = 0.5) +
+    # another marker for today, but in front (and semi-transparent)
+    geom_vline(xintercept = tavg_now, colour = base_colour,
+      linewidth = rel(1.25), alpha = 0.35) +
+    annotate_text_iihrn(
+      x = tavg_now,
+      y = Inf,
+      vjust = -0.75,
+      hjust = 1.1,
+      label = paste0("TODAY:  ", tavg_now, "°C"),
+      highlight = FALSE,
+      size = 4,
+      angle = 90,
+      alpha = 0.35) +
+    # lines for 5th/95th percentiles
+    # geom_vline(xintercept = hist_5p,  linetype = 2, colour = base_colour,
+    #   alpha = 0.8) +
+    # geom_vline(xintercept = hist_95p, linetype = 2, colour = base_colour,
+    #   alpha = 0.8) +
     annotate_text_iihrn(
       x = hist_5p,
       y = 0,
@@ -321,16 +348,6 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_id, station_tz,
       size = 4,
       angle = 90,
       alpha = 0.9) +
-    annotate_text_iihrn(
-      x = tavg_now,
-      y = Inf,
-      vjust = -0.75,
-      hjust = 1.1,
-      label = paste0("TODAY:  ", tavg_now, "°C"),
-      highlight = FALSE,
-      size = 4,
-      angle = 90,
-      alpha = 1) +
     scale_x_continuous(labels = scales::label_number(suffix = "°C")) +
     scale_y_continuous(expand = expansion(add = c(0, 0.015))) +
     scale_fill_manual(values = rating_colours, guide = guide_none()) +
