@@ -2,6 +2,7 @@ library(ggplot2)
 library(ggridges)
 library(lubridate)
 library(dplyr)
+library(jsonlite)
 library(forcats)
 library(aws.s3)
 
