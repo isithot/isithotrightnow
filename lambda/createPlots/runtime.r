@@ -278,9 +278,24 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_id, station_tz,
 
   dist_plot <- ggplot(hist_obs) +
     aes(x = Tavg, y = 0) +
-    # today marker (behind density curve)
+    # today line (behind density curve)
     geom_vline(xintercept = tavg_now, colour = base_colour,
       linewidth = rel(1.25)) +
+    # density curve
+    stat_density_ridges(
+      aes(fill = stat(quantile)),
+      colour = NA,
+      geom = "density_ridges_gradient",
+      from = min(hist_obs$Tavg, na.rm = TRUE),
+      to = max(hist_obs$Tavg, na.rm = TRUE),
+      calc_ecdf = TRUE,
+      quantiles = percentiles$frac_lower |> head(-1),
+      quantile_lines = TRUE
+      ) +
+    # today line again (semi-transparent in front of density curve)
+    geom_vline(xintercept = tavg_now, colour = base_colour,
+      linewidth = rel(1.25), alpha = 0.35) +
+    # today text (in front of density cuve)
     annotate_text_iihrn(
       x = tavg_now,
       y = Inf,
@@ -291,28 +306,6 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_id, station_tz,
       size = 4,
       angle = 90,
       alpha = 1) +
-    # density curve
-    stat_density_ridges(
-      aes(fill = stat(quantile)),
-      colour = NA,
-      geom = "density_ridges_gradient",
-      calc_ecdf = TRUE,
-      quantiles = percentiles$frac_lower |> head(-1),
-      quantile_lines = TRUE
-      ) +
-    # another marker for today, but in front (and semi-transparent)
-    geom_vline(xintercept = tavg_now, colour = base_colour,
-      linewidth = rel(1.25), alpha = 0.35) +
-    annotate_text_iihrn(
-      x = tavg_now,
-      y = Inf,
-      vjust = -0.75,
-      hjust = 1.1,
-      label = paste0("TODAY:  ", tavg_now, "°C"),
-      highlight = FALSE,
-      size = 4,
-      angle = 90,
-      alpha = 0.35) +
     # lines for 5th/95th percentiles
     # geom_vline(xintercept = hist_5p,  linetype = 2, colour = base_colour,
     #   alpha = 0.8) +
