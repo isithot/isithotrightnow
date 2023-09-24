@@ -20,7 +20,7 @@ def lambda_handler(event, context):
     except KeyError:
         raise ValueError("Error: Station ID missing")
     try: 
-        date = event['date']
+        date = pd.Timestamp(event['date'])
     except KeyError:
         date = datetime.date.today()
         print(f"Warning: Date missing. Calculating percentiles for today's date: {date}")

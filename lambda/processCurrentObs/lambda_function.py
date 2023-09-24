@@ -155,7 +155,7 @@ def lambda_handler(event, context):
     print(event.values())
     print(f"\n\nBeginning analysis: {station_id}")
 
-    # Load station metadata from locations.json
+    # Load station data from locations.json
     loc_s3_fpath = f'1-datasources/locations.json'
     loc_local_fpath = download_from_aws(loc_s3_fpath)
     with open(loc_local_fpath) as f:
@@ -241,8 +241,8 @@ def lambda_handler(event, context):
     # TODO - do we have obs_thisyear here? (prev. databackup/[id]-[year].csv)
     # invoke_plotting_lambda(
     #     "createHeatwavePlot",
-    #     json.dumps({
+    #     {
     #         "obs_thisyear": # ...,
     #         "station_id": station_id,
     #         "station_tz": tz,
-    #         "station_label": this_station['label']}))
+    #         "station_label": this_station['label']})

@@ -6,6 +6,7 @@ This is the main loop which calls other lambda functions.
 import boto3
 import os
 import json
+import datetime
 
 def lambda_handler(event, context):
     # Create an AWS Lambda client
@@ -18,21 +19,27 @@ def lambda_handler(event, context):
     # Open the JSON file
     with open(local_fpath) as file:
         locations = json.load(file)
-    station_ids = [location["id"] for location in locations]
 
-    print('all stations:')
-    print(station_ids)
-    # station_id = station_ids[1]
+    # define date for calculating historical period
+    date = datetime.date.today() + datetime.timedelta(days=1)
+    date_str = date.strftime('%Y-%m-%d')
+    print(f'date for historical period: {date}')
 
     # loop through locations and invoke the GetHistoricalObs lambda function
-    for station_id in station_ids:
+    for i,location in enumerate(locations):
+        station_id = location['id']
+        station_name = location['name']
+        
+        print(f'invoking {station_id}: {station_name}')
 
         # Construct the parameters for the Lambda function invocation
         params = {
             'FunctionName': 'GetHistoricalObs',
-            'InvocationType': 'Event',  # Can be 'RequestResponse', 'Event', or 'DryRun'
-            'Payload': '{"station_id": "%s"}' %station_id  # Optional payload to pass to Function B
+            'InvocationType': 'Event',
+            'Payload': '{"station_id": "%s", "date" : "%s", "window" : 7}' %(station_id,date_str)
         }
+        
+        print(params)
 
         try:
             # Invoke Function B
