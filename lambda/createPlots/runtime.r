@@ -278,7 +278,7 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_id, station_tz,
 
   dist_plot <- ggplot(hist_obs) +
     aes(x = Tavg, y = 0) +
-    # today marker line (behind density curve)
+    # today line (behind density curve)
     geom_vline(xintercept = tavg_now, colour = base_colour,
       linewidth = rel(1.25)) +
     # density curve
@@ -286,6 +286,8 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_id, station_tz,
       aes(fill = stat(quantile)),
       colour = NA,
       geom = "density_ridges_gradient",
+      from = min(hist_obs$Tavg, na.rm = TRUE),
+      to = max(hist_obs$Tavg, na.rm = TRUE),
       calc_ecdf = TRUE,
       quantiles = percentiles$frac_lower |> head(-1),
       quantile_lines = TRUE
