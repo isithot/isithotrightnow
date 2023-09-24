@@ -385,6 +385,185 @@ createDistributionPlot <- function(hist_obs, temp_now,
   return()
 }
 
+#' Create a split distribution plot: then and now
+#'
+#' @param hist_obs: The historical observations data frame (formerly HistObs).
+#'   Cols include Year, Month, Day, temp, Date.
+#' @param temp_now: The current average temperature.
+#' @param indicator: One of "average", "maximum" or "minimum" temperature.
+#'   Affects plot labels.
+#' @param station_id: The id of the station, for saving to s3.
+#' @param station_tz: The tz of the station, for printing local date.
+#' @param station_label: The name of the station's area.
+createThenNowDistributionPlot <- function(hist_obs, temp_now,
+  indicator = c("average", "maximum", "minimum"), station_id, station_tz,
+  station_label) {
+
+  message("Beginning function")
+  flush.console()
+
+  date_now <- Sys.time() |> as.Date(station_tz)
+
+  # hist_obs comes as a JSON string when invoked externally rather than through
+  # the console. we need to convert it manually
+  if (is.character(hist_obs)) {
+    message("De-serialising observations")
+    flush.console()
+    hist_obs <- fromJSON(hist_obs)
+  }
+
+  message("Validating arguments")
+  flush.console()
+
+  stopifnot(
+    "Arg `hist_obs` should be a data frame"  = is.data.frame(hist_obs),
+    "Arg `hist_obs` should include the columns `Date` and `temp`" =
+      c("Date", "temp") %in% names(hist_obs) |> all(),
+    "Arg `temp_now` should be length 1"      = length(temp_now) == 1,
+    "Arg `station_tz` should be length 1"    = length(station_tz) == 1,
+    "Arg `station_label` should be length 1" = length(station_label) == 1,
+    "Arg `temp_now` should be a number"      = is(temp_now, "numeric"),
+    "Arg `station_tz` should be a string"    = is(station_tz, "character"),
+    "Arg `station_label` should be a string" = is(station_label, "character"))
+  
+  message("Casting observation dates")
+  flush.console()
+
+  # cast dates ({jsonlite} doesn't do it for us) and
+  # split obs into "then" and "now"
+  this_year <- year(date_now)
+  hist_obs <-
+    hist_obs |>
+    filter(between(Year, this_year - 60, this_year - 1)) |>
+    mutate(
+      ob_date = as.Date(Date),
+      then_or_now = if_else(Year < this_year - 30, "Then", "Now"))
+
+  message("Getting start of observation record")
+  flush.console()
+
+  record_start <- hist_obs %>% slice_min(ob_date) %>% pull(ob_date) %>% year()
+
+  message("Extracting percentiles")
+  flush.console()
+
+  # note we just call this to get the quantile numbers (10%, 20%, etc.),
+  # not the actual values (which will be different for then and now)
+  percentiles <- extract_percentiles(hist_obs$temp)
+
+  hist_obs |>
+    filter(between(Year, this_year - 60, this_year - 1)) |>
+    mutate(then_or_now = if_else(Year < this_year - 30, "Then", "Now")) ->
+
+  message("Building plot")
+  flush.console()
+
+  dist_plot <- ggplot(hist_obs) +
+    aes(x = temp, y = then_or_now) +
+    # today line (behind density curve)
+    geom_vline(xintercept = temp_now, colour = base_colour,
+      linewidth = rel(1.25)) +
+    # density curve
+    stat_density_ridges(
+      aes(fill = stat(quantile)),
+      colour = NA,
+      geom = "density_ridges_gradient",
+      from = min(hist_obs$temp, na.rm = TRUE),
+      to = max(hist_obs$temp, na.rm = TRUE),
+      calc_ecdf = TRUE,
+      quantiles = percentiles$frac_lower |> head(-1),
+      quantile_lines = TRUE,
+      scale = 1) +
+    # today marker line, again, but in front (and semi-transparent)
+    geom_vline(xintercept = temp_now, colour = base_colour,
+      linewidth = rel(1.25), alpha = 0.35) +
+    # today text (fully opaque)
+    annotate_text_iihrn(
+      x = temp_now,
+      y = Inf,
+      vjust = -0.75,
+      hjust = 1.1,
+      label = paste0("TODAY:  ", temp_now, "°C"),
+      highlight = FALSE,
+      size = 4,
+      angle = 90) +
+    # lines for 5th/95th percentiles
+    # geom_vline(xintercept = hist_5p,  linetype = 2, colour = base_colour,
+    #   alpha = 0.8) +
+    # geom_vline(xintercept = hist_95p, linetype = 2, colour = base_colour,
+    #   alpha = 0.8) +
+    annotate_text_iihrn(
+      x = hist_5p,
+      y = 0,
+      vjust = 1.75,
+      hjust = -0.05,
+      label = paste0("5th percentile:  ", round(hist_5p, 1), "°C"),
+      highlight = FALSE,
+      size = 4,
+      angle = 90,
+      alpha = 0.9) +
+    annotate_text_iihrn(
+      x = hist_50p,
+      y = 0,
+      hjust = -0.05,
+      label = paste0(
+        "50th percentile: ", round(hist_50p, 1), "°C"),
+      highlight = FALSE,
+      size = 4,
+      angle = 90,
+      alpha = 0.9) +
+    annotate_text_iihrn(
+      x = hist_95p,
+      y = 0,
+      vjust = -0.75,
+      hjust = -0.05,
+      label = paste0("95th percentile:  ", round(hist_95p, 1), "°C"),
+      highlight = FALSE,
+      size = 4,
+      angle = 90,
+      alpha = 0.9) +
+    scale_x_continuous(labels = scales::label_number(suffix = "°C")) +
+    scale_y_continuous(expand = expansion(add = c(0, 0.015))) +
+    scale_fill_manual(values = rating_colours, guide = guide_none()) +
+    theme_iihrn() +
+    theme(
+      axis.title.y = element_blank(),
+      axis.text.y = element_blank()) +
+    labs(
+      x = paste("Daily", indicator, "temperature"),
+      y = NULL,
+      title = paste0(
+        station_label,
+        " daily ", indicator, " temperatures\nfor the two weeks around ",
+        format(date_now, format = "%d %B", tz = station_tz),
+        " since ", record_start),
+      caption = "isithotrightnow.com")
+
+  message("Writing plot out to disk temporarily")
+  flush.console()
+
+  # write out to disk
+  temp_path <- tempfile("dist-", fileext = ".png")
+  ggsave(
+    filename = temp_path,
+    plot = dist_plot, bg = bg_colour_today,
+    height = 4.5, width = 8, units = "in")
+
+  message("Uploading plot to S3 bucket")
+  flush.console()
+
+  # upload to s3
+  put_object(
+    file = temp_path,
+    object = file.path("www", "plots", "distribution",
+      paste0("distribution-", station_id, "-", indicator, ".png")),
+    bucket = "isithot-data")
+
+  message("All done!")
+  flush.console()
+  return()
+}
+
 #' Creates a plot of this year's ratings
 #' 
 #' @param obs_thisyear: this year's observations as a dataframe, from
