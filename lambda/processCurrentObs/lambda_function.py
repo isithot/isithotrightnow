@@ -174,39 +174,67 @@ def lambda_handler(event, context):
         "station_tz": tz,
         "station_label": this_station['label']
     }
+    tavg_payload = {
+        **payload_base,
+        "temp_now": tavg_now,
+        "indicator": "average",
+        "hist_obs":
+            hist_obs
+                .drop(["Tmax", "Tmin"], axis = 1)
+                .rename(columns = {"Tavg": "temp"})
+                .to_json(orient="records"),
+    }
+    tmax_payload = {
+        **payload_base,
+        "temp_now": tmax_now,
+        "indicator": "maximum",
+        "hist_obs":
+            hist_obs
+                .drop(["Tavg", "Tmin"], axis = 1)
+                .rename(columns = {"Tmax": "temp"})
+                .to_json(orient="records"),
+    }
+    tmin_payload = {
+        **payload_base,
+        "temp_now": tmin_now,
+        "indicator": "minimum",
+        "hist_obs":
+            hist_obs
+                .drop(["Tmax", "Tavg"], axis = 1)
+                .rename(columns = {"Tmin": "temp"})
+                .to_json(orient = "records"),
+    }
     
-    # invoke time series plotting functions
+    # invoke time series plotting functions (for tmax, tmin, tavg separately)
+    invoke_plotting_lambda("createTimeseriesPlot", tavg_payload)
+    invoke_plotting_lambda("createTimeseriesPlot", tmax_payload)
+    invoke_plotting_lambda("createTimeseriesPlot", tmin_payload)
+
+    # invoke distribution plotting function (for tmax, tmin, tavg separately)
+    invoke_plotting_lambda("createDistributionPlot", tavg_payload)
+    invoke_plotting_lambda("createDistributionPlot", tmax_payload)
+    invoke_plotting_lambda("createDistributionPlot", tmin_payload)
+
+    # for the heatmap function, import other percentiles for the year to date
+
+    # read and write yearly percentiles for heatmap (station-id_year.csv)
+    s3_fname = f"2-processed/{station_id}-{current_date.strftime('%Y')}.csv"
+    local_fname = download_from_aws(s3_fname)
+    df = pd.read_csv(local_fname, index_col = 0, parse_dates = True)
+    
+    # update percentile and write
+    date_str = current_date.strftime('%Y-%m-%d') 
+    df.loc[date_str] = round(average_percent)
+
+    # write out updated station-id_year.csv
+    df.to_csv(local_fname, index = True)
+    upload_to_aws(local_fname, s3_fname)
+
     invoke_plotting_lambda(
-        "createTimeseriesPlot",
+        "createHeatmapPlot",
         {
             **payload_base,
-            "hist_obs":
-                hist_obs
-                    .drop(["Tmax", "Tmin"], axis = 1)
-                    .rename(columns = {"Tavg": "temp"})
-                    .to_json(orient="records"),
-            "temp_now": tavg_now,
-            "indicator": "average",
-            "station_id": station_id,
-            "station_tz": tz,
-            "station_label": this_station['label']})
-
-    # invoke distribution plotting function
-    invoke_plotting_lambda(
-        "createDistributionPlot",
-        {
-            "hist_obs": hist_obs.to_json(orient="records"),
-            "tavg_now": tavg_now,
-            "station_id": station_id,
-            "station_tz": tz,
-            "station_label": this_station['label']})
+            "obs_thisyear": df.reset_index().to_json(orient = "records"),
+        })
     
-    # invoke heatwave plotting function
-    # TODO - do we have obs_thisyear here? (prev. databackup/[id]-[year].csv)
-    # invoke_plotting_lambda(
-    #     "createHeatwavePlot",
-    #     {
-    #         "obs_thisyear": # ...,
-    #         "station_id": station_id,
-    #         "station_tz": tz,
-    #         "station_label": this_station['label']})
+    # TODO - heatmap plots for tmax and tmin?
