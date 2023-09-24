@@ -167,13 +167,26 @@ def lambda_handler(event, context):
     with open(file_path, "w") as f:
         json.dump(stats_dict, f)
     upload_to_aws(file_path, f'www/stats/stats_{station_id}.json')
+
+    # set up payload base for plotting functions
+    payload_base = {
+        "station_id": station_id,
+        "station_tz": tz,
+        "station_label": this_station['label']
+    }
     
-    # invoke time series plotting function
+    # invoke time series plotting functions
     invoke_plotting_lambda(
         "createTimeseriesPlot",
         {
-            "hist_obs": hist_obs.to_json(orient="records"),
-            "tavg_now": tavg_now,
+            **payload_base,
+            "hist_obs":
+                hist_obs
+                    .drop(["Tmax", "Tmin"], axis = 1)
+                    .rename(columns = {"Tavg": "temp"})
+                    .to_json(orient="records"),
+            "temp_now": tavg_now,
+            "indicator": "average",
             "station_id": station_id,
             "station_tz": tz,
             "station_label": this_station['label']})
