@@ -15,59 +15,6 @@ def get_current_obs(req_station_id, fileid):
     print(df)
     return df
 
-
-def calc_hist_percentiles(Obs):
-    # Returns a data frame with columns Tmax, Tmin and Tavg, each row referring to the 6 percentiles:
-    # 5, 10, 40, 50, 60, 90, 95
-    if Obs is None:
-        raise ValueError("Error: Missing historical observations")
-    obs_cols = Obs.drop(columns=['Date', 'Year', 'Month', 'Day'])
-    percentiles = np.array([0.05, 0.1, 0.4, 0.5, 0.6, 0.9, 0.95])
-    result = obs_cols.quantile(percentiles, axis=0, numeric_only=True)
-    result.columns = ['Tmax', 'Tmin', 'Tavg']
-    return result
-
-
-def determine_answer_and_comment(category_now):
-    switcher_answer = {
-        'bc': 'Hell no!',
-        'rc': 'No!',
-        'c': 'Nope',
-        'a': 'Not really',
-        'h': 'Yup',
-        'rh': 'Yeah!',
-        'bh': 'Hell yeah!'
-    }
-    isit_answer = switcher_answer.get(category_now, 'Invalid category')
-
-    switcher_comment = {
-        'bc': "Are you kidding?! It's bloody cold",
-        'rc': "It's actually really cold",
-        'c': "It's actually kinda cool",
-        'a': "It's about average",
-        'h': "It's warmer than average",
-        'rh': "It's really hot!",
-        'bh': "It's bloody hot!"
-    }
-    isit_comment = switcher_comment.get(category_now, 'Invalid category')
-
-    return isit_answer, isit_comment
-
-
-def bin_obs(tavg_now, hist_percentiles):
-    return pd.cut([tavg_now],
-        bins=[
-            -100,
-            *hist_percentiles.loc[hist_percentiles.index != 0.5, "Tavg"],
-            100
-        ],
-        labels=["bc", "rc", "c", "a", "h", "rh", "bh"],
-        include_lowest=True,
-        right=False
-    ).astype(str)[0]
-    # The -100 and 100 allow us to have the lowest and highest bins
-
-
 def ECDF(data):
     """Compute ECDF for a one-dimensional array of measurements."""
     # Drop NAs and sort the data in ascending order
@@ -89,10 +36,10 @@ def ECDF(data):
     # Return the ECDF function
     return ecdf_function
 
-
-def tavg_hist_percentile(hist_tavg, tavg_now):
-    ecdf = ECDF(hist_tavg)
-    return 0. if tavg_now <= min(hist_tavg) else 100. if tavg_now > max(hist_tavg) else 100 * np.round(ecdf(tavg_now), 3)
+# get_window_percentile: return the percentage of historical temps within the window (`window_temps`) that are lower than the current temperature (`temp_now`)
+def get_window_percentile(window_temps, temp_now):
+    ecdf = ECDF(window_temps)
+    return 0. if temp_now <= min(window_temps) else 100. if temp_now > max(window_temps) else 100 * np.round(ecdf(temp_now), 3)
 
 def download_from_aws(s3_fpath):
 
@@ -181,35 +128,39 @@ def lambda_handler(event, context):
     local_fpath = download_from_aws(s3_fpath)
     hist_obs = pd.read_csv(local_fpath,
                            na_values=["", " ", "NA"])
-    hist_percentiles = calc_hist_percentiles(hist_obs)
 
-    # Determine category of current temperature based on percentiles
-    category_now = bin_obs(tavg_now, hist_percentiles)
+    # compare today's temperatures to the historical window temps
+    maximum_percent = get_window_percentile(hist_obs['Tmax'], tmin_now)
+    minimum_percent = get_window_percentile(hist_obs['Tmin'], tmax_now)
+    average_percent = get_window_percentile(hist_obs['Tavg'], tavg_now)
 
-    # Determine answer and comment based on category
-    isit_answer, isit_comment = determine_answer_and_comment(category_now)
-
-    # Calculate percentage of historical data that is lower than current temperature
-    average_percent = tavg_hist_percentile(hist_obs['Tavg'], tavg_now)
-
-    # Save updated stats to file
-    # Create stats dictionary
+    # create stats dictionary
     stats_dict = {}
-    stats_dict['isit_answer'] = isit_answer if isit_answer else None
-    stats_dict['isit_comment'] = isit_comment if isit_comment else None
-    stats_dict['isit_maximum'] = tmax_now if tmax_now else None
-    stats_dict['isit_minimum'] = tmin_now if tmin_now else None
-    stats_dict['isit_current'] = tavg_now if tavg_now else None
-    stats_dict['isit_average'] = average_percent if average_percent else None
-    stats_dict['isit_name'] = this_station['name'] if 'name' in this_station else None
-    stats_dict['isit_label'] = this_station['label'] if 'label' in this_station else None
+
+    # add temperatures
+    stats_dict['max_temp'] = tmax_now if tmax_now else None
+    stats_dict['min_temp'] = tmin_now if tmin_now else None
+    stats_dict['avg_temp'] = tavg_now if tavg_now else None
+
+    # add percentiles
+    stats_dict['max_pct'] = maximum_percent if maximum_percent else None
+    stats_dict['min_pct'] = minimum_percent if minimum_percent else None
+    stats_dict['avg_pct'] = average_percent if average_percent else None
+
+    # add station metadata
+    stats_dict['station_id'] = \
+        this_station['id'] if 'id' in this_station else None
+    stats_dict['station_name'] = \
+        this_station['name'] if 'name' in this_station else None
+    stats_dict['station_label'] = \
+        this_station['label'] if 'label' in this_station else None
     if 'record_start' in this_station and 'record_end' in this_station:
-        stats_dict['isit_span'] = f"{this_station['record_start']} - {this_station['record_end']}"
+        stats_dict['station_span'] = f"{this_station['record_start']} - {this_station['record_end']}"
     else:
-        stats_dict['isit_span'] = None
+        stats_dict['station_span'] = None
 
     # Convert dictionary to JSON string
-    stats_json = json.dumps(stats_dict)
+    # stats_json = json.dumps(stats_dict)
 
     file_path = f'/tmp/stats_{station_id}.json'
     # Write the stats dictionary to the JSON file
