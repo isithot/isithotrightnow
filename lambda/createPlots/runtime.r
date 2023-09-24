@@ -388,7 +388,7 @@ createDistributionPlot <- function(hist_obs, tavg_now, station_id, station_tz,
 #' @param station_id: The id of the station, for saving to s3.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: the station label
-createHeatwavePlot <- function(obs_thisyear, station_id, station_tz, station_label) {
+createHeatmapPlot <- function(obs_thisyear, station_id, station_tz, station_label) {
 
   message("Beginning function")
   flush.console()
