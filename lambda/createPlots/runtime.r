@@ -395,6 +395,13 @@ createHeatmapPlot <- function(obs_thisyear, station_id, station_tz, station_labe
 
   date_now <- Sys.time() |> as.Date(station_tz)
 
+  message(
+    "Before de-serialisation, obs are classes: ",
+    paste(class(obs_thisyear), collapse = ", "))
+  message("Obs dims: ", paste(dim(mtcars), collapse = " x "))
+  message("Obs preview:")
+  message(head(obs_thisyear))
+
   # obs_thisyear comes as a JSON string when invoked externally rather
   # than through the console. we need to convert it manually
   if (is.character(obs_thisyear)) {
@@ -405,6 +412,14 @@ createHeatmapPlot <- function(obs_thisyear, station_id, station_tz, station_labe
 
   message("Validating arguments")
   flush.console()
+
+  # debug info
+  message(
+    "Following de-serialisation, obs are classes: ",
+    paste(class(obs_thisyear), collapse = ", "))
+  message("Obs dims: ", paste(dim(mtcars), collapse = " x "))
+  message("Obs preview:")
+  message(head(obs_thisyear))
 
   stopifnot(
     "Arg `obs_thisyear` should be a data frame"  = is.data.frame(obs_thisyear),
