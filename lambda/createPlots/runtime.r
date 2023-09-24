@@ -395,13 +395,6 @@ createHeatmapPlot <- function(obs_thisyear, station_id, station_tz, station_labe
 
   date_now <- Sys.time() |> as.Date(station_tz)
 
-  message(
-    "Before de-serialisation, obs are classes: ",
-    paste(class(obs_thisyear), collapse = ", "))
-  message("Obs dims: ", paste(dim(mtcars), collapse = " x "))
-  message("Obs preview:")
-  message(head(obs_thisyear))
-
   # obs_thisyear comes as a JSON string when invoked externally rather
   # than through the console. we need to convert it manually
   if (is.character(obs_thisyear)) {
@@ -413,33 +406,24 @@ createHeatmapPlot <- function(obs_thisyear, station_id, station_tz, station_labe
   message("Validating arguments")
   flush.console()
 
-  # debug info
-  message(
-    "Following de-serialisation, obs are classes: ",
-    paste(class(obs_thisyear), collapse = ", "))
-  message("Obs dims: ", paste(dim(mtcars), collapse = " x "))
-  message("Obs preview:")
-  message(head(obs_thisyear))
-
   stopifnot(
     "Arg `obs_thisyear` should be a data frame"  = is.data.frame(obs_thisyear),
     "Arg `obs_thisyear` should include the columns `Date` and `Tavg`" =
       c("date", "percentile") %in% names(obs_thisyear) |> all(),
-    "Arg `tavg_now` should be length 1"      = length(tavg_now) == 1,
     "Arg `station_tz` should be length 1"    = length(station_tz) == 1,
     "Arg `station_label` should be length 1" = length(station_label) == 1,
-    "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
     "Arg `station_label` should be a string" = is(station_label, "character"))
 
   message("Extracting observation day/month components")
   flush.console()
 
+  # convert date (python sends unix epoch as ms; r uses days)
   # extract month and day from the date
   obs_thisyear |>
     filter(!is.na(date)) |>
     mutate(
-      date = as.Date(date),
+      date = as.Date(date / 86400000, origin = as.Date("1970-01-01")),
       month = fct_rev(factor(month(date), labels = month.abb)),
       day = mday(date)) ->
   obs_thisyear_toplot
