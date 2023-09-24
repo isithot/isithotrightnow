@@ -12,12 +12,14 @@ source("/lambda/util.r")
 #' 
 #' @param hist_obs: The historical observations data frame (formerly HistObs).
 #'   Cols include Year, Month, Day, Tmax, Tmin, Tavg, Date.
-#' @param tavg_now: The current average temperature.
+#' @param temp_now: The current temperature.
+#' @param indicator: One of "average", "maximum" or "minimum" temperature.
+#'   Affects plot labels.
 #' @param station_id: The id of the station, for saving to s3.
 #' @param station_tz: The tz of the station, for printing local date.
 #' @param station_label: The name of the station's area.
-createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
-  station_tz, station_label) {
+createTimeseriesPlot <- function(hist_obs, temp_now,
+  indicator = c("average", "maximum", "minimum"), station_id, station_tz, station_label) {
 
   message("Beginning function")
   flush.console()
@@ -39,10 +41,10 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
     "Arg `hist_obs` should be a data frame"  = is.data.frame(hist_obs),
     "Arg `hist_obs` should include the columns `Date` and `Tavg`" =
       c("Date", "Tavg") %in% names(hist_obs) |> all(),
-    "Arg `tavg_now` should be length 1"      = length(tavg_now) == 1,
+    "Arg `temp_now` should be length 1"      = length(temp_now) == 1,
     "Arg `station_tz` should be length 1"    = length(station_tz) == 1,
     "Arg `station_label` should be length 1" = length(station_label) == 1,
-    "Arg `tavg_now` should be a number"      = is(tavg_now, "numeric"),
+    "Arg `temp_now` should be a number"      = is(temp_now, "numeric"),
     "Arg `station_tz` should be a string"    = is(station_tz, "character"),
     "Arg `station_label` should be a string" = is(station_label, "character"))
   
@@ -85,9 +87,9 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
 
   # conditionally make extra room for the TODAY label either above or below,
   # depending on whether the current temp is in the top/bottom 5%
-  if (tavg_now > hist_95p) {
+  if (temp_now > hist_95p) {
     y_scale_expand <- expansion(mult = c(0.05, 0.15))
-  } else if (tavg_now < hist_5p) {
+  } else if (temp_now < hist_5p) {
     y_scale_expand <- expansion(mult = c(0.15, 0.05))
   } else {
     y_scale_expand <- expansion(mult = c(0.05, 0.05))
@@ -97,7 +99,7 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
   flush.console()
 
   # today's observation
-  tibble(x = date_now, y = tavg_now) |>
+  tibble(x = date_now, y = temp_now) |>
     left_join(percentiles,
       join_by(between(y, value_lower, value_upper, bounds = "(]"))) ->
   today_df
@@ -152,7 +154,7 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
       x = today_df$x,
       y = today_df$y,
       vjust = 2.5,
-      label = paste0(round(tavg_now, 1), "°C"),
+      label = paste0(round(temp_now, 1), "°C"),
       highlight = FALSE) +
     # trend line and label
     geom_smooth(
@@ -408,7 +410,7 @@ createHeatmapPlot <- function(obs_thisyear, station_id, station_tz, station_labe
 
   stopifnot(
     "Arg `obs_thisyear` should be a data frame"  = is.data.frame(obs_thisyear),
-    "Arg `obs_thisyear` should include the columns `Date` and `Tavg`" =
+    "Arg `obs_thisyear` should include the columns `date` and `percentile`" =
       c("date", "percentile") %in% names(obs_thisyear) |> all(),
     "Arg `tavg_now` should be length 1"      = length(tavg_now) == 1,
     "Arg `station_tz` should be length 1"    = length(station_tz) == 1,
