@@ -5,6 +5,7 @@ library(dplyr)
 library(jsonlite)
 library(forcats)
 library(aws.s3)
+library(plot3D)
 
 source("/lambda/util.r")
 
@@ -527,8 +528,8 @@ createHeatmapPlot <- function(obs_thisyear, station_id, station_tz, station_labe
   # upload to s3
   put_object(
     file = temp_path,
-    object = file.path("www", "plots", "heatwave",
-      paste0("heatwave-", station_id, ".png")),
+    object = file.path("www", "plots", "heatmap",
+      paste0("heatmap-", station_id, ".png")),
     bucket = "isithot-data")
 
   message("All done!")
