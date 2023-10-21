@@ -465,63 +465,6 @@ createHeatmapPlot <- function(obs_thisyear, station_id, station_tz, station_labe
   mtext('© isithotrightnow.com', side=3, line=6, at=9, cex=2)
   dev.off()
 
-  # hw_plot <-
-  #   ggplot(obs_thisyear_toplot) +
-  #   aes(x = day, y = month) +
-  #   geom_tile(aes(fill = percentile)) +
-  #   geom_text(aes(label = percentile),
-  #     family = "Roboto Condensed", fontface = "bold", size = 3.25) +
-  #   coord_fixed() +
-  #   scale_x_discrete(limits = factor(1:31), position = "top",
-  #     expand = expansion(0)) +
-  #   scale_y_discrete(drop = TRUE, expand = expansion(0)) +
-  #   scale_fill_stepsn(
-  #     colours = rating_colours,
-  #     breaks = c(0, 5, 10, 40, 60, 90, 95, 100),
-  #     limits = c(0, 100),
-  #     na.value = NA,
-  #     # colour bar disables `even.steps` to keep blocks proportional in height
-  #     guide = guide_coloursteps(
-  #       even.steps = FALSE,
-  #       barheight = unit(0.679, "npc"),
-  #       barwidth = unit(0.0125, "npc"),
-  #       frame.colour = base_colour,
-  #       frame.linewidth = 0.25,
-  #       )) +
-  #   labs(
-  #     x = NULL,
-  #     y = NULL,
-  #     fill = NULL,
-  #     title = paste(station_label, "percentiles for", year(date_now)),
-  #     caption = "© isithotrightnow.com") +
-  #   theme_iihrn() +
-  #   theme(
-  #     plot.background = element_rect(fill = NA, colour = NA),
-  #     panel.background = element_rect(fill = NA, colour = NA),
-  #     panel.grid = element_blank(),
-  #     panel.border = element_rect(fill = NA, colour = "black", linewidth = 0.5),
-  #     axis.ticks = element_blank(),
-  #     axis.text = element_text(colour = base_colour, size = rel(0.5)),
-  #     legend.margin = margin(),
-  #     legend.spacing.y = unit(0, "mm"),
-  #     legend.box.spacing = unit(0.0125, "npc"),
-  #     legend.background = element_blank(),
-  #     legend.justification = "center",
-  #     legend.text = element_text(size = rel(0.5)),
-  #     legend.title = element_blank(),
-  #     plot.caption = element_text(size = rel(0.4))
-  #     )
-
-  # message("Writing plot out to disk temporarily")
-  # flush.console()
-
-  # # write out to disk
-  # temp_path <- tempfile("timeseries-", fileext = ".png")
-  # ggsave(
-  #   filename = temp_path,
-  #   plot = hw_plot, bg = bg_colour_hw,
-  #   height = 1060, width = 2400, units = "px")
-
   message("Uploading plot to S3 bucket")
   flush.console()
 
