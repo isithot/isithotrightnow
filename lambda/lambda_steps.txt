@@ -1,0 +1,22 @@
+# In Lambda 
+ - write child function and copy the ARN address (eg arn:aws:lambda:ap-southeast-2:234147463923:function:GetHistoricalObs)
+ - write parent function, attach a role (currently)
+
+
+ - create role with 
+    - AWSLambdaBasicExecutionRole
+ - create a policy
+    - click "add inline policy" to create a new policy
+
+Using JSON paste the following, including the ARM
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    { 
+      "Sid": "VisualEditor0",
+      "Action": "lambda:InvokeFunction",
+      "Effect": "Allow",
+      "Resource": "arn:aws:lambda:ap-southeast-2:234147463923:function:GetHistoricalObs"
+    }
+  ]
+}

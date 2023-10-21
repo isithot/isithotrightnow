@@ -237,12 +237,25 @@ def lambda_handler(event, context):
             "station_tz": tz,
             "station_label": this_station['label']})
     
-    # invoke heatwave plotting function
-    # TODO - do we have obs_thisyear here? (prev. databackup/[id]-[year].csv)
-    # invoke_plotting_lambda(
-    #     "createHeatwavePlot",
-    #     {
-    #         "obs_thisyear": # ...,
-    #         "station_id": station_id,
-    #         "station_tz": tz,
-    #         "station_label": this_station['label']})
+    ##### heatwave plotting function ######
+
+    # read and write yearly percentiles for heatmap (station-id_year.csv)
+    s3_fname = f"2-processed/{station_id}-{current_date.strftime('%Y')}.csv"
+    local_fname = download_from_aws(s3_fname)
+    df = pd.read_csv(local_fname,index_col=0,parse_dates=True)
+    
+    # update percentile and write
+    date_str = current_date.strftime('%Y-%m-%d') 
+    df.loc[date_str] = round(average_percent)
+
+    # write out updated station-id_year.csv
+    df.to_csv(local_fname,index=True)
+    upload_to_aws(local_fname, s3_fname)
+
+    invoke_plotting_lambda(
+        "createHeatmapPlot",
+        {
+            "obs_thisyear": df.reset_index().to_json(orient="records"),
+            "station_id": station_id,
+            "station_tz": tz,
+            "station_label": this_station['label']})

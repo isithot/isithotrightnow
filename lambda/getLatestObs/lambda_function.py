@@ -19,7 +19,7 @@ def lambda_handler(event, context):
         locations = json.load(file)
 
     station_ids = [location["id"] for location in locations]
-    xpath_filter = " or ".join([f"@bom-id='{station_id}'" for station_id in station_ids])   
+    xpath_filter = " or ".join([f"@bom-id='{station_id}'" for station_id in station_ids])
 
     def scrape_state(state):
         state_xml_path = f"{bom_xml_path}ID{state}60920.xml"
@@ -48,7 +48,7 @@ def lambda_handler(event, context):
         obs_df["tmin"] = obs_df["tmin"].astype("float64")
         obs_df["tmax_dt"] = pd.to_datetime(obs_df["tmax_dt"], utc=True)
         obs_df["tmin_dt"] = pd.to_datetime(obs_df["tmin_dt"], utc=True)
-        
+
         return obs_df
 
     obs_new = pd.concat([scrape_state(state) for state in ["D", "N", "Q", "S", "T", "V", "W"]], ignore_index=True)
@@ -57,7 +57,7 @@ def lambda_handler(event, context):
 
     # just use these obs if we don't have existing ones
     csv_path = f"1-datasources/latest/latest-all.csv"
-    
+
     obs_old = pd.read_csv(download_from_aws(csv_path), dtype={'station_id': str, 'tmax': float, 'tmin': float})
 
     # Convert datetime columns to datetime objects
@@ -95,12 +95,13 @@ def lambda_handler(event, context):
 
     # upload the local file to S3 bucket
     upload_to_aws(f'/tmp/latest-all.csv', csv_path)
-    
+
     print(str(datetime.now()) + " Wrote out new station observations")
 
     # invoke processCurrentObs lambda function if tmax/tmix is updated
     for i,updated in enumerate(updated_list):
         if updated:
+
             print('invoking processCurrentObs for station: ', obs_result.iloc[i]['station_id'])
             invoke_processCurrentObs(json.dumps(obs_result.iloc[i].to_dict(), default=convert_timestamp_to_str))
 
