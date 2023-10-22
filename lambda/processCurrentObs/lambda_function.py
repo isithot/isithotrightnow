@@ -6,6 +6,120 @@ import os
 from datetime import datetime
 from pytz import timezone
 
+
+def lambda_handler(event, context):
+
+    station_id, tz, lat, lon, tmax_now, tmax_dt, tmin_now, tmin_dt = event.values()
+    print(event.values())
+    print(f"\n\nBeginning analysis: {station_id}")
+
+    # Load station data from locations.json
+    s3_fpath = f'1-datasources/locations.json'
+    local_fpath = download_from_aws(s3_fpath)
+    with open(local_fpath) as f:
+        station_set = json.load(f)
+    this_station = [s for s in station_set if s['id'] == station_id][0]
+
+    # Get current date and time
+    current_date_time = datetime.now(timezone(tz))
+    current_date = current_date_time.date()
+
+    # Calculate tavg from current tmax and tmin
+    tavg_now = np.mean([tmax_now,tmin_now]).round()
+    print(f"Updating station: {station_id}")
+    print(f"Tavg.now = {tavg_now}")
+
+    # Calculate percentiles of historical data
+    # Read historical tmin obs from s3
+    s3_fpath = f"2-processed/historical_{station_id}.txt"
+    local_fpath = download_from_aws(s3_fpath)
+    hist_obs = pd.read_csv(local_fpath,
+                           na_values=["", " ", "NA"])
+    hist_percentiles = calc_hist_percentiles(hist_obs)
+
+    # Determine category of current temperature based on percentiles
+    category_now = bin_obs(tavg_now, hist_percentiles)
+
+    # Determine answer and comment based on category
+    isit_answer, isit_comment = determine_answer_and_comment(category_now)
+
+    # find where current temp falls in historical distribution
+    ecdf = hist_obs['Tavg'].sort_values().dropna().searchsorted(tavg_now)/len(hist_obs['Tavg'].dropna())
+
+    if tavg_now <= min(hist_obs['Tavg']):
+        average_percent = 0.
+    elif tavg_now > max(hist_obs['Tavg']):
+        average_percent = 100.
+    else:
+        average_percent = 100 * np.round(ecdf, 3)
+
+    # Save updated stats to file
+    # Create stats dictionary
+    stats_dict = {}
+    stats_dict['isit_answer'] = isit_answer if isit_answer else None
+    stats_dict['isit_comment'] = isit_comment if isit_comment else None
+    stats_dict['isit_maximum'] = tmax_now if tmax_now else None
+    stats_dict['isit_minimum'] = tmin_now if tmin_now else None
+    stats_dict['isit_current'] = tavg_now if tavg_now else None
+    stats_dict['isit_average'] = average_percent if average_percent else None
+    stats_dict['isit_name'] = this_station['name'] if 'name' in this_station else None
+    stats_dict['isit_label'] = this_station['label'] if 'label' in this_station else None
+    if 'record_start' in this_station and 'record_end' in this_station:
+        stats_dict['isit_span'] = f"{this_station['record_start']} - {this_station['record_end']}"
+    else:
+        stats_dict['isit_span'] = None
+
+    # Write the stats dictionary to the JSON file
+    file_path = f'/tmp/stats_{station_id}.json'
+    with open(file_path, "w") as f:
+        json.dump(stats_dict, f)
+    upload_to_aws(file_path, f'www/stats/stats_{station_id}.json')
+    
+    # invoke time series plotting function
+    invoke_plotting_lambda(
+        "createTimeseriesPlot",
+        {
+            "hist_obs": hist_obs.to_json(orient="records"),
+            "tavg_now": tavg_now,
+            "station_id": station_id,
+            "station_tz": tz,
+            "station_label": this_station['label']})
+
+    # invoke distribution plotting function
+    invoke_plotting_lambda(
+        "createDistributionPlot",
+        {
+            "hist_obs": hist_obs.to_json(orient="records"),
+            "tavg_now": tavg_now,
+            "station_id": station_id,
+            "station_tz": tz,
+            "station_label": this_station['label']})
+    
+    ##### heatwave plotting function ######
+
+    # read and write yearly percentiles for heatmap (station-id_year.csv)
+    s3_fname = f"2-processed/{station_id}-{current_date.strftime('%Y')}.csv"
+    local_fname = download_from_aws(s3_fname)
+    df = pd.read_csv(local_fname,index_col=0,parse_dates=True)
+    
+    # update percentile and write
+    date_str = current_date.strftime('%Y-%m-%d') 
+    df.loc[date_str] = round(average_percent)
+
+    # write out updated station-id_year.csv
+    df.to_csv(local_fname,index=True)
+    upload_to_aws(local_fname, s3_fname)
+
+    invoke_plotting_lambda(
+        "createHeatmapPlot",
+        {
+            "obs_thisyear": df.reset_index().to_json(orient="records"),
+            "station_id": station_id,
+            "station_tz": tz,
+            "station_label": this_station['label']})
+    
+    return
+
 def get_current_obs(req_station_id, fileid):
     # Returns a data frame with the max and min temps reported by the station
     dtypes = {'station_id': str, 'tmax': float, 'tmin': float}
@@ -118,119 +232,6 @@ def invoke_plotting_lambda(fn_name, payload):
     )
     return response
 
-def lambda_handler(event, context):
-
-    station_id, tz, lat, lon, tmax_now, tmax_dt, tmin_now, tmin_dt = event.values()
-    print(event.values())
-    print(f"\n\nBeginning analysis: {station_id}")
-
-    # Load station data from locations.json
-    loc_s3_fpath = f'1-datasources/locations.json'
-    local_fpath = download_from_aws(loc_s3_fpath)
-    with open(local_fpath) as f:
-        station_set = json.load(f)
-    this_station = [s for s in station_set if s['id'] == station_id][0]
-
-    # Get current date and time
-    current_date_time = datetime.now(timezone(tz))
-    current_date = current_date_time.date()
-
-    # Calculate tavg from current tmax and tmin
-    tavg_now = np.mean([tmax_now,tmin_now]).round()
-    print(f"Updating station: {station_id}")
-    print(f"Tavg.now = {tavg_now}")
-
-    # Calculate percentiles of historical data
-    # Read historical tmin obs from s3
-    s3_fpath = f"2-processed/historical_{station_id}.txt"
-    local_fpath = download_from_aws(s3_fpath)
-    hist_obs = pd.read_csv(local_fpath,
-                           na_values=["", " ", "NA"])
-    hist_percentiles = calc_hist_percentiles(hist_obs)
-
-    # Determine category of current temperature based on percentiles
-    category_now = bin_obs(tavg_now, hist_percentiles)
-
-    # Determine answer and comment based on category
-    isit_answer, isit_comment = determine_answer_and_comment(category_now)
-
-    # find where current temp falls in historical distribution
-    ecdf = hist_obs['Tavg'].sort_values().dropna().searchsorted(tavg_now)/len(hist_obs['Tavg'].dropna())
-
-    if tavg_now <= min(hist_obs['Tavg']):
-        average_percent = 0.
-    elif tavg_now > max(hist_obs['Tavg']):
-        average_percent = 100.
-    else:
-        average_percent = 100 * np.round(ecdf, 3)
-
-    # Save updated stats to file
-    # Create stats dictionary
-    stats_dict = {}
-    stats_dict['isit_answer'] = isit_answer if isit_answer else None
-    stats_dict['isit_comment'] = isit_comment if isit_comment else None
-    stats_dict['isit_maximum'] = tmax_now if tmax_now else None
-    stats_dict['isit_minimum'] = tmin_now if tmin_now else None
-    stats_dict['isit_current'] = tavg_now if tavg_now else None
-    stats_dict['isit_average'] = average_percent if average_percent else None
-    stats_dict['isit_name'] = this_station['name'] if 'name' in this_station else None
-    stats_dict['isit_label'] = this_station['label'] if 'label' in this_station else None
-    if 'record_start' in this_station and 'record_end' in this_station:
-        stats_dict['isit_span'] = f"{this_station['record_start']} - {this_station['record_end']}"
-    else:
-        stats_dict['isit_span'] = None
-
-    file_path = f'/tmp/stats_{station_id}.json'
-    # Write the stats dictionary to the JSON file
-    with open(file_path, "w") as f:
-        json.dump(stats_dict, f)
-    upload_to_aws(file_path, f'www/stats/stats_{station_id}.json')
-    
-    # invoke time series plotting function
-    invoke_plotting_lambda(
-        "createTimeseriesPlot",
-        {
-            "hist_obs": hist_obs.to_json(orient="records"),
-            "tavg_now": tavg_now,
-            "station_id": station_id,
-            "station_tz": tz,
-            "station_label": this_station['label']})
-
-    # invoke distribution plotting function
-    invoke_plotting_lambda(
-        "createDistributionPlot",
-        {
-            "hist_obs": hist_obs.to_json(orient="records"),
-            "tavg_now": tavg_now,
-            "station_id": station_id,
-            "station_tz": tz,
-            "station_label": this_station['label']})
-    
-    ##### heatwave plotting function ######
-
-    # read and write yearly percentiles for heatmap (station-id_year.csv)
-    s3_fname = f"2-processed/{station_id}-{current_date.strftime('%Y')}.csv"
-    local_fname = download_from_aws(s3_fname)
-    df = pd.read_csv(local_fname,index_col=0,parse_dates=True)
-    
-    # update percentile and write
-    date_str = current_date.strftime('%Y-%m-%d') 
-    df.loc[date_str] = round(average_percent)
-
-    # write out updated station-id_year.csv
-    df.to_csv(local_fname,index=True)
-    upload_to_aws(local_fname, s3_fname)
-
-    invoke_plotting_lambda(
-        "createHeatmapPlot",
-        {
-            "obs_thisyear": df.reset_index().to_json(orient="records"),
-            "station_id": station_id,
-            "station_tz": tz,
-            "station_label": this_station['label']})
-    
-    ##########################################
-
 def local_testing():
 
     '''This function is for testing off AWS without boto3/s3. It is not used in the lambda function.'''
@@ -306,5 +307,8 @@ def local_testing():
         stats_dict['isit_span'] = f"{this_station['record_start']} - {this_station['record_end']}"
     else:
         stats_dict['isit_span'] = None
-    
-    file_path = f'/tmp/stats_{station_id}.json'
+
+    file_path = f'{datapath}/stats_{station_id}_new.json'
+    # Write the stats dictionary to the JSON file
+    with open(file_path, "w") as f:
+        json.dump(stats_dict, f)

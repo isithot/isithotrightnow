@@ -76,7 +76,7 @@ def lambda_handler(event, context):
     obs_merged['tmin_selected_dt'] = obs_merged.apply(lambda row: row['tmin_dt'] if row['tmin'] <= row['tmin_old'] or row['tmin_dt_old'] < row['today_start_utc'] else row['tmin_dt_old'], axis=1)
 
     # a list to keep track of the updated rows
-    updated_list = list(obs_merged.apply(lambda row: row['tmax'] >= row['tmax_old'] or row['tmin'] <= row['tmin_old'] or row['tmax_dt_old'] < row['today_start_utc'] or row['tmin_dt_old'] < row['today_start_utc'], axis=1))
+    updated_list = list(obs_merged.apply(lambda row: row['tmax'] > row['tmax_old'] or row['tmin'] < row['tmin_old'] or row['tmax_dt_old'] < row['today_start_utc'] or row['tmin_dt_old'] < row['today_start_utc'], axis=1))
 
     # Backfill any missing values
     obs_merged['tmax_selected'] = obs_merged['tmax_selected'].fillna(obs_merged['tmax']).fillna(obs_merged['tmax_old'])
@@ -104,6 +104,14 @@ def lambda_handler(event, context):
 
             print('invoking processCurrentObs for station: ', obs_result.iloc[i]['station_id'])
             invoke_processCurrentObs(json.dumps(obs_result.iloc[i].to_dict(), default=convert_timestamp_to_str))
+            
+    # invoke stats_all if any items are updated
+    if any(updated_list):
+        
+        print('invoking processStatsAll to update combined stats')
+        invoke_processStatsAll(None)
+
+    return
 
 def convert_timestamp_to_str(data):
     if isinstance(data, pd.Timestamp):
@@ -114,6 +122,15 @@ def invoke_processCurrentObs(payload):
     lambda_client = boto3.client('lambda')
     response = lambda_client.invoke(
         FunctionName='processCurrentObs',
+        InvocationType='Event',  # This will asynchronously invoke the Lambda function
+        Payload=payload
+    )
+    return response
+
+def invoke_processStatsAll(payload):
+    lambda_client = boto3.client('lambda')
+    response = lambda_client.invoke(
+        FunctionName='processStatsAll',
         InvocationType='Event',  # This will asynchronously invoke the Lambda function
         Payload=payload
     )
