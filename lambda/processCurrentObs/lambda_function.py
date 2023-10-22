@@ -6,7 +6,6 @@ import os
 from datetime import datetime
 from pytz import timezone
 
-
 def get_current_obs(req_station_id, fileid):
     # Returns a data frame with the max and min temps reported by the station
     dtypes = {'station_id': str, 'tmax': float, 'tmin': float}
@@ -14,7 +13,6 @@ def get_current_obs(req_station_id, fileid):
     df = df[df['station_id'] == req_station_id][['tmax', 'tmin']]
     print(df)
     return df
-
 
 def calc_hist_percentiles(Obs):
     # Returns a data frame with columns Tmax, Tmin and Tavg, each row referring to the 6 percentiles:
@@ -26,7 +24,6 @@ def calc_hist_percentiles(Obs):
     result = obs_cols.quantile(percentiles, axis=0, numeric_only=True)
     result.columns = ['Tmax', 'Tmin', 'Tavg']
     return result
-
 
 def determine_answer_and_comment(category_now):
     switcher_answer = {
@@ -53,7 +50,6 @@ def determine_answer_and_comment(category_now):
 
     return isit_answer, isit_comment
 
-
 def bin_obs(tavg_now, hist_percentiles):
     return pd.cut([tavg_now],
         bins=[
@@ -66,33 +62,6 @@ def bin_obs(tavg_now, hist_percentiles):
         right=False
     ).astype(str)[0]
     # The -100 and 100 allow us to have the lowest and highest bins
-
-
-def ECDF(data):
-    """Compute ECDF for a one-dimensional array of measurements."""
-    # Drop NAs and sort the data in ascending order
-    sorted_data = np.sort(data.dropna())
-
-    # Calculate the y-values for the ECDF
-    n = len(data)
-    y_values = np.arange(1,n+1) / n
-
-    # Define the ECDF function
-    def ecdf_function(x):
-        """Return the value of the ECDF for a given x."""
-        # Find the index of the first element in the sorted data greater than or equal to x
-        index = np.searchsorted(sorted_data, x, side='left')
-
-        # Return the y-value for that index
-        return y_values[index-1]
-
-    # Return the ECDF function
-    return ecdf_function
-
-
-def tavg_hist_percentile(hist_tavg, tavg_now):
-    ecdf = ECDF(hist_tavg)
-    return 0. if tavg_now <= min(hist_tavg) else 100. if tavg_now > max(hist_tavg) else 100 * np.round(ecdf(tavg_now), 3)
 
 def download_from_aws(s3_fpath):
 
@@ -157,21 +126,17 @@ def lambda_handler(event, context):
 
     # Load station data from locations.json
     loc_s3_fpath = f'1-datasources/locations.json'
-    loc_local_fpath = download_from_aws(loc_s3_fpath)
-    with open(loc_local_fpath) as f:
+    local_fpath = download_from_aws(loc_s3_fpath)
+    with open(local_fpath) as f:
         station_set = json.load(f)
     this_station = [s for s in station_set if s['id'] == station_id][0]
-
-    # Create directory for output files
-    # output_dir = f"output/{station_id}"
-    # os.makedirs(output_dir, exist_ok=True)
 
     # Get current date and time
     current_date_time = datetime.now(timezone(tz))
     current_date = current_date_time.date()
 
     # Calculate tavg from current tmax and tmin
-    tavg_now = (tmax_now + tmin_now) / 2.0
+    tavg_now = np.mean([tmax_now,tmin_now]).round()
     print(f"Updating station: {station_id}")
     print(f"Tavg.now = {tavg_now}")
 
@@ -189,8 +154,15 @@ def lambda_handler(event, context):
     # Determine answer and comment based on category
     isit_answer, isit_comment = determine_answer_and_comment(category_now)
 
-    # Calculate percentage of historical data that is lower than current temperature
-    average_percent = tavg_hist_percentile(hist_obs['Tavg'], tavg_now)
+    # find where current temp falls in historical distribution
+    ecdf = hist_obs['Tavg'].sort_values().dropna().searchsorted(tavg_now)/len(hist_obs['Tavg'].dropna())
+
+    if tavg_now <= min(hist_obs['Tavg']):
+        average_percent = 0.
+    elif tavg_now > max(hist_obs['Tavg']):
+        average_percent = 100.
+    else:
+        average_percent = 100 * np.round(ecdf, 3)
 
     # Save updated stats to file
     # Create stats dictionary
@@ -207,9 +179,6 @@ def lambda_handler(event, context):
         stats_dict['isit_span'] = f"{this_station['record_start']} - {this_station['record_end']}"
     else:
         stats_dict['isit_span'] = None
-
-    # Convert dictionary to JSON string
-    stats_json = json.dumps(stats_dict)
 
     file_path = f'/tmp/stats_{station_id}.json'
     # Write the stats dictionary to the JSON file
@@ -259,3 +228,83 @@ def lambda_handler(event, context):
             "station_id": station_id,
             "station_tz": tz,
             "station_label": this_station['label']})
+    
+    ##########################################
+
+def local_testing():
+
+    '''This function is for testing off AWS without boto3/s3. It is not used in the lambda function.'''
+
+    import os
+    oshome = os.environ['HOME']
+    datapath = f'{oshome}/Downloads'
+
+    # from latest-all.csv
+    raw_event = '066214,Australia/Sydney,-33.8593,151.2048,25.7,2023-10-21 02:00:00+00:00,16.1,2023-10-20 19:40:00+00:00'.split(',')
+    event = {
+        "station_id": raw_event[0],
+        "tz": raw_event[1],
+        "lat": raw_event[2], 
+        "lon": raw_event[3],
+        "tmax_now": float(raw_event[4]),
+        "tmax_dt": raw_event[5],
+        "tmin_now": float(raw_event[6]),
+        "tmin_dt": raw_event[7]
+        }
+    
+    station_id, tz, lat, lon, tmax_now, tmax_dt, tmin_now, tmin_dt = event.values()
+    
+    local_fpath = f'{datapath}/locations.json'
+    with open(local_fpath) as f:
+        station_set = json.load(f)
+    this_station = [s for s in station_set if s['id'] == station_id][0]
+    
+    # Get current date and time
+    current_date_time = datetime.now(timezone(tz))
+    current_date = current_date_time.date()
+    
+    # Calculate tavg from current tmax and tmin
+    tavg_now = np.mean([tmax_now,tmin_now]).round()
+    print(f"Updating station: {station_id}")
+    print(f"Tavg.now = {tavg_now}")
+
+    # Calculate percentiles of historical data
+    # Read historical tmin obs from s3
+    local_fpath = f'{datapath}/historical_{station_id}.txt'
+    hist_obs = pd.read_csv(local_fpath,
+                           na_values=["", " ", "NA"])
+    hist_percentiles = calc_hist_percentiles(hist_obs)
+
+    # Determine category of current temperature based on percentiles
+    category_now = bin_obs(tavg_now, hist_percentiles)
+    
+    # Determine answer and comment based on category
+    isit_answer, isit_comment = determine_answer_and_comment(category_now)
+    
+    # find where current temp falls in historical distribution
+    ecdf = hist_obs['Tavg'].sort_values().dropna().searchsorted(tavg_now)/len(hist_obs['Tavg'].dropna())
+
+    if tavg_now <= min(hist_obs['Tavg']):
+        average_percent = 0.
+    elif tavg_now > max(hist_obs['Tavg']):
+        average_percent = 100.
+    else:
+        average_percent = 100 * np.round(ecdf, 3)
+    
+    # Save updated stats to file
+    # Create stats dictionary
+    stats_dict = {}
+    stats_dict['isit_answer'] = isit_answer if isit_answer else None
+    stats_dict['isit_comment'] = isit_comment if isit_comment else None
+    stats_dict['isit_maximum'] = tmax_now if tmax_now else None
+    stats_dict['isit_minimum'] = tmin_now if tmin_now else None
+    stats_dict['isit_current'] = tavg_now if tavg_now else None
+    stats_dict['isit_average'] = average_percent if average_percent else None
+    stats_dict['isit_name'] = this_station['name'] if 'name' in this_station else None
+    stats_dict['isit_label'] = this_station['label'] if 'label' in this_station else None
+    if 'record_start' in this_station and 'record_end' in this_station:
+        stats_dict['isit_span'] = f"{this_station['record_start']} - {this_station['record_end']}"
+    else:
+        stats_dict['isit_span'] = None
+    
+    file_path = f'/tmp/stats_{station_id}.json'
