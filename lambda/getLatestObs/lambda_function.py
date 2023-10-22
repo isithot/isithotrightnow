@@ -109,7 +109,7 @@ def lambda_handler(event, context):
     if any(updated_list):
         
         print('invoking processStatsAll to update combined stats')
-        invoke_processStatsAll(None)
+        invoke_processStatsAll(json.dumps([]))
 
     return
 
