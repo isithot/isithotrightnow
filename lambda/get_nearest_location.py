@@ -3,7 +3,8 @@ import json
 def lambda_handler(event, context):
 
     '''
-    event is the ip-api.com call, such as:
+    This function returns the nearest isithot location to the client lat and lon
+    The input 'event' is the ip-api.com call, such as:
     http://ip-api.com/json/24.48.0.1?fields=status,country,lat,lon
     
     which returns:
@@ -13,6 +14,9 @@ def lambda_handler(event, context):
     see: https://ip-api.com/docs/api:json
 
     ip-api allow 45 requests per minute
+
+    Returns:
+        url (str): the url suffix of the closest isithot location
     '''
 
     # local load locations.json
