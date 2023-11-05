@@ -130,11 +130,11 @@ def get_current_obs(req_station_id, fileid):
 
 def calc_hist_percentiles(Obs):
     # Returns a data frame with columns Tmax, Tmin and Tavg, each row referring to the 6 percentiles:
-    # 5, 10, 40, 50, 60, 90, 95
+    # 5, 20, 40, 60, 80, 95
     if Obs is None:
         raise ValueError("Error: Missing historical observations")
     obs_cols = Obs.drop(columns=['Date', 'Year', 'Month', 'Day'])
-    percentiles = np.array([0.05, 0.1, 0.4, 0.5, 0.6, 0.9, 0.95])
+    percentiles = np.array([0.05, 0.2, 0.4, 0.6, 0.8, 0.95])
     result = obs_cols.quantile(percentiles, axis=0, numeric_only=True)
     result.columns = ['Tmax', 'Tmin', 'Tavg']
     return result

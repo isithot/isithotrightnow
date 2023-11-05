@@ -7,11 +7,11 @@ bg_colour_hw <- "#dddddd"
 
 rating_colours <- c(
   "#2166ac",    # 0-5%
-  "#67a9cf",    # 5-10%
-  "#d1e5f0",    # 10-40%
+  "#67a9cf",    # 5-20%
+  "#d1e5f0",    # 20-40%
   "#f7f7f7",    # 40-60%
-  "#fddbc7",    # 60-90%
-  "#ef8a62",    # 90-95%
+  "#fddbc7",    # 60-80%
+  "#ef8a62",    # 80-95%
   "#b2182b")    # 95-100%
 
 #' Return a data frame of lower and upper limits for shading graphics based on
