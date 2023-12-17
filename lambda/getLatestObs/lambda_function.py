@@ -9,6 +9,14 @@ import boto3
 
 def lambda_handler(event, context):
 
+    # check if force_upate is in event dictionary key
+    if 'force_update' in event:
+        force_update = event['force_update']
+    else:
+        force_update = False
+
+    print("force_update:", force_update)
+
     print(f"{datetime.now()} Looking for new observations...")
 
     bom_xml_path = "ftp://ftp.bom.gov.au/anon/gen/fwo/"
@@ -100,7 +108,7 @@ def lambda_handler(event, context):
 
     # invoke processCurrentObs lambda function if tmax/tmix is updated
     for i,updated in enumerate(updated_list):
-        if updated:
+        if updated or force_update:
 
             print('invoking processCurrentObs for station: ', obs_result.iloc[i]['station_id'])
             invoke_processCurrentObs(json.dumps(obs_result.iloc[i].to_dict(), default=convert_timestamp_to_str))
@@ -158,7 +166,7 @@ def download_from_aws(s3_fpath):
         return local_file_path
 
     except Exception as e:
-        print(f"Error getting S3 object: {e}")
+        print(f"Error getting S3 object: {s3_fpath}")
         return None
 
 def upload_to_aws(local_file, s3_file):
