@@ -75,8 +75,6 @@ def lambda_handler(event, context):
             'tmin': float}) \
         .query('station_id in @station_ids')
 
-    # obs_old = obs_old[obs_old['station_id'].isin(station_ids)]
-
     # Convert datetime columns to datetime objects
     obs_old['tmax_dt'] = pd.to_datetime(obs_old['tmax_dt'])
 
