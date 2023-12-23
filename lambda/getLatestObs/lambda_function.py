@@ -66,11 +66,19 @@ def lambda_handler(event, context):
     # just use these obs if we don't have existing ones
     csv_path = f"1-datasources/latest/latest-all.csv"
 
-    obs_old = pd.read_csv(download_from_aws(csv_path), dtype={'station_id': str, 'tmax': float, 'tmin': float})
+    # load existing obs, but filter out any stations that have been removed
+    # from locations.json (eg. malfunctioning stations)
+    obs_old = pd.read_csv(
+        download_from_aws(csv_path), dtype = {
+            'station_id': str,
+            'tmax': float,
+            'tmin': float}) \
+        .query('station_id in @station_ids')
+
+    # obs_old = obs_old[obs_old['station_id'].isin(station_ids)]
 
     # Convert datetime columns to datetime objects
     obs_old['tmax_dt'] = pd.to_datetime(obs_old['tmax_dt'])
-    obs_old['tmin_dt'] = pd.to_datetime(obs_old['tmin_dt'])
 
     # Get today's local midnight in UTC
     tz = [timezone(row_tz) for row_tz in obs_old['tz']]
@@ -185,7 +193,7 @@ def upload_to_aws(local_file, s3_file):
             ExpiresIn=24 * 3600
         )
 
-        print("Upload Successful", url)
+        print("Upload Successful", url.split('?')[0])
         return url
     except FileNotFoundError:
         print("The file was not found")
