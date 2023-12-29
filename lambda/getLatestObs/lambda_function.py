@@ -38,7 +38,7 @@ def lambda_handler(event, context):
         obs_list = []
         for station in state_xml.xpath(f"//station[{xpath_filter}]"):
             station_id = station.get("bom-id")
-            print(station_id)
+            print("Scraping station: " + str(station_id))
             tz = station.get("tz")
             lat = station.get("lat")
             lon = station.get("lon")
@@ -74,9 +74,13 @@ def lambda_handler(event, context):
             'tmax': float,
             'tmin': float}) \
         .query('station_id in @station_ids')
+        
+    print("Existing observations, filtered to current statiion list:")
+    print(obs_old)
 
     # Convert datetime columns to datetime objects
     obs_old['tmax_dt'] = pd.to_datetime(obs_old['tmax_dt'])
+    obs_old['tmin_dt'] = pd.to_datetime(obs_old['tmin_dt'])
 
     # Get today's local midnight in UTC
     tz = [timezone(row_tz) for row_tz in obs_old['tz']]
