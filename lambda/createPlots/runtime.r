@@ -468,11 +468,11 @@ createHeatmapPlot <- function(obs_thisyear, station_id, station_tz, station_labe
   message("Uploading plot to S3 bucket")
   flush.console()
 
-  # upload to s3
+  # upload to s3 (use the current year)
   put_object(
     file = temp_path,
     object = file.path("www", "plots", "heatmap",
-      paste0("heatmap-", station_id, ".png")),
+      paste0("heatmap-", station_id, "-", year(date_now), ".png")),
     bucket = "isithot-data")
 
   message("All done!")

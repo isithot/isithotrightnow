@@ -9,6 +9,14 @@ import boto3
 
 def lambda_handler(event, context):
 
+    # check if force_upate is in event dictionary key
+    if 'force_update' in event:
+        force_update = event['force_update']
+    else:
+        force_update = False
+
+    print("force_update:", force_update)
+
     print(f"{datetime.now()} Looking for new observations...")
 
     bom_xml_path = "ftp://ftp.bom.gov.au/anon/gen/fwo/"
@@ -30,7 +38,7 @@ def lambda_handler(event, context):
         obs_list = []
         for station in state_xml.xpath(f"//station[{xpath_filter}]"):
             station_id = station.get("bom-id")
-            print(station_id)
+            print("Scraping station: " + str(station_id))
             tz = station.get("tz")
             lat = station.get("lat")
             lon = station.get("lon")
@@ -58,7 +66,17 @@ def lambda_handler(event, context):
     # just use these obs if we don't have existing ones
     csv_path = f"1-datasources/latest/latest-all.csv"
 
-    obs_old = pd.read_csv(download_from_aws(csv_path), dtype={'station_id': str, 'tmax': float, 'tmin': float})
+    # load existing obs, but filter out any stations that have been removed
+    # from locations.json (eg. malfunctioning stations)
+    obs_old = pd.read_csv(
+        download_from_aws(csv_path), dtype = {
+            'station_id': str,
+            'tmax': float,
+            'tmin': float}) \
+        .query('station_id in @station_ids')
+        
+    print("Existing observations, filtered to current statiion list:")
+    print(obs_old)
 
     # Convert datetime columns to datetime objects
     obs_old['tmax_dt'] = pd.to_datetime(obs_old['tmax_dt'])
@@ -100,7 +118,7 @@ def lambda_handler(event, context):
 
     # invoke processCurrentObs lambda function if tmax/tmix is updated
     for i,updated in enumerate(updated_list):
-        if updated:
+        if updated or force_update:
 
             print('invoking processCurrentObs for station: ', obs_result.iloc[i]['station_id'])
             invoke_processCurrentObs(json.dumps(obs_result.iloc[i].to_dict(), default=convert_timestamp_to_str))
@@ -158,7 +176,7 @@ def download_from_aws(s3_fpath):
         return local_file_path
 
     except Exception as e:
-        print(f"Error getting S3 object: {e}")
+        print(f"Error getting S3 object: {s3_fpath}")
         return None
 
 def upload_to_aws(local_file, s3_file):
@@ -177,7 +195,7 @@ def upload_to_aws(local_file, s3_file):
             ExpiresIn=24 * 3600
         )
 
-        print("Upload Successful", url)
+        print("Upload Successful", url.split('?')[0])
         return url
     except FileNotFoundError:
         print("The file was not found")

@@ -21,8 +21,7 @@ def lambda_handler(event, context):
     this_station = [s for s in station_set if s['id'] == station_id][0]
 
     # Get current date and time
-    current_date_time = datetime.now(timezone(tz))
-    current_date = current_date_time.date()
+    current_date = datetime.now(timezone(tz)).date()
 
     # Calculate tavg from current tmax and tmin
     tavg_now = np.mean([tmax_now,tmin_now]).round()
@@ -97,12 +96,24 @@ def lambda_handler(event, context):
     
     ##### heatwave plotting function ######
 
-    # read and write yearly percentiles for heatmap (station-id_year.csv)
+    # read yearly percentiles for heatmap (station-id_year.csv)
     s3_fname = f"2-processed/{station_id}-{current_date.strftime('%Y')}.csv"
     local_fname = download_from_aws(s3_fname)
-    df = pd.read_csv(local_fname,index_col=0,parse_dates=True)
+
+    # if file doesn't exist on s3, create it
+    if local_fname is None:
+        print(f'creating new percentiles df for {station_id}')
+        # create series with index for each day this year
+        sdate, edate = f"{current_date.year}-01-01", f"{current_date.year}-12-31"
+        df = pd.DataFrame(index=pd.date_range(sdate,edate),columns=['percentile'],data=np.nan)
+        df.index.name = 'date'
+        local_fname = f'/tmp/{os.path.basename(s3_fpath)}'
+    else:
+        df = pd.read_csv(local_fname,index_col=0,parse_dates=True)
+
+    print(local_fname)
     
-    # update percentile and write
+    # update percentile and write to aws
     date_str = current_date.strftime('%Y-%m-%d') 
     df.loc[date_str] = round(average_percent)
 
@@ -198,7 +209,7 @@ def download_from_aws(s3_fpath):
         return local_file_path
 
     except Exception as e:
-        print(f"Error getting S3 object: {e}")
+        print(f"Error getting S3 object: {s3_fpath}")
         return None
 
 def upload_to_aws(local_file, s3_file):
@@ -217,7 +228,7 @@ def upload_to_aws(local_file, s3_file):
             ExpiresIn=24 * 3600
         )
 
-        print("Upload Successful", url)
+        print("Upload Successful", url.split('?')[0])
         return url
     except FileNotFoundError:
         print("The file was not found")

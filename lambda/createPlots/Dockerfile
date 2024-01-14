@@ -1,6 +1,6 @@
 # start from the public.ecr.aws/lambda/provided parent image,
 # which provides the basic components necessary to serve a Lambda
-FROM public.ecr.aws/lambda/provided
+FROM public.ecr.aws/lambda/provided:al2
 
 # set r version to install
 ENV R_VERSION=4.2.2

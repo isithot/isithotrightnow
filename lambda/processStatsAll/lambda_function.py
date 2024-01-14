@@ -16,9 +16,17 @@ def lambda_handler(event, context):
         # load stat_sid.json
         s3_fpath = f"www/stats/stats_{station['id']}.json"
         local_fpath = download_from_aws(s3_fpath)
-        with open(local_fpath) as f:
-            stats_dict = json.load(f)
-            stats_all[station['id']] = stats_dict
+        if local_fpath is None:
+            print(f'{s3_fpath} not found')
+        else:
+            with open(local_fpath) as f:
+                stats_dict = json.load(f)
+                # add locations.json addtional info
+                stats_dict['isit_lat'] = station['lat']
+                stats_dict['isit_lon'] = station['lon']
+                stats_dict['isit_tz'] = station['tz']
+                # add to stats_all
+                stats_all[station['id']] = stats_dict
 
     # save stats_all
     local_fpath = f"/tmp/stats_all.json"
