@@ -309,7 +309,9 @@ def local_testing():
     stats_dict['isit_answer'] = isit_answer if isit_answer else None
     stats_dict['isit_comment'] = isit_comment if isit_comment else None
     stats_dict['isit_maximum'] = tmax_now if tmax_now else None
+    stats_dict['isit_maximum_dt'] = tmax_dt if tmax_dt else None
     stats_dict['isit_minimum'] = tmin_now if tmin_now else None
+    stats_dict['isit_minimum_dt'] = tmin_dt if tmin_dt else None
     stats_dict['isit_current'] = tavg_now if tavg_now else None
     stats_dict['isit_average'] = average_percent if average_percent else None
     stats_dict['isit_name'] = this_station['name'] if 'name' in this_station else None
