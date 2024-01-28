@@ -39,16 +39,29 @@ def lambda_handler(event, context):
         for station in state_xml.xpath(f"//station[{xpath_filter}]"):
             station_id = station.get("bom-id")
             print("Scraping station: " + str(station_id))
-            tz = station.get("tz")
-            lat = station.get("lat")
-            lon = station.get("lon")
-            tmax = float(station.xpath(".//element[@type='maximum_air_temperature']")[0].text)
-            tmax_dt = station.xpath(".//element[@type='maximum_air_temperature']")[0].get("time-local")
-            tmin = float(station.xpath(".//element[@type='minimum_air_temperature']")[0].text)
-            tmin_dt = station.xpath(".//element[@type='minimum_air_temperature']")[0].get("time-local")
-            obs_list.append((station_id, tz, lat, lon, tmax, tmax_dt, tmin, tmin_dt))
+            print(etree.tostring(station))
+            try:
+                tz = station.get("tz")
+                lat = station.get("lat")
+                lon = station.get("lon")
+                # TODO - would be great to also look at daily tmax/tmin fields
+                # here in case a more extreme value happens between updates
+                tmax = float(station.xpath(".//element[@type='maximum_air_temperature']")[0].text)
+                tmax_dt = station.xpath(".//element[@type='maximum_air_temperature']")[0].get("time-local")
+                tmin = float(station.xpath(".//element[@type='minimum_air_temperature']")[0].text)
+                tmin_dt = station.xpath(".//element[@type='minimum_air_temperature']")[0].get("time-local")
+            # if sth goes wrong, skip the station and move on
+            except IndexError as err:
+                print("WARNING: skipping " + str(station_id) +
+                    " due to an error:")
+                print(err)
+                continue
+            obs_list.append(
+                (station_id, tz, lat, lon, tmax, tmax_dt, tmin, tmin_dt))
 
-        obs_df = pd.DataFrame(obs_list, columns=["station_id", "tz", "lat", "lon", "tmax", "tmax_dt", "tmin", "tmin_dt"])
+        print("Scraping complete for state " + state)
+        obs_df = pd.DataFrame(obs_list, columns = ["station_id", "tz", "lat",
+            "lon", "tmax", "tmax_dt", "tmin", "tmin_dt"])
         obs_df["station_id"] = obs_df["station_id"]
         obs_df["lat"] = obs_df["lat"].astype("float64")
         obs_df["lon"] = obs_df["lon"].astype("float64")
