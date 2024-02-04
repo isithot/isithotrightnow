@@ -24,7 +24,7 @@ def lambda_handler(event, context):
     current_date = datetime.now(timezone(tz)).date()
 
     # Calculate tavg from current tmax and tmin
-    tavg_now = np.mean([tmax_now,tmin_now]).round()
+    tavg_now = np.mean([tmax_now,tmin_now]).round(2)
     print(f"Updating station: {station_id}")
     print(f"Tavg.now = {tavg_now}")
 
