@@ -96,8 +96,16 @@ def lambda_handler(event, context):
     obs_old['tmin_dt'] = pd.to_datetime(obs_old['tmin_dt'])
 
     # Get today's local midnight in UTC
-    tz = [timezone(row_tz) for row_tz in obs_old['tz']]
-    obs_old['today_start_utc'] = [datetime.now(row_tz).replace(hour=0, minute=0, second=0).astimezone(timezone('UTC')) for row_tz in tz]
+    for row in obs_old.itertuples():
+        try: # convert UTC based on stated timezone
+            obs_old.loc[row.Index,'today_start_utc'] = pd.Timestamp.now(row.tz).replace(hour=0, minute=0, second=0).astimezone(timezone('UTC'))
+        except Exception: # estimate UTC based on longitude
+            try:
+                obs_old.loc[row.Index,'today_start_utc'] = round(row['lon']/15.0)
+                print(f"Error converting timezone for {row.station_id}, using estimated timezone based on longitude instead.")
+            except Exception: # assume sydney timezone
+                obs_old.loc[row.Index,'today_start_utc'] = pd.Timestamp.now('Australia/Sydney').replace(hour=0, minute=0, second=0).astimezone(timezone('UTC'))
+                print(f"Error converting timezone for {row.station_id}, using estimated timezone based on Sydney instead")
 
     # Select new obs if they're more extreme than the previous ones within the last 24 hours
     obs_merged = pd.merge(obs_new, obs_old, on='station_id', how='outer', suffixes=('', '_old'))
