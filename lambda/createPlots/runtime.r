@@ -141,7 +141,7 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
     # today's point and labels
     geom_point(
       aes(x = x, y = y, fill = rating_colour),
-      shape = 21, colour = "black",
+      shape = 21, colour = "#00000088",
       data = today_df,
       size = rel(5)) +
     annotate_text_iihrn(
