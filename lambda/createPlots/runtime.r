@@ -140,7 +140,8 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
       linetype = "longdash") +
     # today's point and labels
     geom_point(
-      aes(x = x, y = y, colour = rating_colour),
+      aes(x = x, y = y, fill = rating_colour),
+      shape = 21, colour = "black",
       data = today_df,
       size = rel(5)) +
     annotate_text_iihrn(
@@ -177,6 +178,7 @@ createTimeseriesPlot <- function(hist_obs, tavg_now, station_id,
       labels = scales::label_number(suffix = "°C"),
       expand = y_scale_expand) +
     scale_colour_identity() +
+    scale_fill_identity() +
     theme_iihrn() +
     theme(
       axis.line = element_line(),
