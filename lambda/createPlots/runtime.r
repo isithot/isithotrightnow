@@ -457,7 +457,8 @@ createHeatmapPlot <- function(obs_thisyear, station_id, station_tz, station_labe
       cex.main = 4, line = 5.5, col = "#333333")
   axis(side = 3, at = seq(1, 31), lwd.ticks = 0, cex.axis = 2.3, font = 2)
   axis(side = 2, at = seq(12, 1), labels = month_names, las = 2, lwd.ticks = 0, cex.axis = 2.3, font = 2)
-  text(expand.grid(1:31, 12:1), labels = percentileHeatmap_array, cex = 2.3)
+  text(expand.grid(1:31, 12:1), labels = round(percentileHeatmap_array),
+    cex = 2.3)
   par(mar = c(0.8,0,8,30) + 0.1, bg = NA)
   colbar <- c(cols[1], rep(cols[2], 3), rep(cols[3], 4),rep(cols[4], 4), rep(cols[5], 4), rep(cols[6], 3), cols[7])
   colkey(col = colbar, clim = c(0, 1), at = breaks, side = 4, width = 6,
