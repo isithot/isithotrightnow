@@ -3,9 +3,7 @@ import numpy as np
 import json
 import boto3
 import os
-from datetime import datetime
 from pytz import timezone
-
 
 def lambda_handler(event, context):
 
@@ -21,7 +19,7 @@ def lambda_handler(event, context):
     this_station = [s for s in station_set if s['id'] == station_id][0]
 
     # Get current date and time
-    current_date = datetime.now(timezone(tz)).date()
+    current_date = pd.Timestamp.now(timezone(tz))
 
     # Calculate tavg from current tmax and tmin
     tavg_now = np.mean([tmax_now,tmin_now]).round(2)
@@ -58,7 +56,9 @@ def lambda_handler(event, context):
     stats_dict['isit_answer'] = isit_answer if isit_answer else None
     stats_dict['isit_comment'] = isit_comment if isit_comment else None
     stats_dict['isit_maximum'] = tmax_now if tmax_now else None
+    stats_dict['isit_maximum_dt'] = tmax_dt if tmax_dt else None
     stats_dict['isit_minimum'] = tmin_now if tmin_now else None
+    stats_dict['isit_minimum_dt'] = tmin_dt if tmin_dt else None
     stats_dict['isit_current'] = tavg_now if tavg_now else None
     stats_dict['isit_average'] = average_percent if average_percent else None
     stats_dict['isit_name'] = this_station['name'] if 'name' in this_station else None
@@ -97,7 +97,7 @@ def lambda_handler(event, context):
     ##### heatwave plotting function ######
 
     # read yearly percentiles for heatmap (station-id_year.csv)
-    s3_fname = f"2-processed/{station_id}-{current_date.strftime('%Y')}.csv"
+    s3_fname = f"2-processed/{station_id}-{current_date.year}.csv"
     local_fname = download_from_aws(s3_fname)
 
     # if file doesn't exist on s3, create it
@@ -112,10 +112,12 @@ def lambda_handler(event, context):
         df = pd.read_csv(local_fname,index_col=0,parse_dates=True)
 
     print(local_fname)
-    
+
     # update percentile and write to aws
-    date_str = current_date.strftime('%Y-%m-%d') 
-    df.loc[date_str] = round(average_percent)
+    df.loc[current_date.strftime('%Y-%m-%d') ,['percentile','tmin','tmax']] = [average_percent, tmin_now, tmax_now]
+
+    # # temporary until non-breaking changes are made to the heatmap plotting function
+    # df = df[['percentile']].round()
 
     # write out updated station-id_year.csv
     df.to_csv(local_fname,index=True)
@@ -248,6 +250,11 @@ def local_testing():
     '''This function is for testing off AWS without boto3/s3. It is not used in the lambda function.'''
 
     import os
+    import json
+    import pandas as pd
+    import numpy as np
+    from pytz import timezone
+
     oshome = os.environ['HOME']
     datapath = f'{oshome}/Downloads'
 
@@ -263,20 +270,19 @@ def local_testing():
         "tmin_now": float(raw_event[6]),
         "tmin_dt": raw_event[7]
         }
-    
+
     station_id, tz, lat, lon, tmax_now, tmax_dt, tmin_now, tmin_dt = event.values()
-    
+
     local_fpath = f'{datapath}/locations.json'
     with open(local_fpath) as f:
         station_set = json.load(f)
     this_station = [s for s in station_set if s['id'] == station_id][0]
-    
+
     # Get current date and time
-    current_date_time = datetime.now(timezone(tz))
-    current_date = current_date_time.date()
-    
+    current_date = pd.Timestamp.now(timezone(tz))
+
     # Calculate tavg from current tmax and tmin
-    tavg_now = np.mean([tmax_now,tmin_now]).round()
+    tavg_now = np.mean([tmax_now,tmin_now]).round(2)
     print(f"Updating station: {station_id}")
     print(f"Tavg.now = {tavg_now}")
 
@@ -325,3 +331,31 @@ def local_testing():
     # Write the stats dictionary to the JSON file
     with open(file_path, "w") as f:
         json.dump(stats_dict, f)
+
+    # check if file exists
+    local_fname = f'{datapath}/{station_id}-{current_date.year}.csv'
+    if os.path.exists(local_fname):
+        print(f'updating existing percentiles df for {station_id}')
+    else:
+        local_fname = None
+    
+    # if file doesn't exist on s3, create it
+    if local_fname is None:
+        print(f'creating new percentiles df for {station_id}')
+        # create series with index for each day this year
+        sdate, edate = f"{current_date.year}-01-01", f"{current_date.year}-12-31"
+        df = pd.DataFrame(index=pd.date_range(sdate,edate),columns=['percentile'],data=np.nan)
+        df.index.name = 'date'
+        local_fname = f'/tmp/{os.path.basename(s3_fpath)}'
+    else:
+        df = pd.read_csv(local_fname,index_col=0,parse_dates=True)
+    
+    print(local_fname)
+    
+    # update percentile and write to aws
+    df.loc[current_date.strftime('%Y-%m-%d') ,['percentile','tmin','tmax']] = [average_percent, tmin_now, tmax_now]
+    
+    # write out updated station-id_year.csv
+    df.to_csv(local_fname,index=True)
+
+    return

@@ -15,8 +15,7 @@ only need to change year and month numbers required
 
 import numpy as np
 import pandas as pd
-import io
-import requests
+import os
 
 pd.set_option('display.width', 150)
 
@@ -41,10 +40,11 @@ siteinfo = siteinfo.set_index('sid')
 
 
 ###### CHANGE YEAR AND MONTHS ####
-year = '2023'
-update_sids = ['066214']
+year = '2024'
+update_sids = ['070351']
+update_sids = siteinfo.index.tolist()
 
-for month in [1]:
+for month in [1,2]:
     ##############################
 
     month_str = str(month).zfill(2)
@@ -59,7 +59,14 @@ for month in [1]:
         print(url)
 
         fname = url.split('/')[-1]
-        fpath = f'./2022/{fname}'
+        fpath = f'./{year}/{fname}'
+
+        print(fname)
+
+        # if directory for year doesn't exist, create it
+
+        if not os.path.exists(f'./{year}'):
+            os.makedirs(f'./{year}')
 
         # open csv, but skip unknown lenght of rows that aren't valid
         with open(fpath, encoding="utf8", errors='ignore') as f:
@@ -72,14 +79,15 @@ for month in [1]:
     key = next(iter(data))
     for date in data[key].index:
 
-        day_str   = str(date.day).zfill(2)
+        date_dt = pd.Timestamp(date)
+        day_str   = str(date_dt.day).zfill(2)
 
         fname = '%s%s%s-all.csv' %(year[-2:],month_str,day_str)
         with open(fname, 'w') as f:
 
             f.write('station_id,tz,lat,lon,tmax,tmax_dt,tmin,tmin_dt\n')
             for key,item in data.items():
-                f.write("%s,%s,%s,%sT06:00:00Z,%s,%sT18:00:00Z\n" %(key,siteinfo.loc[key,'csv_str'],item.loc[date,'tmax'],date.date(),item.loc[date,'tmin'],date.date()))
+                f.write("%s,%s,%s,%sT06:00:00Z,%s,%sT18:00:00Z\n" %(key,siteinfo.loc[key,'csv_str'],item.loc[date,'tmax'],date_dt.date(),item.loc[date,'tmin'],date_dt.date()))
 
     print('done month %s' %month)
 
