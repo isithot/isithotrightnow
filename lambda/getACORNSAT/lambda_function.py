@@ -70,8 +70,8 @@ def upload_to_aws(local_file, s3_file):
 def lambda_handler(event, context):
     latest_tmax_file, latest_tmin_file, latest_version = get_latest_acornsat_filenames()
     # download current version file from S3
-    download_from_aws('1-datasource/latest_ACORN-SAT_version.json')
-    with open('latest_ACORN-SAT_version.json', 'r') as f:
+    download_from_aws('1-datasource/ACORN-SAT_version.json')
+    with open('ACORN-SAT_version.json', 'r') as f:
         data = json.load(f)
         current_version = data['version']
     if latest_version > current_version:
@@ -84,11 +84,11 @@ def lambda_handler(event, context):
             with open(latest_tmin_file,"wb") as ftmin:
                 ftp.retrbinary(f"RETR {latest_tmin_file}", ftmin.write)
 
-        with open('latest_ACORN-SAT_version.json', 'w') as f:
+        with open('ACORN-SAT_version.json', 'w') as f:
             json.dump({'version': latest_version}, f)
 
         # upload latest_ACORN-SAT_version.json to s3
-        upload_to_aws('latest_ACORN-SAT_version.json', '1-datasources/latest_ACORN-SAT_version.json')
+        upload_to_aws('ACORN-SAT_version.json', '1-datasources/ACORN-SAT_version.json')
 
         # upload latest_tmax_file to s3
         # untar latest_tmax_file
