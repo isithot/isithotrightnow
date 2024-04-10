@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from pytz import timezone
+import numpy as np
 import pandas as pd
 from urllib.request import urlopen
 from lxml import etree
@@ -102,10 +103,10 @@ def lambda_handler(event, context):
         except Exception: # estimate UTC based on longitude
             try:
                 obs_old.loc[row.Index,'today_start_utc'] = round(row['lon']/15.0)
-                print(f"Error converting timezone for {row.station_id}, using estimated timezone based on longitude instead.")
+                print(f"Warning: couldn't convert timezone for {row.station_id}, using estimated timezone based on longitude instead.")
             except Exception: # assume sydney timezone
                 obs_old.loc[row.Index,'today_start_utc'] = pd.Timestamp.now('Australia/Sydney').replace(hour=0, minute=0, second=0).astimezone(timezone('UTC'))
-                print(f"Error converting timezone for {row.station_id}, using estimated timezone based on Sydney instead")
+                print(f"Warning: couldn'tconvert timezone for {row.station_id}, using estimated timezone based on Sydney instead")
 
     # Select new obs if they're more extreme than the previous ones within the last 24 hours
     obs_merged = pd.merge(obs_new, obs_old, on='station_id', how='outer', suffixes=('', '_old'))
@@ -124,10 +125,24 @@ def lambda_handler(event, context):
     obs_merged['tmin_selected_dt'] = obs_merged['tmin_selected_dt'].fillna(obs_merged['tmin_dt']).fillna(obs_merged['tmin_dt_old'])
 
     # Select the desired columns
-    obs_result = obs_merged[['station_id', 'tz', 'lat', 'lon', 'tmax_selected', 'tmax_selected_dt', 'tmin_selected', 'tmin_selected_dt']]
+    obs_result = obs_merged[[
+        'station_id',
+        'tz',
+        'lat',
+        'lon',
+        'tmax_selected',
+        'tmax_selected_dt',
+        'tmin_selected',
+        'tmin_selected_dt'
+    ]]
 
     # rename columns
-    obs_result = obs_result.rename(columns = {'tmax_selected': 'tmax', 'tmax_selected_dt': 'tmax_dt', 'tmin_selected': 'tmin', 'tmin_selected_dt': 'tmin_dt'})
+    obs_result = obs_result.rename(columns = {
+        'tmax_selected': 'tmax',
+        'tmax_selected_dt': 'tmax_dt',
+        'tmin_selected': 'tmin',
+        'tmin_selected_dt': 'tmin_dt'
+    })
 
     # Write the result to the CSV file
     obs_result.to_csv(f'/tmp/latest-all.csv', index=False)
@@ -137,18 +152,40 @@ def lambda_handler(event, context):
 
     print(str(datetime.now()) + " Wrote out new station observations")
 
+    # replace NaN with None for forthcoming json dump
+    # (json doesn't have NaN, but None in python => null in json)
+    obs_result = obs_result.replace({ np.nan: None })
+
     # invoke processCurrentObs lambda function if tmax/tmix is updated
     for i,updated in enumerate(updated_list):
         if updated or force_update:
 
-            print('invoking processCurrentObs for station: ', obs_result.iloc[i]['station_id'])
-            invoke_processCurrentObs(json.dumps(obs_result.iloc[i].to_dict(), default=convert_timestamp_to_str))
+            try:
+                print('invoking processCurrentObs for station: ',
+                    obs_result.iloc[i]['station_id'])
+                invoke_processCurrentObs(json.dumps(
+                    obs_result.iloc[i].to_dict(),
+                    default = convert_timestamp_to_str))
+            except Exception as err:
+                print("Non-fatal error: " +
+                      "failed to invoke processCurrentObs for station " +
+                      obs_result.iloc[i]['station_id'] + ". Error was:")
+                print(type(err))
+                print(err)
+            
             
     # invoke stats_all if any items are updated
     if any(updated_list):
         
-        print('invoking processStatsAll to update combined stats')
-        invoke_processStatsAll(json.dumps([]))
+        try:
+            print('invoking processStatsAll to update combined stats')
+            invoke_processStatsAll(json.dumps([]))
+        except Exception as err:
+            print("Non-fatal error: failed to invoke processStatsAll. " +
+                "stats.json may become out of date if this error persists. " +
+                "Error was:")
+            print(type(err))
+            print(err)
 
     return
 
