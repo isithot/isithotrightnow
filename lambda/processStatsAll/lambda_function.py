@@ -1,3 +1,8 @@
+'''(c) isithotrightnow.com by Mat Lipson, Steefan Contractor and James Goldie (2025)
+
+This file processes the stats for all stations and saves them to a single JSON file.
+It is called by the getLatestObs/lambda_function.py.
+'''
 
 import json
 import boto3

@@ -1,6 +1,7 @@
-'''(c) isithotrightnow.com by Mat Lipson, Steefan Contractor and James Goldie (2023)
+'''(c) isithotrightnow.com by Mat Lipson, Steefan Contractor and James Goldie (2025)
 
-This is the main loop which calls other lambda functions.
+This file loops through locations and invokes the GetHistoricalObs lambda function.
+Triggers just before midnight AEST for daily tasks.
 '''
 
 import boto3

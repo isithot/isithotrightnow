@@ -1,4 +1,8 @@
-# %%
+'''(c) isithotrightnow.com by Mat Lipson, Steefan Contractor and James Goldie (2025)
+
+This file is superseded and not part of the current data pipeline.
+'''
+
 from ftplib import FTP
 import pandas as pd
 import json

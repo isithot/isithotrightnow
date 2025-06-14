@@ -1,3 +1,9 @@
+'''(c) isithotrightnow.com by Mat Lipson, Steefan Contractor and James Goldie (2025)
+
+Min loop which is run every 15 minutes to check the latest observations from BOM.
+Then if any observations are updated, it invokes the processCurrentObs and processStatsAll lambdas.
+'''
+
 import os
 from datetime import datetime
 from pytz import timezone
@@ -106,7 +112,7 @@ def lambda_handler(event, context):
                 print(f"Warning: couldn't convert timezone for {row.station_id}, using estimated timezone based on longitude instead.")
             except Exception: # assume sydney timezone
                 obs_old.loc[row.Index,'today_start_utc'] = pd.Timestamp.now('Australia/Sydney').replace(hour=0, minute=0, second=0).astimezone(timezone('UTC'))
-                print(f"Warning: couldn'tconvert timezone for {row.station_id}, using estimated timezone based on Sydney instead")
+                print(f"Warning: couldn't convert timezone for {row.station_id}, using estimated timezone based on Sydney instead")
 
     # Select new obs if they're more extreme than the previous ones within the last 24 hours
     obs_merged = pd.merge(obs_new, obs_old, on='station_id', how='outer', suffixes=('', '_old'))
@@ -125,24 +131,10 @@ def lambda_handler(event, context):
     obs_merged['tmin_selected_dt'] = obs_merged['tmin_selected_dt'].fillna(obs_merged['tmin_dt']).fillna(obs_merged['tmin_dt_old'])
 
     # Select the desired columns
-    obs_result = obs_merged[[
-        'station_id',
-        'tz',
-        'lat',
-        'lon',
-        'tmax_selected',
-        'tmax_selected_dt',
-        'tmin_selected',
-        'tmin_selected_dt'
-    ]]
+    obs_result = obs_merged[['station_id', 'tz', 'lat', 'lon', 'tmax_selected', 'tmax_selected_dt', 'tmin_selected', 'tmin_selected_dt']]
 
     # rename columns
-    obs_result = obs_result.rename(columns = {
-        'tmax_selected': 'tmax',
-        'tmax_selected_dt': 'tmax_dt',
-        'tmin_selected': 'tmin',
-        'tmin_selected_dt': 'tmin_dt'
-    })
+    obs_result = obs_result.rename(columns = {'tmax_selected': 'tmax', 'tmax_selected_dt': 'tmax_dt', 'tmin_selected': 'tmin', 'tmin_selected_dt': 'tmin_dt'})
 
     # Write the result to the CSV file
     obs_result.to_csv(f'/tmp/latest-all.csv', index=False)
@@ -172,7 +164,6 @@ def lambda_handler(event, context):
                       obs_result.iloc[i]['station_id'] + ". Error was:")
                 print(type(err))
                 print(err)
-            
             
     # invoke stats_all if any items are updated
     if any(updated_list):

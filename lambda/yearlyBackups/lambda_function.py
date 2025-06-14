@@ -1,24 +1,34 @@
-'''(c) isithotrightnow.com by Mat Lipson, Steefan Contractor and James Goldie (2023)
+'''(c) isithotrightnow.com by Mat Lipson, Steefan Contractor and James Goldie (2025)
 
-This function copies s3 data to backup once per day.
+This function backsup heatmaps from s3 data on 31st December each year.
+It is triggered by a CloudWatch event
 '''
 
 import boto3
 import time
 import os
+import json
 
 def lambda_handler(event, context):
     
-    # Create an AWS Lambda client
-    client = boto3.client('lambda')
-    
-    today = time.strftime("%Y-%m-%d")
-    
-    s3_fpath = f"1-datasources/latest/latest-all.csv"
+    # read in the locations.json file from s3
+    s3_fpath = f"1-datasources/locations.json"
     local_fpath = download_from_aws(s3_fpath)
     
-    new_s3_fpath = f"4-backups/{today}-all.csv"
-    upload_to_aws(local_fpath, new_s3_fpath)
+    # Open the JSON file
+    with open(local_fpath) as file:
+        locations = json.load(file)
+    
+    year = time.strftime("%Y")
+
+    # loop through locations
+    for location in locations:
+    
+        s3_fpath = f"www/plots/heatmap/heatmap-{location['id']}.png"
+        local_fpath = download_from_aws(s3_fpath)
+    
+        new_s3_fpath = f"3-imgbackups/heatmap-{location['id']}-{year}.png"
+        upload_to_aws(local_fpath, new_s3_fpath)
     
 def download_from_aws(s3_fpath):
 
@@ -41,7 +51,7 @@ def download_from_aws(s3_fpath):
         return local_file_path
 
     except Exception as e:
-        print(f"Error getting S3 object: {e}")
+        print(f"Error getting S3 object: {s3_fpath}")
         return None
 
 def upload_to_aws(local_file, s3_file):
@@ -60,9 +70,10 @@ def upload_to_aws(local_file, s3_file):
             ExpiresIn=24 * 3600
         )
 
-        print("Upload Successful", url)
+        print("Upload Successful", url.split('?')[0])
         return url
     except FileNotFoundError:
         print("The file was not found")
         return None
     
+

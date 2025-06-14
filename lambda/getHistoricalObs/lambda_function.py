@@ -1,3 +1,9 @@
+'''(c) isithotrightnow.com by Mat Lipson, Steefan Contractor and James Goldie (2025)
+
+This file is called by loop_getHistorical for each location in the list of stations.
+Parent is trigered just before midnight AEST.
+'''
+
 import boto3
 import pandas as pd
 import datetime

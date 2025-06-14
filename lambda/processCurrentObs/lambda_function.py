@@ -1,3 +1,9 @@
+'''(c) isithotrightnow.com by Mat Lipson, Steefan Contractor and James Goldie (2025)
+
+This file processes the current temperature observations for a given station.
+It is called by the getLatestObs/lambda_function.py.
+'''
+
 import pandas as pd
 import numpy as np
 import json
