@@ -12,6 +12,8 @@ The Lambdas currently deployed are:
 
 ### Daily
 
+Triggered just before midnight AEST
+
 `loop_getHistorical`
 - Load location list `1-datasources/locations.json`
 - Calls `getHistoricalObs` for each station

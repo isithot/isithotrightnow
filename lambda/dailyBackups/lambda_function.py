@@ -1,4 +1,4 @@
-'''(c) isithotrightnow.com by Mat Lipson, Steefan Contractor and James Goldie (2023)
+'''(c) isithotrightnow.com by Mat Lipson, Steefan Contractor and James Goldie (2025)
 
 This function copies s3 data to backup once per day.
 '''

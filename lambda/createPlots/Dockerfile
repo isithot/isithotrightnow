@@ -7,7 +7,7 @@ ENV R_VERSION=4.2.2
 
 # install r + system dependencies
 RUN yum -y install wget git tar
-RUN yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
+RUN yum -y install https://archives.fedoraproject.org/pub/archive/epel/7/x86_64/Packages/e/epel-release-7-14.noarch.rpm \
   && wget https://cdn.rstudio.com/r/centos-7/pkgs/R-${R_VERSION}-1-1.x86_64.rpm \
   && yum -y install R-${R_VERSION}-1-1.x86_64.rpm \
   && rm R-${R_VERSION}-1-1.x86_64.rpm
