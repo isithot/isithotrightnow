@@ -1,0 +1,1122 @@
+[
+    {
+        "id": "001019",
+        "name": "Kalumburu",
+        "label": "Kalumburu",
+        "lat": "-14.3",
+        "lon": "126.65",
+        "tz": "Australia/Perth",
+        "record_start": "1941",
+        "record_end": "2023"
+    },
+    {
+        "id": "002079",
+        "name": "Halls Creek",
+        "label": "Halls Creek",
+        "lat": "-18.23",
+        "lon": "127.67",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "003003",
+        "name": "Broome",
+        "label": "Broome",
+        "lat": "-17.95",
+        "lon": "122.24",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "004032",
+        "name": "Port Hedland",
+        "label": "Port Hedland",
+        "lat": "-20.37",
+        "lon": "118.63",
+        "tz": "Australia/Perth",
+        "record_start": "1912",
+        "record_end": "2023"
+    },
+    {
+        "id": "004106",
+        "name": "Marble Bar",
+        "label": "Marble Bar",
+        "lat": "-21.18",
+        "lon": "119.75",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "005007",
+        "name": "Learmonth",
+        "label": "Learmonth",
+        "lat": "-22.24",
+        "lon": "114.1",
+        "tz": "Australia/Perth",
+        "record_start": "1975",
+        "record_end": "2023"
+    },
+    {
+        "id": "005098",
+        "name": "Karijini North (Wittenoom)",
+        "label": "Karijini North",
+        "lat": "-22.3",
+        "lon": "118.45",
+        "tz": "Australia/Perth",
+        "record_start": "1951",
+        "record_end": "2023"
+    },
+    {
+        "id": "006011",
+        "name": "Carnarvon",
+        "label": "Carnarvon",
+        "lat": "-24.89",
+        "lon": "113.67",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "007045",
+        "name": "Meekatharra",
+        "label": "Meekatharra",
+        "lat": "-26.61",
+        "lon": "118.54",
+        "tz": "Australia/Perth",
+        "record_start": "1926",
+        "record_end": "2023"
+    },
+    {
+        "id": "008296",
+        "name": "Morawa",
+        "label": "Morawa",
+        "lat": "-29.2",
+        "lon": "116.02",
+        "tz": "Australia/Perth",
+        "record_start": "1925",
+        "record_end": "2023"
+    },
+    {
+        "id": "008297",
+        "name": "Dalwallinu",
+        "label": "Dalwallinu",
+        "lat": "-30.28",
+        "lon": "116.67",
+        "tz": "Australia/Perth",
+        "record_start": "1955",
+        "record_end": "2023"
+    },
+    {
+        "id": "008315",
+        "name": "Geraldton",
+        "label": "Geraldton",
+        "lat": "-28.8",
+        "lon": "114.7",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "009021",
+        "name": "Perth Airport",
+        "label": "Perth",
+        "lat": "-31.93",
+        "lon": "115.98",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "009518",
+        "name": "Cape Leeuwin",
+        "label": "Cape Leeuwin",
+        "lat": "-34.37",
+        "lon": "115.14",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "009617",
+        "name": "Bridgetown",
+        "label": "Bridgetown",
+        "lat": "-33.95",
+        "lon": "116.13",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "009789",
+        "name": "Esperance",
+        "label": "Esperance",
+        "lat": "-33.83",
+        "lon": "121.89",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "009999",
+        "name": "Albany",
+        "label": "Albany",
+        "lat": "-34.94",
+        "lon": "117.82",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "010092",
+        "name": "Merredin",
+        "label": "Merredin",
+        "lat": "-31.48",
+        "lon": "118.28",
+        "tz": "Australia/Perth",
+        "record_start": "1912",
+        "record_end": "2023"
+    },
+    {
+        "id": "010286",
+        "name": "Cunderdin",
+        "label": "Cunderdin",
+        "lat": "-31.62",
+        "lon": "117.22",
+        "tz": "Australia/Perth",
+        "record_start": "1950",
+        "record_end": "2023"
+    },
+    {
+        "id": "010916",
+        "name": "Katanning",
+        "label": "Katanning",
+        "lat": "-33.69",
+        "lon": "117.61",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "010917",
+        "name": "Wandering",
+        "label": "Wandering",
+        "lat": "-32.67",
+        "lon": "116.67",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "011003",
+        "name": "Eucla",
+        "label": "Eucla",
+        "lat": "-31.68",
+        "lon": "128.9",
+        "tz": "Australia/Eucla",
+        "record_start": "1913",
+        "record_end": "2023"
+    },
+    {
+        "id": "011052",
+        "name": "Forrest",
+        "label": "Forrest",
+        "lat": "-30.85",
+        "lon": "128.11",
+        "tz": "Australia/Perth",
+        "record_start": "1946",
+        "record_end": "2023"
+    },
+    {
+        "id": "012038",
+        "name": "Kalgoorlie-Boulder",
+        "label": "Kalgoorlie-Boulder",
+        "lat": "-30.78",
+        "lon": "121.45",
+        "tz": "Australia/Perth",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "013017",
+        "name": "Giles",
+        "label": "Giles",
+        "lat": "-25.03",
+        "lon": "128.3",
+        "tz": "Australia/Perth",
+        "record_start": "1956",
+        "record_end": "2023"
+    },
+    {
+        "id": "014015",
+        "name": "Darwin",
+        "label": "Darwin",
+        "lat": "-12.42",
+        "lon": "130.89",
+        "tz": "Australia/Darwin",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "014825",
+        "name": "Victoria River Downs",
+        "label": "Victoria River Downs",
+        "lat": "-16.4",
+        "lon": "131.01",
+        "tz": "Australia/Darwin",
+        "record_start": "1965",
+        "record_end": "2023"
+    },
+    {
+        "id": "015135",
+        "name": "Tennant Creek",
+        "label": "Tennant Creek",
+        "lat": "-19.64",
+        "lon": "134.18",
+        "tz": "Australia/Darwin",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "015590",
+        "name": "Alice Springs",
+        "label": "Alice Springs",
+        "lat": "-23.8",
+        "lon": "133.89",
+        "tz": "Australia/Darwin",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "015666",
+        "name": "Rabbit Flat",
+        "label": "Rabbit Flat",
+        "lat": "-20.18",
+        "lon": "130.01",
+        "tz": "Australia/Darwin",
+        "record_start": "1969",
+        "record_end": "2023"
+    },
+    {
+        "id": "016001",
+        "name": "Woomera",
+        "label": "Woomera",
+        "lat": "-31.16",
+        "lon": "136.81",
+        "tz": "Australia/Adelaide",
+        "record_start": "1949",
+        "record_end": "2023"
+    },
+    {
+        "id": "016098",
+        "name": "Tarcoola",
+        "label": "Tarcoola",
+        "lat": "-30.71",
+        "lon": "134.58",
+        "tz": "Australia/Adelaide",
+        "record_start": "1921",
+        "record_end": "2023"
+    },
+    {
+        "id": "017043",
+        "name": "Oodnadatta",
+        "label": "Oodnadatta",
+        "lat": "-27.56",
+        "lon": "135.45",
+        "tz": "Australia/Adelaide",
+        "record_start": "1940",
+        "record_end": "2023"
+    },
+    {
+        "id": "017126",
+        "name": "Marree",
+        "label": "Marree",
+        "lat": "-29.66",
+        "lon": "138.07",
+        "tz": "Australia/Adelaide",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "018012",
+        "name": "Ceduna",
+        "label": "Ceduna",
+        "lat": "-32.13",
+        "lon": "133.7",
+        "tz": "Australia/Adelaide",
+        "record_start": "1939",
+        "record_end": "2023"
+    },
+    {
+        "id": "018044",
+        "name": "Kyancutta",
+        "label": "Kyancutta",
+        "lat": "-33.13",
+        "lon": "135.55",
+        "tz": "Australia/Adelaide",
+        "record_start": "1930",
+        "record_end": "2023"
+    },
+    {
+        "id": "018192",
+        "name": "Port Lincoln",
+        "label": "Port Lincoln",
+        "lat": "-34.6",
+        "lon": "135.88",
+        "tz": "Australia/Adelaide",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "021133",
+        "name": "Snowtown",
+        "label": "Snowtown",
+        "lat": "-33.77",
+        "lon": "138.22",
+        "tz": "Australia/Adelaide",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "022823",
+        "name": "Cape Borda",
+        "label": "Cape Borda",
+        "lat": "-35.75",
+        "lon": "136.6",
+        "tz": "Australia/Adelaide",
+        "record_start": "1957",
+        "record_end": "2023"
+    },
+    {
+        "id": "023000",
+        "name": "Adelaide",
+        "label": "Adelaide",
+        "lat": "-34.93",
+        "lon": "138.58",
+        "tz": "Australia/Adelaide",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "023373",
+        "name": "Nuriootpa",
+        "label": "Nuriootpa",
+        "lat": "-34.48",
+        "lon": "139.01",
+        "tz": "Australia/Adelaide",
+        "record_start": "1957",
+        "record_end": "2023"
+    },
+    {
+        "id": "026021",
+        "name": "Mount Gambier",
+        "label": "Mount Gambier",
+        "lat": "-37.75",
+        "lon": "140.77",
+        "tz": "Australia/Adelaide",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "026026",
+        "name": "Robe",
+        "label": "Robe",
+        "lat": "-37.16",
+        "lon": "139.76",
+        "tz": "Australia/Adelaide",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "027045",
+        "name": "Weipa",
+        "label": "Weipa",
+        "lat": "-12.68",
+        "lon": "141.92",
+        "tz": "Australia/Brisbane",
+        "record_start": "1959",
+        "record_end": "2023"
+    },
+    {
+        "id": "027058",
+        "name": "Horn Island",
+        "label": "Horn Island",
+        "lat": "-10.58",
+        "lon": "142.29",
+        "tz": "Australia/Brisbane",
+        "record_start": "1950",
+        "record_end": "2023"
+    },
+    {
+        "id": "028004",
+        "name": "Palmerville",
+        "label": "Palmerville",
+        "lat": "-16",
+        "lon": "144.08",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "029063",
+        "name": "Normanton",
+        "label": "Normanton",
+        "lat": "-17.69",
+        "lon": "141.07",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "029077",
+        "name": "Burketown",
+        "label": "Burketown",
+        "lat": "-17.75",
+        "lon": "139.54",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "030124",
+        "name": "Georgetown",
+        "label": "Georgetown",
+        "lat": "-18.3",
+        "lon": "143.53",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "030161",
+        "name": "Richmond (Qld)",
+        "label": "Richmond (Qld)",
+        "lat": "-20.7",
+        "lon": "143.11",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "031011",
+        "name": "Cairns",
+        "label": "Cairns",
+        "lat": "-16.87",
+        "lon": "145.75",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "032040",
+        "name": "Townsville",
+        "label": "Townsville",
+        "lat": "-19.25",
+        "lon": "146.77",
+        "tz": "Australia/Brisbane",
+        "record_start": "1940",
+        "record_end": "2023"
+    },
+    {
+        "id": "033119",
+        "name": "Mackay",
+        "label": "Mackay",
+        "lat": "-21.12",
+        "lon": "149.22",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "034084",
+        "name": "Charters Towers",
+        "label": "Charters Towers",
+        "lat": "-20.05",
+        "lon": "146.27",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "036007",
+        "name": "Barcaldine",
+        "label": "Barcaldine",
+        "lat": "-23.55",
+        "lon": "145.29",
+        "tz": "Australia/Brisbane",
+        "record_start": "1962",
+        "record_end": "2023"
+    },
+    {
+        "id": "036031",
+        "name": "Longreach",
+        "label": "Longreach",
+        "lat": "-23.44",
+        "lon": "144.28",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "037010",
+        "name": "Camooweal",
+        "label": "Camooweal",
+        "lat": "-19.92",
+        "lon": "138.12",
+        "tz": "Australia/Brisbane",
+        "record_start": "1939",
+        "record_end": "2023"
+    },
+    {
+        "id": "038003",
+        "name": "Boulia",
+        "label": "Boulia",
+        "lat": "-22.91",
+        "lon": "139.9",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "038026",
+        "name": "Birdsville",
+        "label": "Birdsville",
+        "lat": "-25.9",
+        "lon": "139.35",
+        "tz": "Australia/Brisbane",
+        "record_start": "1954",
+        "record_end": "2023"
+    },
+    {
+        "id": "039066",
+        "name": "Gayndah",
+        "label": "Gayndah",
+        "lat": "-25.62",
+        "lon": "151.62",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "039083",
+        "name": "Rockhampton",
+        "label": "Rockhampton",
+        "lat": "-23.38",
+        "lon": "150.48",
+        "tz": "Australia/Brisbane",
+        "record_start": "1939",
+        "record_end": "2023"
+    },
+    {
+        "id": "039128",
+        "name": "Bundaberg",
+        "label": "Bundaberg",
+        "lat": "-24.91",
+        "lon": "152.32",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "040004",
+        "name": "Amberley",
+        "label": "Amberley",
+        "lat": "-27.63",
+        "lon": "152.71",
+        "tz": "Australia/Brisbane",
+        "record_start": "1941",
+        "record_end": "2023"
+    },
+    {
+        "id": "040043",
+        "name": "Cape Moreton",
+        "label": "Cape Moreton",
+        "lat": "-27.03",
+        "lon": "153.47",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "040842",
+        "name": "Brisbane Airport",
+        "label": "Brisbane",
+        "lat": "-27.39",
+        "lon": "153.13",
+        "tz": "Australia/Brisbane",
+        "record_start": "1949",
+        "record_end": "2023"
+    },
+    {
+        "id": "042112",
+        "name": "Miles",
+        "label": "Miles",
+        "lat": "-26.66",
+        "lon": "150.18",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "043109",
+        "name": "St George",
+        "label": "St George",
+        "lat": "-28.05",
+        "lon": "148.6",
+        "tz": "Australia/Brisbane",
+        "record_start": "1913",
+        "record_end": "2023"
+    },
+    {
+        "id": "044021",
+        "name": "Charleville",
+        "label": "Charleville",
+        "lat": "-26.41",
+        "lon": "146.26",
+        "tz": "Australia/Brisbane",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "045025",
+        "name": "Thargomindah",
+        "label": "Thargomindah",
+        "lat": "-27.99",
+        "lon": "143.82",
+        "tz": "Australia/Brisbane",
+        "record_start": "1957",
+        "record_end": "2023"
+    },
+    {
+        "id": "046012",
+        "name": "Wilcannia",
+        "label": "Wilcannia",
+        "lat": "-31.52",
+        "lon": "143.39",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "046126",
+        "name": "Tibooburra",
+        "label": "Tibooburra",
+        "lat": "-29.44",
+        "lon": "142.06",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "048027",
+        "name": "Cobar",
+        "label": "Cobar",
+        "lat": "-31.48",
+        "lon": "145.83",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "048245",
+        "name": "Bourke",
+        "label": "Bourke",
+        "lat": "-30.04",
+        "lon": "145.95",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "050017",
+        "name": "West Wyalong",
+        "label": "West Wyalong",
+        "lat": "-33.94",
+        "lon": "147.2",
+        "tz": "Australia/Sydney",
+        "record_start": "1965",
+        "record_end": "2023"
+    },
+    {
+        "id": "052088",
+        "name": "Walgett",
+        "label": "Walgett",
+        "lat": "-30.04",
+        "lon": "148.12",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "053115",
+        "name": "Moree",
+        "label": "Moree",
+        "lat": "-29.49",
+        "lon": "149.85",
+        "tz": "Australia/Sydney",
+        "record_start": "1912",
+        "record_end": "2023"
+    },
+    {
+        "id": "055024",
+        "name": "Gunnedah",
+        "label": "Gunnedah",
+        "lat": "-31.03",
+        "lon": "150.27",
+        "tz": "Australia/Sydney",
+        "record_start": "1948",
+        "record_end": "2023"
+    },
+    {
+        "id": "056242",
+        "name": "Inverell",
+        "label": "Inverell",
+        "lat": "-29.78",
+        "lon": "151.11",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "058012",
+        "name": "Yamba",
+        "label": "Yamba",
+        "lat": "-29.43",
+        "lon": "153.36",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "059151",
+        "name": "Coffs Harbour",
+        "label": "Coffs Harbour",
+        "lat": "-30.32",
+        "lon": "153.12",
+        "tz": "Australia/Sydney",
+        "record_start": "1943",
+        "record_end": "2023"
+    },
+    {
+        "id": "060168",
+        "name": "Port Macquarie",
+        "label": "Port Macquarie",
+        "lat": "-31.43",
+        "lon": "152.87",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "061078",
+        "name": "Williamtown",
+        "label": "Williamtown",
+        "lat": "-32.79",
+        "lon": "151.84",
+        "tz": "Australia/Sydney",
+        "record_start": "1942",
+        "record_end": "2023"
+    },
+    {
+        "id": "061363",
+        "name": "Scone",
+        "label": "Scone",
+        "lat": "-32.03",
+        "lon": "150.83",
+        "tz": "Australia/Sydney",
+        "record_start": "1965",
+        "record_end": "2023"
+    },
+    {
+        "id": "063005",
+        "name": "Bathurst",
+        "label": "Bathurst",
+        "lat": "-33.43",
+        "lon": "149.56",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "065070",
+        "name": "Dubbo",
+        "label": "Dubbo",
+        "lat": "-32.22",
+        "lon": "148.58",
+        "tz": "Australia/Sydney",
+        "record_start": "1921",
+        "record_end": "2023"
+    },
+    {
+        "id": "066214",
+        "name": "Sydney",
+        "label": "Sydney",
+        "lat": "-33.86",
+        "lon": "151.2",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "067105",
+        "name": "Richmond (NSW)",
+        "label": "Sydney West (Richmond)",
+        "lat": "-33.6",
+        "lon": "150.78",
+        "tz": "Australia/Sydney",
+        "record_start": "1939",
+        "record_end": "2023"
+    },
+    {
+        "id": "068072",
+        "name": "Nowra",
+        "label": "Nowra",
+        "lat": "-34.95",
+        "lon": "150.54",
+        "tz": "Australia/Sydney",
+        "record_start": "1955",
+        "record_end": "2023"
+    },
+    {
+        "id": "068151",
+        "name": "Point Perpendicular",
+        "label": "Point Perpendicular",
+        "lat": "-35.09",
+        "lon": "150.8",
+        "tz": "Australia/Sydney",
+        "record_start": "1946",
+        "record_end": "2023"
+    },
+    {
+        "id": "069018",
+        "name": "Moruya Heads",
+        "label": "Moruya Heads",
+        "lat": "-35.91",
+        "lon": "150.15",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "070351",
+        "name": "Canberra",
+        "label": "Canberra",
+        "lat": "-35.31",
+        "lon": "149.2",
+        "tz": "Australia/Sydney",
+        "record_start": "1913",
+        "record_end": "2023"
+    },
+    {
+        "id": "072150",
+        "name": "Wagga Wagga",
+        "label": "Wagga Wagga",
+        "lat": "-35.16",
+        "lon": "147.46",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "072161",
+        "name": "Cabramurra",
+        "label": "Cabramurra",
+        "lat": "-35.94",
+        "lon": "148.38",
+        "tz": "Australia/Sydney",
+        "record_start": "1962",
+        "record_end": "2023"
+    },
+    {
+        "id": "074258",
+        "name": "Deniliquin",
+        "label": "Deniliquin",
+        "lat": "-35.56",
+        "lon": "144.95",
+        "tz": "Australia/Sydney",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "076031",
+        "name": "Mildura",
+        "label": "Mildura",
+        "lat": "-34.24",
+        "lon": "142.09",
+        "tz": "Australia/Melbourne",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "078015",
+        "name": "Nhill",
+        "label": "Nhill",
+        "lat": "-36.31",
+        "lon": "141.65",
+        "tz": "Australia/Melbourne",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "080023",
+        "name": "Kerang",
+        "label": "Kerang",
+        "lat": "-35.72",
+        "lon": "143.92",
+        "tz": "Australia/Melbourne",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "082039",
+        "name": "Rutherglen",
+        "label": "Rutherglen",
+        "lat": "-36.1",
+        "lon": "146.51",
+        "tz": "Australia/Melbourne",
+        "record_start": "1912",
+        "record_end": "2023"
+    },
+    {
+        "id": "084016",
+        "name": "Gabo Island",
+        "label": "Gabo Island",
+        "lat": "-37.57",
+        "lon": "149.92",
+        "tz": "Australia/Melbourne",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "084145",
+        "name": "Orbost",
+        "label": "Orbost",
+        "lat": "-37.69",
+        "lon": "148.47",
+        "tz": "Australia/Melbourne",
+        "record_start": "1938",
+        "record_end": "2023"
+    },
+    {
+        "id": "085072",
+        "name": "Sale",
+        "label": "Sale",
+        "lat": "-38.12",
+        "lon": "147.13",
+        "tz": "Australia/Melbourne",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "085096",
+        "name": "Wilsons Promontory",
+        "label": "Wilsons Promontory",
+        "lat": "-39.13",
+        "lon": "146.42",
+        "tz": "Australia/Melbourne",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "086338",
+        "name": "Melbourne",
+        "label": "Melbourne",
+        "lat": "-37.83",
+        "lon": "144.98",
+        "tz": "Australia/Melbourne",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "087031",
+        "name": "Laverton",
+        "label": "Laverton",
+        "lat": "-37.86",
+        "lon": "144.76",
+        "tz": "Australia/Melbourne",
+        "record_start": "1943",
+        "record_end": "2023"
+    },
+    {
+        "id": "090015",
+        "name": "Cape Otway",
+        "label": "Cape Otway",
+        "lat": "-38.86",
+        "lon": "143.51",
+        "tz": "Australia/Melbourne",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "091293",
+        "name": "Low Head",
+        "label": "Low Head",
+        "lat": "-41.05",
+        "lon": "146.79",
+        "tz": "Australia/Hobart",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "091311",
+        "name": "Launceston Airport",
+        "label": "Launceston",
+        "lat": "-41.55",
+        "lon": "147.22",
+        "tz": "Australia/Hobart",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "092045",
+        "name": "Larapuna (Eddystone Point)",
+        "label": "Larapuna",
+        "lat": "-40.99",
+        "lon": "148.35",
+        "tz": "Australia/Hobart",
+        "record_start": "1910",
+        "record_end": "2023"
+    },
+    {
+        "id": "094029",
+        "name": "Hobart",
+        "label": "Hobart",
+        "lat": "-42.89",
+        "lon": "147.33",
+        "tz": "Australia/Hobart",
+        "record_start": "1918",
+        "record_end": "2023"
+    },
+    {
+        "id": "094198",
+        "name": "Cape Bruny",
+        "label": "Cape Bruny",
+        "lat": "-43.49",
+        "lon": "147.14",
+        "tz": "Australia/Hobart",
+        "record_start": "1923",
+        "record_end": "2023"
+    },
+    {
+        "id": "094220",
+        "name": "Grove",
+        "label": "Grove",
+        "lat": "-42.98",
+        "lon": "147.08",
+        "tz": "Australia/Hobart",
+        "record_start": "1952",
+        "record_end": "2023"
+    },
+    {
+        "id": "096003",
+        "name": "Butlers Gorge",
+        "label": "Butlers Gorge",
+        "lat": "-42.28",
+        "lon": "146.28",
+        "tz": "Australia/Hobart",
+        "record_start": "1944",
+        "record_end": "2023"
+    }
+]
