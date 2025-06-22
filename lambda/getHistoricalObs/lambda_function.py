@@ -37,14 +37,14 @@ def lambda_handler(event, context):
         print(f"Warning: Window missing. Getting historical obs over +/- {window} day window")
 
     # Read historical tmax obs from s3
-    s3_fpath = f"1-datasources/ACORN-SAT_V2.3.0/tmax.{station_id}.daily.csv"
+    s3_fpath = f"1-datasources/ACORN-SAT_V2.5.0/tmax.{station_id}.daily.csv"
     local_fpath = download_from_aws(s3_fpath)
     HistObs_Tmax = pd.read_csv(local_fpath,
                                header=None, skiprows=2,
                                usecols=[0, 1], names=["Date", "Tmax"],
                                na_values=["", " ", "NA"])
     # Read historical tmin obs from s3
-    s3_fpath = f"1-datasources/ACORN-SAT_V2.3.0/tmin.{station_id}.daily.csv"
+    s3_fpath = f"1-datasources/ACORN-SAT_V2.5.0/tmin.{station_id}.daily.csv"
     local_fpath = download_from_aws(s3_fpath)
     HistObs_Tmin = pd.read_csv(local_fpath,
                                header=None, skiprows=2,
