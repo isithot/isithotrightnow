@@ -12,7 +12,7 @@ RUN Rscript -e "options(warn = 2); install.packages('pak')"
 
 # install r  packages
 # (using {pak} means that ubuntu system deps for the r packages are also handled
-RUN Rscript -e "pak::pak(''httr', 'jsonlite', 'logger', 'remotes', 'tidyverse', 'systemfonts', 'aws.s3', 'lambdr', 'ggridges', 'plot3D'')"
+RUN Rscript -e "pak::pak('httr', 'jsonlite', 'logger', 'remotes', 'tidyverse', 'systemfonts', 'aws.s3', 'lambdr', 'ggridges', 'plot3D')"
 
 # install fonts
 COPY Roboto_Condensed/RobotoCondensed*.ttf /usr/share/fonts/
