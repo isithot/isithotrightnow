@@ -5,7 +5,7 @@ Then if any observations are updated, it invokes the processCurrentObs and proce
 '''
 
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytz import timezone
 import numpy as np
 import pandas as pd
@@ -47,6 +47,14 @@ def lambda_handler(event, context):
             station_id = station.get("bom-id")
             print("Scraping station: " + str(station_id))
             print(etree.tostring(station))
+
+            # special case for Bathurst Agricultural Research Station (063005)
+            if station_id == "063005":
+                print("WARNING: replacing Bathurst Agricultural Research Station (063005) with Bathurst Airport (063291)")
+                print("Bathurst Agricultural Research Station (063005) does not report max/min T")
+                station = state_xml.xpath("//station[@bom-id='063291']")[0]
+                print(etree.tostring(station))
+            
             try:
                 tz = station.get("tz")
                 lat = station.get("lat")
@@ -63,6 +71,7 @@ def lambda_handler(event, context):
                     " due to an error:")
                 print(err)
                 continue
+
             obs_list.append(
                 (station_id, tz, lat, lon, tmax, tmax_dt, tmin, tmin_dt))
 
@@ -108,7 +117,11 @@ def lambda_handler(event, context):
             obs_old.loc[row.Index,'today_start_utc'] = pd.Timestamp.now(row.tz).replace(hour=0, minute=0, second=0).astimezone(timezone('UTC'))
         except Exception: # estimate UTC based on longitude
             try:
-                obs_old.loc[row.Index,'today_start_utc'] = round(row['lon']/15.0)
+                # Estimate timezone offset from longitude and create proper datetime
+                tz_offset_hours = round(row.lon/15.0)
+                # Create a timezone with the estimated offset
+                estimated_tz = timezone(timedelta(hours=tz_offset_hours))
+                obs_old.loc[row.Index,'today_start_utc'] = pd.Timestamp.now(estimated_tz).replace(hour=0, minute=0, second=0).astimezone(timezone('UTC'))
                 print(f"Warning: couldn't convert timezone for {row.station_id}, using estimated timezone based on longitude instead.")
             except Exception: # assume sydney timezone
                 obs_old.loc[row.Index,'today_start_utc'] = pd.Timestamp.now('Australia/Sydney').replace(hour=0, minute=0, second=0).astimezone(timezone('UTC'))
@@ -116,13 +129,38 @@ def lambda_handler(event, context):
 
     # Select new obs if they're more extreme than the previous ones within the last 24 hours
     obs_merged = pd.merge(obs_new, obs_old, on='station_id', how='outer', suffixes=('', '_old'))
-    obs_merged['tmax_selected'] = obs_merged.apply(lambda row: row['tmax'] if row['tmax'] >= row['tmax_old'] or row['tmax_dt_old'] < row['today_start_utc'] else row['tmax_old'], axis=1)
-    obs_merged['tmax_selected_dt'] = obs_merged.apply(lambda row: row['tmax_dt'] if row['tmax'] >= row['tmax_old'] or row['tmax_dt'] < row['today_start_utc'] else row['tmax_dt_old'], axis=1)
-    obs_merged['tmin_selected'] = obs_merged.apply(lambda row: row['tmin'] if row['tmin'] <= row['tmin_old'] or row['tmin_dt_old'] < row['today_start_utc'] else row['tmin_old'], axis=1)
-    obs_merged['tmin_selected_dt'] = obs_merged.apply(lambda row: row['tmin_dt'] if row['tmin'] <= row['tmin_old'] or row['tmin_dt_old'] < row['today_start_utc'] else row['tmin_dt_old'], axis=1)
+    
+    # Helper function to safely compare datetime values that might be NaT
+    def safe_datetime_compare(dt1, dt2, comparison='<'):
+        if pd.isna(dt1) or pd.isna(dt2):
+            return False
+        if comparison == '<':
+            return dt1 < dt2
+        elif comparison == '>':
+            return dt1 > dt2
+        return False
+    
+    # Helper function to safely compare numeric values that might be NaN
+    def safe_numeric_compare(val1, val2, comparison='>='):
+        if pd.isna(val1) or pd.isna(val2):
+            return False
+        if comparison == '>=':
+            return val1 >= val2
+        elif comparison == '<=':
+            return val1 <= val2
+        elif comparison == '>':
+            return val1 > val2
+        elif comparison == '<':
+            return val1 < val2
+        return False
+    
+    obs_merged['tmax_selected'] = obs_merged.apply(lambda row: row['tmax'] if safe_numeric_compare(row['tmax'], row['tmax_old'], '>=') or safe_datetime_compare(row['tmax_dt_old'], row['today_start_utc'], '<') else row['tmax_old'], axis=1)
+    obs_merged['tmax_selected_dt'] = obs_merged.apply(lambda row: row['tmax_dt'] if safe_numeric_compare(row['tmax'], row['tmax_old'], '>=') or safe_datetime_compare(row['tmax_dt'], row['today_start_utc'], '<') else row['tmax_dt_old'], axis=1)
+    obs_merged['tmin_selected'] = obs_merged.apply(lambda row: row['tmin'] if safe_numeric_compare(row['tmin'], row['tmin_old'], '<=') or safe_datetime_compare(row['tmin_dt_old'], row['today_start_utc'], '<') else row['tmin_old'], axis=1)
+    obs_merged['tmin_selected_dt'] = obs_merged.apply(lambda row: row['tmin_dt'] if safe_numeric_compare(row['tmin'], row['tmin_old'], '<=') or safe_datetime_compare(row['tmin_dt_old'], row['today_start_utc'], '<') else row['tmin_dt_old'], axis=1)
 
     # a list to keep track of the updated rows
-    updated_list = list(obs_merged.apply(lambda row: row['tmax'] > row['tmax_old'] or row['tmin'] < row['tmin_old'] or row['tmax_dt_old'] < row['today_start_utc'] or row['tmin_dt_old'] < row['today_start_utc'], axis=1))
+    updated_list = list(obs_merged.apply(lambda row: safe_numeric_compare(row['tmax'], row['tmax_old'], '>') or safe_numeric_compare(row['tmin'], row['tmin_old'], '<') or safe_datetime_compare(row['tmax_dt_old'], row['today_start_utc'], '<') or safe_datetime_compare(row['tmin_dt_old'], row['today_start_utc'], '<'), axis=1))
 
     # Backfill any missing values
     obs_merged['tmax_selected'] = obs_merged['tmax_selected'].fillna(obs_merged['tmax']).fillna(obs_merged['tmax_old'])
