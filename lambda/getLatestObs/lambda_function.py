@@ -33,8 +33,22 @@ def lambda_handler(event, context):
         # Load the JSON data
         locations = json.load(file)
 
+    # Stations whose bom-id BOM has retired/replaced carry a "fallback_ids"
+    # list in locations.json: an ordered list of fallback bom-ids to try
+    # scraping instead of the primary one. The first one found in the feed is
+    # used, relabelled under the original id so history (ACORN-SAT files,
+    # processed stats, plots - all keyed by that id) stays intact. We
+    # deliberately don't rename the id itself. Add/edit fallbacks by editing
+    # locations.json - no code change needed.
+    fallback_station_ids = {
+        location["id"]: location["fallback_ids"]
+        for location in locations
+        if location.get("fallback_ids")}
+
     station_ids = [location["id"] for location in locations]
-    xpath_filter = " or ".join([f"@bom-id='{station_id}'" for station_id in station_ids])
+    fallback_ids = [fid for fids in fallback_station_ids.values() for fid in fids]
+    query_ids = station_ids + fallback_ids
+    xpath_filter = " or ".join([f"@bom-id='{station_id}'" for station_id in query_ids])
 
     def scrape_state(state):
         state_xml_path = f"{bom_xml_path}ID{state}60920.xml"
@@ -48,13 +62,6 @@ def lambda_handler(event, context):
             print("Scraping station: " + str(station_id))
             print(etree.tostring(station))
 
-            # special case for Bathurst Agricultural Research Station (063005)
-            if station_id == "063005":
-                print("WARNING: replacing Bathurst Agricultural Research Station (063005) with Bathurst Airport (063291)")
-                print("Bathurst Agricultural Research Station (063005) does not report max/min T")
-                station = state_xml.xpath("//station[@bom-id='063291']")[0]
-                print(etree.tostring(station))
-            
             try:
                 tz = station.get("tz")
                 lat = station.get("lat")
@@ -91,6 +98,50 @@ def lambda_handler(event, context):
     obs_new = pd.concat([scrape_state(state) for state in ["D", "N", "Q", "S", "T", "V", "W"]], ignore_index=True)
 
     print(f"{datetime.now()} Downloaded and extracted new observations")
+
+    # resolve any station whose primary bom-id wasn't found in the feed using
+    # a configured fallback bom-id instead, if one was found. The fallback's
+    # reading gets relabelled under the primary station_id so everything
+    # downstream (and all historical continuity) stays keyed the same way.
+    found_ids = set(obs_new['station_id'])
+    for primary_id, candidate_ids in fallback_station_ids.items():
+        if primary_id in found_ids:
+            continue
+        for candidate_id in candidate_ids:
+            candidate_rows = obs_new[obs_new['station_id'] == candidate_id]
+            if not candidate_rows.empty:
+                print(f"Station {primary_id} not found - using fallback "
+                    f"station {candidate_id} in its place")
+                resolved_row = candidate_rows.iloc[[0]].copy()
+                resolved_row['station_id'] = primary_id
+                obs_new = pd.concat([obs_new, resolved_row], ignore_index=True)
+                found_ids.add(primary_id)
+                break
+
+    # drop rows for fallback bom-ids that aren't themselves tracked stations,
+    # so they don't get treated as their own separate station going forward
+    obs_new = obs_new[obs_new['station_id'].isin(station_ids)].reset_index(drop=True)
+
+    # find any station that's configured in locations.json but still wasn't
+    # found (directly or via a fallback) in any state's feed this cycle
+    # (either its bom-id has disappeared entirely, or its XML element is
+    # missing the temperature fields and got skipped above) and flag it
+    # loudly rather than silently carrying forward stale readings forever
+    found_ids = set(obs_new['station_id'])
+    missing_ids = [s for s in station_ids if s not in found_ids]
+    for missing_id in missing_ids:
+        location = next(l for l in locations if l['id'] == missing_id)
+        candidate_ids = fallback_station_ids.get(missing_id)
+        if candidate_ids:
+            print(f"STATION_MISSING: {missing_id} ({location.get('name')}) "
+                f"and all of its configured fallbacks ({', '.join(candidate_ids)}) "
+                "were not found in any BOM state feed this cycle.")
+        else:
+            print(f"STATION_MISSING: {missing_id} ({location.get('name')}) was not "
+                "found in any BOM state feed this cycle. It may have been "
+                "decommissioned or had its bom-id changed - check locations.json, "
+                "or add a \"fallback_ids\" entry for it there.")
+        flag_missing_station(missing_id, location)
 
     # just use these obs if we don't have existing ones
     csv_path = f"1-datasources/latest/latest-all.csv"
@@ -161,6 +212,16 @@ def lambda_handler(event, context):
 
     # a list to keep track of the updated rows
     updated_list = list(obs_merged.apply(lambda row: safe_numeric_compare(row['tmax'], row['tmax_old'], '>') or safe_numeric_compare(row['tmin'], row['tmin_old'], '<') or safe_datetime_compare(row['tmax_dt_old'], row['today_start_utc'], '<') or safe_datetime_compare(row['tmin_dt_old'], row['today_start_utc'], '<'), axis=1))
+
+    # stations missing from every state's feed this cycle have no genuine new
+    # reading - without this, the staleness check above treats their
+    # ever-more-outdated old timestamp as "updated" forever, invoking
+    # processCurrentObs on every poll with a payload it can't process (eg. no
+    # tz), so force those rows to be treated as not updated
+    missing_id_set = set(missing_ids)
+    updated_list = [
+        False if station_id in missing_id_set else updated
+        for station_id, updated in zip(obs_merged['station_id'], updated_list)]
 
     # Backfill any missing values
     obs_merged['tmax_selected'] = obs_merged['tmax_selected'].fillna(obs_merged['tmax']).fillna(obs_merged['tmax_old'])
@@ -287,3 +348,30 @@ def upload_to_aws(local_file, s3_file):
     except FileNotFoundError:
         print("The file was not found")
         return None
+
+def flag_missing_station(station_id, location):
+    '''Merges an error flag into a station's public stats file when it's
+    missing from the BOM feed, preserving its last known-good readings so the
+    frontend can still show them alongside the error.
+    '''
+
+    s3_fpath = f'www/stats/stats_{station_id}.json'
+    local_fpath = download_from_aws(s3_fpath)
+
+    if local_fpath is not None:
+        with open(local_fpath) as f:
+            stats_dict = json.load(f)
+    else:
+        stats_dict = {}
+
+    stats_dict['isit_name'] = location.get('name')
+    stats_dict['isit_label'] = location.get('label')
+    stats_dict['isit_error'] = 'station_missing'
+    stats_dict['isit_error_message'] = (
+        "We're not receiving any BOM data from this station right now! "
+        "Hold tight while we investigate.")
+
+    local_out_path = f'/tmp/stats_{station_id}.json'
+    with open(local_out_path, 'w') as f:
+        json.dump(stats_dict, f)
+    upload_to_aws(local_out_path, s3_fpath)

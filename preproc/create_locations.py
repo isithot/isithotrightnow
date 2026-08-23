@@ -10,6 +10,7 @@ wdir = f'{oshome}/git/isithotrightnow/preproc'
 
 json_file = f'{wdir}/locations.json'
 csv_file = f'{wdir}/station_list_v2p5.csv'
+fallback_file = f'{wdir}/fallback_ids.json'
 
 dummy_data = {
     "id": "066214",
@@ -98,8 +99,30 @@ def update_tz_from_lat_lon(locations):
             pass
     return locations
 
+def apply_fallback_ids(locations, fallback_file):
+    """
+    Merges in a station's "fallback_ids" - the ordered list of alternate
+    bom-ids getLatestObs should try scraping when a station's own bom-id is
+    missing from BOM's live feed - from a hand-maintained file, rather than
+    from station_list_v2p5.csv. That CSV gets wholesale replaced whenever
+    ACORN-SAT is updated, which would otherwise silently wipe any fallbacks
+    recorded directly on the generated locations.json.
+    """
+    if not os.path.exists(fallback_file):
+        return locations
+
+    with open(fallback_file, encoding='utf-8') as f:
+        fallback_map = json.load(f)
+
+    for location in locations:
+        if location['id'] in fallback_map:
+            location['fallback_ids'] = fallback_map[location['id']]
+
+    return locations
+
 if __name__ == "__main__":
     locations = convert_csv_to_json(csv_file, json_file)
+    locations = apply_fallback_ids(locations, fallback_file)
     with open(json_file, 'w', encoding='utf-8') as jsonf:
         json.dump(locations, jsonf, indent=4)
     print(f"Data has been written to {json_file}")
