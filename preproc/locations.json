@@ -127,7 +127,8 @@
         "lon": "115.98",
         "tz": "Australia/Perth",
         "record_start": "1910",
-        "record_end": "2023"
+        "record_end": "2023",
+        "fallback_ids": ["009291"]
     },
     {
         "id": "009518",
@@ -837,7 +838,8 @@
         "lon": "149.56",
         "tz": "Australia/Sydney",
         "record_start": "1910",
-        "record_end": "2023"
+        "record_end": "2023",
+        "fallback_ids": ["063309", "063291"]
     },
     {
         "id": "065070",
